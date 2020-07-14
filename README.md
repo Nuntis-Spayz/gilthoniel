@@ -3,9 +3,9 @@
 ## Manager software for OpenCore Light Saber Electronics
 
 ### Windows 64-bit/32-bit
-The x64 an x32 executables will run on windows, but require the firmware subfolder
+The x64 an x32 executables will run standalone on windows, but do require the firmware subfolder
 to do firmware upgrades, just copying the binary will run - but the firmware upgrade button
-will not be visible.
+will not be enabled/visible.
 
 Use the Windows installer which will install the correct 64/32 bit application on your system, along
 with the firmware folder and tools.
