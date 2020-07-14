@@ -24,5 +24,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 
-# update.cmd
+# upload.cmd
 The batch file, and hex binaries are covered by the main licence for this repository and application
