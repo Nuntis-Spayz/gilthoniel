@@ -1,6 +1,6 @@
 # Gilthoniel -- "Radiant Star"
 
-## Manager software for OpenCore Light Saber Electronics
+## Manager/Settings Software for OpenCore Light Saber Electronics
 
 ### Windows 64-bit/32-bit
 The x64 an x32 executables will run standalone on windows, but do require the firmware subfolder
