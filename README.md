@@ -19,12 +19,12 @@ progress getting the serial comms to work is on-going, please be patient.
   https://www.lazarus-ide.org/index.php?page=downloads
   
   For 64bit Windows
-  -- install the 64bit compiler and then 32bit cross compiler
-     recommended approach
+  -- install the 64bit compiler and then 32bit cross compiler -- recommended approach
   
   For 32bit Windows
   -- install the 32bit compiler
-     if you also want to build for 64-bit Windows add the 64 bit cross compiler,
+  
+     On 32bit Windows, if you also want to build for 64-bit Windows add the 64 bit cross compiler,
      but you will have to adjust the compile mode options in the project, so don't.
 
 ### InnoScript Studio QSP (Quick Setup Pack) [JR Software]
