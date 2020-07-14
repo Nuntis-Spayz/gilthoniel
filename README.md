@@ -1,10 +1,13 @@
-# OpenCore_Manager_Gamma
+# Gilthoniel -- "Radiant Star"
 
-# First time using Git to manage a personal project
-although this project is a first proof of concept for 
-Lama di Luce's OpenCore saber software.
+# Manager software for OpenCore Light Saber Electronics
 
+## Windows 64-bit/32-bit
+The x64 an x32 executables will run on windows, but require the firmware subfolder
+to do firmware upgrades.
 
-Download Windows installer from
+Use the Windows installer which will install the correct 64/32 bit application on your system
 
-http://sabers.amazer.uk/install_gilthoniel_0.1.0.40.exe
+## Mac OS
+Although some development work is happening with a Mac OS version of the application 
+progress getting the serial comms to work is on-going, please be patient.
