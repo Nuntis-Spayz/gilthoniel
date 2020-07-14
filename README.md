@@ -8,10 +8,13 @@ to do firmware upgrades.
 
 Use the Windows installer which will install the correct 64/32 bit application on your system
 
+Once up and running, before you open the project you will have to use the online pacakage manager to
+install the TLazSerial package for windows so the project can connect to the serial ports.
+
 ### Mac OS
 Although some development work is happening with a Mac OS version of the application 
-progress getting the serial comms to work is on-going, please be patient.
-
+progress getting the serial comms to work is on-going, please be patient. (There is definitely 
+a bit of hair tearing going on in this department.)
 
 ## Development
 
