@@ -1,24 +1,7 @@
-# OpenCore_Manager_Gamma
+# Tools
 
-Software to install for development of this project.
+The binaries here are taken from various other projects.
 
-Windows
--------
-- Lazarus IDE/Free Pascal
--------------------------
-  https://www.lazarus-ide.org/index.php?page=downloads
-  
-  For 64bit Windows
-  -- install the 64bit compiler and then 32bit cross compiler
-  
-  For 32bit Windows
-  -- install the 32bit compiler and the 64 bit cross compiler
-  
+They are not covered by the licence of this program.
 
-- InnoScript Studio QSP (Quick Setup Pack) [JR Software]
-------------------------------------------
-  https://jrsoftware.org/isdl.php
-  
-  Download the QuickStart Pack innosetup-qsp-6.0.5.exe
-  During install please add the Studio and ISCrypt optional components
-
+See their respective web-sites/repositories fror further info.
