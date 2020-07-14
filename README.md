@@ -1,4 +1,4 @@
-# Gilthoniel -- "Radiant Star"
+# Gilthoniel -- "Starkindler" (or Radiant Star)
 
 ## Manager/Settings Software for OpenCore Light Saber Electronics
 
