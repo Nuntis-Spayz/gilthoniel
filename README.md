@@ -10,6 +10,8 @@ will not be enabled/visible.
 Use the Windows installer which will install the correct 64/32 bit application on your system, along
 with the firmware folder and tools.
 
+https://github.com/Nuntis-Spayz/gilthoniel/blob/master/install_gilthoniel_0.1.0.40.exe
+
 ### Mac OS
 Although some development work is happening with a Mac OS version of the application 
 progress getting the serial comms to work is on-going, please be patient. (There is definitely 
