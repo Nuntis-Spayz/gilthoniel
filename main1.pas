@@ -72,7 +72,6 @@ type
     procedure FormResize(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
-    procedure WriteLn(msg: String);
     procedure ledCRedChange(Sender: TObject);
     procedure TrackCBlueChange(Sender: TObject);
     procedure TrackCGreenChange(Sender: TObject);
@@ -85,6 +84,8 @@ type
   private
     validatedPort:String;
     serialInput:String;
+    saveMode: Boolean;
+    saveData: TStringList;
     {$IF defined(MSWindows)}
      winSerial: TLazSerial;
     {$elseif defined(DARWIN)}
@@ -92,6 +93,8 @@ type
 
     {$ENDIF}
     procedure OpenSerial(Sender: TObject);
+    procedure CloseSerial();
+    procedure WriteLn(msg: String);
   public
 
   end;
@@ -111,6 +114,10 @@ ver : String;
 Info: TVersionInfo;
 fpath : String;
 begin
+  saveMode:=false;
+  saveData := TStringList.Create;
+  saveData.Clear;
+
   self.Width:=1500;
   self.Height:=800;
 
@@ -167,6 +174,7 @@ begin
      begin
        // both anima and opencore present as --> \Device\USBSER000
        rs:='\Device\USBSER' + InttoStr(I).PadLeft(3,'0');
+
        //Memo1.Append(rs);
        if (reg.ValueExists(rs))then
        begin
@@ -207,21 +215,40 @@ begin
    {$ENDIF}
 
 end;
-
-procedure TForm1.FormDestroy(Sender: TObject);
+procedure TForm1.CloseSerial();
 begin
   {$IF defined(MSWindows)}
-  if winSerial.Active then
-  begin
-    //WriteLn('REBOOT');
-    winSerial.Close();
+  if Assigned(winSerial) then
+    begin
+     if winSerial.Active then
+     begin
+       winSerial.Close();
+     end;
+     winSerial.OnRxData:=nil;
+     winSerial.OnStatus:=nil;
+     winSerial.Device:='';
+     winSerial.Destroy;
+     winSerial:=nil;
   end;
+
 
   {$elseif defined(DARWIN)}
   // mac os code
   //DataPortSerial,
 
   {$ENDIF}
+
+  validatedPort:='';
+  serialInput:='';
+  GroupBanks.Enabled:=False;
+  btnDisconnect.Caption:='Connect/Open';
+
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  CloseSerial();
+  saveData.Free;
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
@@ -357,9 +384,10 @@ procedure TForm1.RxData(Sender: TObject);
 var
  inp : String;
  colours: Array of String;
+ k : Integer;
 begin
  inp:='';
- Memo1.Append('*');
+ //Memo1.Append('*');
 
  {$IF defined(MSWindows)}
  while winSerial.DataAvailable do
@@ -371,7 +399,7 @@ begin
  {$ENDIF}
 
  serialInput:=TrimLeft(serialInput);
- Memo1.Append('>'+serialInput+'<');
+ //Memo1.Append('>'+serialInput+'<');
 
  while(serialInput.Contains(char(10))) do
  begin
@@ -392,7 +420,7 @@ begin
    if(Not(inp.IsEmpty)) then
    begin
      Memo1.Append(inp);
-     if(inp.StartsWith('V=1.') or inp.StartsWith('V=OpenCore')) then
+     if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') or inp.StartsWith('V=OpenCore')) then
      begin
        {$IF defined(MSWindows)}
        validatedPort:=winSerial.Device;
@@ -401,12 +429,29 @@ begin
        {$ENDIF}
 
        labStatus.Caption:='Connected.';
+       btnDisconnect.Caption:='Disconnect/Save';
 
        ComboBank.Enabled:=True;
        btnSend.Enabled:=True;
        GroupBanks.Enabled:=True;
 
        labBuild.Caption:='Build: '+inp;
+
+       //writeback data saved from before a firmware update
+       if (saveData.Count>0) then
+       begin
+         for k:=0 to (saveData.Count-1) do
+         begin
+           WriteLn(saveData[k]);
+           Application.ProcessMessages;
+           Delay(250);
+         end;
+         saveData.Clear;
+         Application.ProcessMessages;
+         Delay(250);
+         WriteLn('SAVE');
+       end;
+
        WriteLn('S?');
        WriteLn('B?');
      end
@@ -416,44 +461,79 @@ begin
      end
      else if (inp.StartsWith('B=')) then
      begin
-       //labSerial.Caption:=inp.Replace('S=','Serial No. ');
-       Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
-       ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
-       ComboBankSelect(Sender);
+       if(saveMode) then
+       begin
+         saveData.Add(inp);
+       end
+       else
+       begin
+         //labSerial.Caption:=inp.Replace('S=','Serial No. ');
+         Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
+         ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
+         ComboBankSelect(Sender);
+       end;
      end
-     else if (inp.StartsWith('c')) then
+     else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
      begin
-       inp:=inp.Substring(3);
-       colours:=inp.Split(',');
-       ledCRed.Caption:=colours[0];
-       ledCGreen.Caption:=colours[1];
-       ledCBlue.Caption:=colours[2];
-       ledCWhite.Caption:=colours[3];
+       if(saveMode) then
+       begin
+         saveData.Add(inp);
+       end
+       else
+       begin
+         inp:=inp.Substring(3);
+         colours:=inp.Split(',');
+         ledCRed.Caption:=colours[0];
+         ledCGreen.Caption:=colours[1];
+         ledCBlue.Caption:=colours[2];
+         ledCWhite.Caption:=colours[3];
+       end;
      end
-     else if (inp.StartsWith('C')) then
+     else if( (inp.StartsWith('C')) and (inp.Chars[2]='=') ) then
      begin
+       if(saveMode) then
+       begin
+         saveData.Add(inp);
+       end
+       else
+       begin
        //hex values
        trackCRed.Position:=Hex2Dec(inp.Substring(3,2));
        trackCGreen.Position:=Hex2Dec(inp.Substring(5,2));
        trackCBlue.Position:=Hex2Dec(inp.Substring(7,2));
        trackCWhite.Position:=Hex2Dec(inp.Substring(9,2));
+       end;
      end
-     else if (inp.StartsWith('f')) then
+     else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
      begin
+       if(saveMode) then
+       begin
+         saveData.Add(inp);
+       end
+       else
+       begin
        inp:=inp.Substring(3);
        colours:=inp.Split(',');
        ledFRed.Caption:=colours[0];
        ledFGreen.Caption:=colours[1];
        ledFBlue.Caption:=colours[2];
        ledFWhite.Caption:=colours[3];
+       end;
      end
-     else if (inp.StartsWith('F')) then
+     else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
      begin
-       //hex values
-       trackFRed.Position:=Hex2Dec(inp.Substring(3,2));
-       trackFGreen.Position:=Hex2Dec(inp.Substring(5,2));
-       trackFBlue.Position:=Hex2Dec(inp.Substring(7,2));
-       trackFWhite.Position:=Hex2Dec(inp.Substring(9,2));
+       if(saveMode) then
+       begin
+         saveData.Add(inp);
+       end
+       else
+       begin
+         //hex values
+         trackFRed.Position:=Hex2Dec(inp.Substring(3,2));
+         trackFGreen.Position:=Hex2Dec(inp.Substring(5,2));
+         trackFBlue.Position:=Hex2Dec(inp.Substring(7,2));
+         trackFWhite.Position:=Hex2Dec(inp.Substring(9,2));
+       end;
      end;
 
    end; //inp not empty
@@ -590,21 +670,10 @@ begin
 
   if((ComboBox1.Caption<>'') and (ComboBox1.Caption<>'--')) then
   begin
-    {$IF defined(MSWindows)}
-    if Assigned(winSerial) then
-    begin
-     winSerial.Close;
-     winSerial.OnRxData:=nil;
-     winSerial.OnStatus:=nil;
-     winSerial.Destroy;
-     winSerial:=nil;
-    end;
+    CloseSerial();
 
     winSerial := TLazSerial.Create(Form1);
     winSerial.OnRxData:=@ RxData;
-    {$elseif defined(DARWIN)}
-    // mac os code
-    {$ENDIF}
 
 
     //Memo1.Clear;
@@ -691,6 +760,7 @@ var
 begin
   if(validatedPort<>'') then
   begin
+
     Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware\');
     OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware\';
     OpenDialog1.Filter:='*.hex';
@@ -703,28 +773,27 @@ begin
                      'Do you wish to Update Firmware to '+filename+' ?',
                      mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
       begin
-        {$IF defined(MSWindows)}
-        if Assigned(winSerial) then
+        //read all the settings to save back after the upgrade/downgrade
+        saveMode:=true;
+        saveData.Clear;
+        WriteLn('B?');
+        WriteLn('C?');
+        WriteLn('F?');
+        while (saveData.Count<17) do
         begin
-          if winSerial.Active  then
-          begin
-            winSerial.Close();
-          end;
-          //winSerial.OnRxData:=nil;
-          //winSerial.OnStatus:=nil;
-          winSerial.Device:='';
-          //winSerial.Destroy;
+          Application.ProcessMessages;
+          Delay(100);
         end;
-        {$elseif defined(DARWIN)}
-        // mac os code
-        {$ENDIF}
 
-        validatedPort:='';
-        serialInput:='';
-        GroupBanks.Enabled:=False;
+        CloseSerial();
+        saveMode:=false;
+
         Application.ProcessMessages;
-        Delay(500);
+        Delay(250);
         Application.ProcessMessages;
+        Delay(250);
+        Application.ProcessMessages;
+
         ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
 
         Delay(1500);
