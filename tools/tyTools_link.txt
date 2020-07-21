@@ -1,2 +1,3 @@
 https://koromix.dev/tytools
 
+https://github.com/Koromix/tytools/releases
