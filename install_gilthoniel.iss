@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gilthoniel"
-#define MyAppVersion "0.1.0.41"
+#define MyAppVersion "0.1.0.42"
 #define MyAppPublisher "Amazing Sabers"
 #define MyAppURL "http://sabers.amazer.uk/"
 #define MyAppExeName "Gilthoniel.exe"
@@ -63,7 +63,11 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [Files]
 Source: "{#MyDevDir}\Gilthonielx32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion 32bit
 Source: "{#MyDevDir}\Gilthonielx64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion 64bit
-Source: "{#MyDevDir}\firmware\*"; DestDir: "{app}\firmware\"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#MyDevDir}\firmware\tycmd_x32.exe"; DestDir: "{app}\firmware\"; DestName:"tycmd.exe"; Flags: ignoreversion 32bit
+Source: "{#MyDevDir}\firmware\tycmd_x64.exe"; DestDir: "{app}\firmware\"; DestName:"tycmd.exe"; Flags: ignoreversion 64bit
+Source: "{#MyDevDir}\firmware\*.cmd"; DestDir: "{app}\firmware\"; Flags: ignoreversion
+Source: "{#MyDevDir}\firmware\*.hex"; DestDir: "{app}\firmware\"; Flags: ignoreversion
+Source: "{#MyDevDir}\firmware\*.md"; DestDir: "{app}\firmware\"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
