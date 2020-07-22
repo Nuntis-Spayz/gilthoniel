@@ -122,13 +122,13 @@ begin
   self.Height:=800;
 
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
-  btnFirmware.Visible:= (FileExists(fpath+'tycmd.exe') and FileExists(fpath+'upload.cmd') );
+  btnFirmware.Visible:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
 
+  btnPreview1.Caption:='Preview'+#13+'On Saber';
   btnPreview1.Visible:=false;
 
   SpeedButton1.Caption:='Pick Main'+#13+'Colour';
   SpeedButton2.Caption:='Pick Clash'+#13+'Colour';
-  btnPreview1.Caption:='Preview'+#13+'On Saber';
 
   serialInput:='';
 
@@ -200,9 +200,15 @@ begin
    {$IF defined(MSWindows)}
    if(lastItem.IsEmpty()) then
    begin
-     ComboBox1.Items.Add('--');
-     ShowMessage('No USB Sabers Ports Detected.'+#13+'Connect the OpenCore saber.'+#13+'Use a USB Cable that is for Data.'+#13+'and then restart the application');
+     //ComboBox1.Items.Add('--');
+     MessageDlg(Form1.Caption,
+                'No USB Sabers Ports Detected.'+#13+#13
+                +'Connect an OpenCore saber.'+#13+#13
+                +'Use a Good Quality USB Cable that is for Data,'+#13
+                +'and then restart '+Form1.Caption+'.',
+                     mtConfirmation, [mbOK],0);
      //Form1.Close; //<<does not work the form is still being created
+
      Application.Terminate;
      Halt; //<< ^Terminate seems to work Halt is boot and braces
      //exit application
