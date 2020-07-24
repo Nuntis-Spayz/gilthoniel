@@ -35,6 +35,7 @@ devtools/macOS-64/
 
 # Application bundle for Mac OS
 XX*.app/
+.DS_Store
 
 #reinclude all files in tools
 !tools/
