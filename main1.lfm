@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 632
+  Left = 582
   Height = 830
-  Top = 164
+  Top = 259
   Width = 1513
   Caption = 'Gilthoniel'
-  ClientHeight = 830
+  ClientHeight = 791
   ClientWidth = 1513
   DesignTimePPI = 192
   Icon.Data = {
@@ -2366,10 +2366,11 @@ object Form1: TForm1
     00C003E75A000377DE800347EA00032DF6800300FFC00300FFC00300FFC00308
     FFC00197FFC001FFFFC001FFE3C000CE4EC00181C6C00141FFC003FDFF
   }
+  Menu = appMainMenu
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   object GroupPort: TGroupBox
     Left = 16
     Height = 110
@@ -2413,35 +2414,15 @@ object Form1: TForm1
       ParentColor = False
       ParentFont = False
     end
-    object cbDebug: TCheckBox
-      Left = 928
-      Height = 36
-      Top = 8
-      Width = 173
-      Caption = 'Show Debug'
-      OnChange = cbDebugChange
-      ParentFont = False
-      TabOrder = 1
-    end
-    object btnFirmware: TBitBtn
-      Left = 1152
-      Height = 60
-      Top = 0
-      Width = 270
-      Caption = 'Update Firmware'
-      OnClick = btnFirmwareClick
-      ParentFont = False
-      TabOrder = 2
-    end
     object btnDisconnect: TBitBtn
-      Left = 688
+      Left = 1160
       Height = 60
       Top = 0
       Width = 216
       Caption = 'Connect'
       OnClick = btnDisconnectClick
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 1
     end
   end
   object GroupBanks: TGroupBox
@@ -2469,8 +2450,8 @@ object Form1: TForm1
       Left = 16
       Height = 32
       Top = 8
-      Width = 130
-      Caption = 'Colour Bank'
+      Width = 202
+      Caption = 'Active Colour Bank'
       ParentColor = False
       ParentFont = False
     end
@@ -2491,10 +2472,10 @@ object Form1: TForm1
       OnChange = ledCRedChange
     end
     object ComboBank: TComboBox
-      Left = 152
+      Left = 240
       Height = 40
       Top = 8
-      Width = 200
+      Width = 223
       AutoSelect = False
       ItemHeight = 32
       ItemIndex = 0
@@ -3674,8 +3655,8 @@ object Form1: TForm1
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Binary HEX Files|*.hex|All Files|*.*'
-    left = 1336
-    top = 120
+    Left = 776
+    Top = 16
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -3701,7 +3682,86 @@ object Form1: TForm1
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 408
-    top = 696
+    Left = 408
+    Top = 696
+  end
+  object appMainMenu: TMainMenu
+    Left = 616
+    Top = 16
+    object menuFile: TMenuItem
+      Caption = '&File'
+      object miSaveBank: TMenuItem
+        Caption = 'Save &Bank'
+        Enabled = False
+      end
+      object miSaveAll: TMenuItem
+        Caption = 'Save &All Saber Settings'
+        Enabled = False
+        ShortCut = 16467
+      end
+      object miLoadBank: TMenuItem
+        Caption = '&Load Bank'
+        Enabled = False
+      end
+      object miLoadAll: TMenuItem
+        Caption = 'L&oad All Saber Settings'
+        Enabled = False
+        ShortCut = 16463
+      end
+      object miSep10: TMenuItem
+        Caption = '-'
+        Enabled = False
+      end
+      object menuItemExit: TMenuItem
+        Caption = 'E&xit'
+        ShortCut = 16465
+        OnClick = menuItemExitClick
+      end
+    end
+    object menuConnect: TMenuItem
+      Caption = '&Connect'
+      object menuItemRescan: TMenuItem
+        Caption = '&Re-Scan for Ports'
+        Enabled = False
+      end
+      object miSep13: TMenuItem
+        Caption = '-'
+      end
+      object miOpenPort: TMenuItem
+        Caption = '&Open'
+        Enabled = False
+      end
+      object miClosePort: TMenuItem
+        Caption = '&Close'
+        Enabled = False
+      end
+    end
+    object menuTools: TMenuItem
+      Caption = '&Tools'
+      object menuItemDebug: TMenuItem
+        Caption = 'Show &Debug'
+        Checked = True
+        OnClick = menuItemDebugClick
+      end
+      object menuItemFirmware: TMenuItem
+        Caption = 'Update &Firmware'
+        OnClick = menuItemFirmwareClick
+      end
+    end
+    object miHelp: TMenuItem
+      Caption = '&Help'
+      object menuCheckUpdate: TMenuItem
+        Caption = '&Check for Update'
+        Enabled = False
+      end
+      object menuAbout: TMenuItem
+        Caption = '&About'
+        Enabled = False
+      end
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 936
+    Top = 16
   end
 end

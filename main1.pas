@@ -23,9 +23,7 @@ type
   TForm1 = class(TForm)
     btnDisconnect: TBitBtn;
     btnResetColours: TBitBtn;
-    btnFirmware: TBitBtn;
     btnSend: TBitBtn;
-    cbDebug: TCheckBox;
     ColorDialog1: TColorDialog;
     ComboBox1: TComboBox;
     ComboBank: TComboBox;
@@ -45,8 +43,28 @@ type
     ledFRed: TLabeledEdit;
     ledCWhite: TLabeledEdit;
     ledFWhite: TLabeledEdit;
+    appMainMenu: TMainMenu;
     Memo1: TMemo;
+    menuFile: TMenuItem;
+    miSep10: TMenuItem;
+    miHelp: TMenuItem;
+    miOpenPort: TMenuItem;
+    miSep13: TMenuItem;
+    menuAbout: TMenuItem;
+    menuCheckUpdate: TMenuItem;
+    menuTools: TMenuItem;
+    menuConnect: TMenuItem;
+    miClosePort: TMenuItem;
+    menuItemRescan: TMenuItem;
+    menuItemDebug: TMenuItem;
+    menuItemFirmware: TMenuItem;
+    miSaveBank: TMenuItem;
+    miSaveAll: TMenuItem;
+    miLoadBank: TMenuItem;
+    miLoadAll: TMenuItem;
+    menuItemExit: TMenuItem;
     OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     btnPreview1: TSpeedButton;
@@ -66,6 +84,9 @@ type
     procedure cbDebugChange(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
+    procedure menuItemFirmwareClick(Sender: TObject);
+    procedure menuItemExitClick(Sender: TObject);
+    procedure menuItemDebugClick(Sender: TObject);
     procedure RxData(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -95,6 +116,7 @@ type
     procedure OpenSerial(Sender: TObject);
     procedure CloseSerial();
     procedure WriteLn(msg: String);
+    procedure doFirmware(Sender: TObject);
   public
 
   end;
@@ -122,7 +144,7 @@ begin
   self.Height:=800;
 
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
-  btnFirmware.Visible:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
+  menuItemFirmware.Visible := FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
   btnPreview1.Visible:=false;
@@ -132,7 +154,7 @@ begin
 
   serialInput:='';
 
-  Memo1.Visible:=cbDebug.Checked;
+  Memo1.Visible:=menuItemDebug.Checked;
 
   Info := TVersionInfo.Create;
   Info.Load(HINSTANCE);
@@ -201,17 +223,17 @@ begin
    if(lastItem.IsEmpty()) then
    begin
      //ComboBox1.Items.Add('--');
-     MessageDlg(Form1.Caption,
+     if MessageDlg(Form1.Caption,
                 'No USB Sabers Ports Detected.'+#13+#13
-                +'Connect an OpenCore saber.'+#13+#13
-                +'Use a Good Quality USB Cable that is for Data,'+#13
-                +'and then restart '+Form1.Caption+'.',
-                     mtConfirmation, [mbOK],0);
-     //Form1.Close; //<<does not work the form is still being created
-
-     Application.Terminate;
-     Halt; //<< ^Terminate seems to work Halt is boot and braces
-     //exit application
+                +'Connect an OpenCore saber.'+#13
+                +'Use a Good Quality USB Cable that is for Data.'+#13+#13
+                +'Do you wish to Start '+Form1.Caption+' anyway?',
+                     mtConfirmation, [mbYes, mbNo],0) = mrNo then
+     begin
+       //exit application
+       Application.Terminate;
+       Halt; //<< ^Terminate seems to work Halt is boot and braces
+     end;
    end
    else
    begin
@@ -275,9 +297,7 @@ begin
  GroupBanks.Width:=(self.Width * 68 div 100)-10;
  GroupBanks.Height:=self.Height-GroupBanks.Top-10;
 
- btnFirmware.left:=GroupPort.width-btnFirmware.width-10;
- cbDebug.left:= btnFirmware.left- cbDebug.width-20;
- btnDisconnect.left:= cbDebug.left - btnDisconnect.Width-16;
+ btnDisconnect.left:= GroupPort.width-btnDisconnect.width-16;
 
  InfoBank.top:=GroupPort.height+16;
  InfoBank.left:=GroupBanks.Width+10;
@@ -291,7 +311,7 @@ begin
 
  x:=GroupBanks.width -20;
  btnSend.left:= x - btnSend.width;
- btnSend.top:= GroupBanks.height - btnSend.height-40;
+ btnSend.top:= GroupBanks.height - btnSend.height-40 - appMainMenu.Height ;
  btnResetColours.Top:=btnSend.top;
 
  c2:=(x div 2)+16; // <<-- ((x-32)/2)+16 -- div is integer division
@@ -705,6 +725,28 @@ begin
 
 end;
 
+procedure TForm1.menuItemFirmwareClick(Sender: TObject);
+begin
+  doFirmware(Sender);
+end;
+
+procedure TForm1.menuItemExitClick(Sender: TObject);
+begin
+  // Exit Quit
+  Form1.Close;
+end;
+
+procedure TForm1.menuItemDebugClick(Sender: TObject);
+var
+ bStr:String;
+ bPrev:Boolean;
+begin
+  menuItemDebug.Checked:= Not(menuItemDebug.Checked);
+
+  Memo1.Visible:=menuItemDebug.Checked;
+  FormResize(Sender);
+end;
+
 procedure TForm1.ComboBankSelect(Sender: TObject);
 var
  bank: String;
@@ -730,8 +772,7 @@ end;
 
 procedure TForm1.cbDebugChange(Sender: TObject);
 begin
-  Memo1.Visible:=cbDebug.Checked;
-  FormResize(Sender);
+
 end;
 
 procedure TForm1.btnSendClick(Sender: TObject);
@@ -761,6 +802,11 @@ begin
 end;
 
 procedure TForm1.btnFirmwareClick(Sender: TObject);
+begin
+ doFirmware(Sender);
+end;
+
+procedure TForm1.doFirmware(Sender: TObject);
 var
    filename:String;
 begin
