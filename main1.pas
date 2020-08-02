@@ -169,6 +169,16 @@ begin
 
   Memo1.Visible:=menuItemDebug.Checked;
 
+  ledCRed.Caption:='0';
+  ledCGreen.Caption:='0';
+  ledCBlue.Caption:='0';
+  ledCWhite.Caption:='0';
+
+  ledFRed.Caption:='0';
+  ledFGreen.Caption:='0';
+  ledFBlue.Caption:='0';
+  ledFWhite.Caption:='0';
+
   Info := TVersionInfo.Create;
   Info.Load(HINSTANCE);
   // grab the Numbers
@@ -282,7 +292,7 @@ begin
   validatedPort:='';
   serialInput:='';
   GroupBanks.Enabled:=False;
-  btnDisconnect.Caption:='Connect/Open';
+  btnDisconnect.Caption:='Connect';
 
 end;
 
@@ -838,15 +848,15 @@ procedure TForm1.miSaveAllClick(Sender: TObject);
 var
  fname:String;
 begin
-  SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
-  OpenDialog1.Title:='Select an OpenCoreSettings File';
   {$IF defined(MSWindows)}
-  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
-  SaveDialog1.FileName:= 'unnamed.openCoreSettings';
+  //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
+  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);//CSIDL_COMMON_DOCUMENTS);
   {$elseif defined(DARWIN)}
   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
-  SaveDialog1.FileName:= 'unnamed.openCoreSettings';
   {$ENDIF}
+  SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
+  OpenDialog1.Title:='Select an OpenCoreSettings File';
+  SaveDialog1.FileName:= 'unnamed.openCoreSettings';
 
   if SaveDialog1.Execute then
   begin
@@ -854,14 +864,15 @@ begin
      if Not(SaveDialog1.Filename.EndsWith('.openCoreSettings')) then
        fname:=SaveDialog1.Filename+'.openCoreSettings';
 
-     if FileExists(fname) then
-     begin
-       if (MessageDlg('Save Bank',
-                   ExtractFileName(fname)+' already Exists,'+#13+#13
-                   +'Do you wish to overwrite it ?',
-                   mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
-         fname:='';
-     end;
+     //Use the built in file exists option in the dialog
+     //if FileExists(fname) then
+     //begin
+     //  if (MessageDlg('Save Bank',
+     //              ExtractFileName(fname)+' already Exists,'+#13+#13
+     //              +'Do you wish to overwrite it ?',
+     //              mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
+     //    fname:='';
+     //end;
      if Not(fname.IsEmpty) then
      begin
        //save current bank to saber
@@ -881,10 +892,10 @@ begin
       WriteLn('B?');
       WriteLn('c?');
       WriteLn('f?');
-      while (saveData.Count<17) do
+      while (saveData.Count<18) do
       begin
         Application.ProcessMessages;
-        Delay(100);
+        Delay(10);
       end;
       saveMode:=false;
       saveData.SaveToFile(fname);
@@ -900,12 +911,12 @@ begin
    SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
    OpenDialog1.Title:='Select an OpenCoreBank File';
    {$IF defined(MSWindows)}
-   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
-   SaveDialog1.FileName:=AppendPathDelim(GetWindowsSpecialDir(CSIDL_PERSONAL))+'unnamed.openCoreBank';
+   //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
+   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL); //CSIDL_COMMON_DOCUMENTS);
    {$elseif defined(DARWIN)}
    OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
-   SaveDialog1.FileName:=AppendPathDelim(GetUserDir + 'Documents')+'unnamed.openCoreBank';
    {$ENDIF}
+   SaveDialog1.FileName:='unnamed.openCoreBank';
 
    if SaveDialog1.Execute then
    begin
@@ -913,14 +924,15 @@ begin
      if Not(SaveDialog1.Filename.EndsWith('.openCoreBank')) then
        fname:=SaveDialog1.Filename+'.openCoreBank';
 
-     if FileExists(fname) then
-     begin
-       if (MessageDlg('Save Bank',
-                   ExtractFileName(fname)+' already Exists,'+#13+#13
-                   +'Do you wish to overwrite it ?',
-                   mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
-         fname:='';
-     end;
+     // Use the built in file exists option in the dialog
+     //if FileExists(fname) then
+     //begin
+     //  if (MessageDlg('Save Bank',
+     //              ExtractFileName(fname)+' already Exists,'+#13+#13
+     //              +'Do you wish to overwrite it ?',
+     //              mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
+     //    fname:='';
+     //end;
      if Not(fname.IsEmpty) then
      begin
        saveMode:=false;
@@ -1023,7 +1035,7 @@ begin
       while (saveData.Count<17) do
       begin
         Application.ProcessMessages;
-        Delay(100);
+        Delay(10);
       end;
 
       CloseSerial();
@@ -1054,7 +1066,7 @@ procedure TForm1.btnDisconnectClick(Sender: TObject);
 begin
    if (btnDisconnect.Caption='Connect') then
    begin
-     btnDisconnect.Caption:='SAVE/DISCONNECT';
+     btnDisconnect.Caption:='Disconnect/Save';
      labStatus.Caption:='Trying to Re-connect...';
      ComboBox1Select(Sender);
    end
