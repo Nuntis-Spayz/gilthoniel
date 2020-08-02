@@ -3769,6 +3769,7 @@ object Form1: TForm1
     end
   end
   object SaveDialog1: TSaveDialog
+    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
     Left = 936
     Top = 16
   end

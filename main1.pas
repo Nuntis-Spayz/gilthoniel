@@ -9,7 +9,7 @@ uses
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils, LazFileUtils,
    FileInfo, crt
   {$IF defined(MSWindows)}
-  , registry, LazSerial
+  , registry, windirs, LazSerial
   {$elseif defined(DARWIN)}
   // mac os code
 
@@ -761,7 +761,17 @@ var
  k: Integer;
 begin
   OpenDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
+
+  {$IF defined(MSWindows)}
+  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
+  {$elseif defined(DARWIN)}
   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+  {$ENDIF}
+  OpenDialog1.FileName:='';
+
+  OpenDialog1.Title:='Select an OpenCoreSettings File';
+
+
 
   if OpenDialog1.Execute then
   begin
@@ -789,7 +799,13 @@ var
  k : Integer;
 begin
   OpenDialog1.Filter:='OpenCore Bank|*.openCoreBank';
+  OpenDialog1.FileName:='';
+  OpenDialog1.Title:='Select an OpenCoreBank File';
+  {$IF defined(MSWindows)}
+  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
+  {$elseif defined(DARWIN)}
   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+  {$ENDIF}
 
   if OpenDialog1.Execute then
   begin
@@ -823,14 +839,20 @@ var
  fname:String;
 begin
   SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
-  SaveDialog1.FileName:='unnamed.openCoreSettings';
-  SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+  OpenDialog1.Title:='Select an OpenCoreSettings File';
+  {$IF defined(MSWindows)}
+  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
+  SaveDialog1.FileName:=AppendPathDelim(GetWindowsSpecialDir(CSIDL_PERSONAL))+'unnamed.openCoreSettings';
+  {$elseif defined(DARWIN)}
+  OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+  SaveDialog1.FileName:=AppendPathDelim(GetUserDir + 'Documents')+'unnamed.openCoreSettings';
+  {$ENDIF}
 
   if SaveDialog1.Execute then
   begin
     fname:=SaveDialog1.Filename;
-     if Not(SaveDialog1.Filename.EndsWith('.openCoreBank')) then
-       fname:=SaveDialog1.Filename+'.openCoreBank';
+     if Not(SaveDialog1.Filename.EndsWith('.openCoreSettings')) then
+       fname:=SaveDialog1.Filename+'.openCoreSettings';
 
      if FileExists(fname) then
      begin
@@ -876,8 +898,14 @@ var
  fname:String;
 begin
    SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-   SaveDialog1.FileName:='unnamed.openCoreBank';
-   SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+   OpenDialog1.Title:='Select an OpenCoreBank File';
+   {$IF defined(MSWindows)}
+   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
+   SaveDialog1.FileName:=AppendPathDelim(GetWindowsSpecialDir(CSIDL_PERSONAL))+'unnamed.openCoreBank';
+   {$elseif defined(DARWIN)}
+   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+   SaveDialog1.FileName:=AppendPathDelim(GetUserDir + 'Documents')+'unnamed.openCoreBank';
+   {$ENDIF}
 
    if SaveDialog1.Execute then
    begin
@@ -971,16 +999,19 @@ procedure TForm1.doFirmware(Sender: TObject);
 var
    filename:String;
 begin
-  Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware\');
-  OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware\';
-  OpenDialog1.Filter:='*.hex';
+  Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware');
+  OpenDialog1.FileName:=ExtractFilePath(Application.ExeName)+'firmware';
+  OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware';
+  OpenDialog1.Title:='Select an OpenCore Firmware HEX File';
+  OpenDialog1.Filter:='Firmware HEX File|*.hex';
 
   if OpenDialog1.Execute then
   begin
     filename := OpenDialog1.Filename;
 
     if (MessageDlg('Update',
-                   'Do you wish to Update Firmware to '+filename+' ?',
+                   'Do you wish to Update Firmware to '+#13
+                   + ExtractFileName(filename)+' ?',
                    mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
     begin
       //read all the settings to save back after the upgrade/downgrade
