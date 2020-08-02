@@ -3740,7 +3740,7 @@ object Form1: TForm1
       Caption = '&Tools'
       object menuItemDebug: TMenuItem
         Caption = 'Show &Debug'
-        Checked = True
+        ShowAlwaysCheckable = True
         OnClick = menuItemDebugClick
       end
       object menuItemFirmware: TMenuItem

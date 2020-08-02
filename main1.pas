@@ -810,55 +810,47 @@ procedure TForm1.doFirmware(Sender: TObject);
 var
    filename:String;
 begin
-  if(validatedPort<>'') then
+  Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware\');
+  OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware\';
+  OpenDialog1.Filter:='*.hex';
+
+  if OpenDialog1.Execute then
   begin
+    filename := OpenDialog1.Filename;
 
-    Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware\');
-    OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware\';
-    OpenDialog1.Filter:='*.hex';
-
-    if OpenDialog1.Execute then
+    if (MessageDlg('Update',
+                   'Do you wish to Update Firmware to '+filename+' ?',
+                   mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
     begin
-      filename := OpenDialog1.Filename;
-
-      if (MessageDlg('Update',
-                     'Do you wish to Update Firmware to '+filename+' ?',
-                     mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+      //read all the settings to save back after the upgrade/downgrade
+      saveMode:=true;
+      saveData.Clear;
+      WriteLn('B?');
+      WriteLn('C?');
+      WriteLn('F?');
+      while (saveData.Count<17) do
       begin
-        //read all the settings to save back after the upgrade/downgrade
-        saveMode:=true;
-        saveData.Clear;
-        WriteLn('B?');
-        WriteLn('C?');
-        WriteLn('F?');
-        while (saveData.Count<17) do
-        begin
-          Application.ProcessMessages;
-          Delay(100);
-        end;
-
-        CloseSerial();
-        saveMode:=false;
-
         Application.ProcessMessages;
-        Delay(250);
-        Application.ProcessMessages;
-        Delay(250);
-        Application.ProcessMessages;
-
-        ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
-
-        Delay(1500);
-        Application.ProcessMessages;
-        OpenSerial(Sender);
-        //ComboBox1Select(Sender);
+        Delay(100);
       end;
-    end; //Open file yes
-  end
-  else
-  begin
-    ShowMessage('Update' + sLineBreak + 'You cannot update unless a saber has been detected!' );
-  end; //is Serial Active
+
+      CloseSerial();
+      saveMode:=false;
+
+      Application.ProcessMessages;
+      Delay(250);
+      Application.ProcessMessages;
+      Delay(250);
+      Application.ProcessMessages;
+
+      ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
+
+      Delay(1500);
+      Application.ProcessMessages;
+      OpenSerial(Sender);
+      //ComboBox1Select(Sender);
+    end;
+  end; //Open file yes
 end;
 
 procedure TForm1.btnPreview1Click(Sender: TObject);
