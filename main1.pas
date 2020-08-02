@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
-  Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils,
+  Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils, LazFileUtils,
    FileInfo, crt
   {$IF defined(MSWindows)}
-  ,registry,LazSerial
+  , registry, LazSerial
   {$elseif defined(DARWIN)}
   // mac os code
 
@@ -46,6 +46,8 @@ type
     appMainMenu: TMainMenu;
     Memo1: TMemo;
     menuFile: TMenuItem;
+    MenuItem1: TMenuItem;
+    menuItemClearLog: TMenuItem;
     miSep10: TMenuItem;
     miHelp: TMenuItem;
     miOpenPort: TMenuItem;
@@ -85,9 +87,14 @@ type
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
     procedure menuAboutClick(Sender: TObject);
+    procedure menuItemClearLogClick(Sender: TObject);
     procedure menuItemFirmwareClick(Sender: TObject);
     procedure menuItemExitClick(Sender: TObject);
     procedure menuItemDebugClick(Sender: TObject);
+    procedure miLoadAllClick(Sender: TObject);
+    procedure miLoadBankClick(Sender: TObject);
+    procedure miSaveAllClick(Sender: TObject);
+    procedure miSaveBankClick(Sender: TObject);
     procedure RxData(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -118,6 +125,11 @@ type
     procedure CloseSerial();
     procedure WriteLn(msg: String);
     procedure doFirmware(Sender: TObject);
+    procedure DecColorStringtoBank(s:String);
+    procedure HexColorStringtoBank(s:String);
+    procedure DecClashStringtoBank(s:String);
+    procedure HexClashStringtoBank(s:String);
+
   public
 
   end;
@@ -405,12 +417,12 @@ begin
     trackFGreen.Position:=g-w;
     trackFBlue.Position:=b-w;
     trackFWhite.Position:=w;
-  end; end;
+  end;
+end;
 
 procedure TForm1.RxData(Sender: TObject);
 var
  inp : String;
- colours: Array of String;
  k : Integer;
 begin
  inp:='';
@@ -482,90 +494,71 @@ begin
        WriteLn('S?');
        WriteLn('B?');
      end
-     else if (inp.StartsWith('S=')) then
+     else if inp.StartsWith('S=') then
      begin
        labSerial.Caption:=inp.Replace('S=','Serial No. ');
      end
+     else if saveMode then
+       saveData.Add(inp)
      else if (inp.StartsWith('B=')) then
      begin
-       if(saveMode) then
-       begin
-         saveData.Add(inp);
-       end
-       else
-       begin
-         //labSerial.Caption:=inp.Replace('S=','Serial No. ');
-         Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
-         ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
-         ComboBankSelect(Sender);
-       end;
+       //labSerial.Caption:=inp.Replace('S=','Serial No. ');
+       Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
+       ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
+       ComboBankSelect(Sender);
      end
      else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
-     begin
-       if(saveMode) then
-       begin
-         saveData.Add(inp);
-       end
-       else
-       begin
-         inp:=inp.Substring(3);
-         colours:=inp.Split(',');
-         ledCRed.Caption:=colours[0];
-         ledCGreen.Caption:=colours[1];
-         ledCBlue.Caption:=colours[2];
-         ledCWhite.Caption:=colours[3];
-       end;
-     end
+       DecColorStringtoBank(inp.Substring(3))
      else if( (inp.StartsWith('C')) and (inp.Chars[2]='=') ) then
-     begin
-       if(saveMode) then
-       begin
-         saveData.Add(inp);
-       end
-       else
-       begin
-       //hex values
-       trackCRed.Position:=Hex2Dec(inp.Substring(3,2));
-       trackCGreen.Position:=Hex2Dec(inp.Substring(5,2));
-       trackCBlue.Position:=Hex2Dec(inp.Substring(7,2));
-       trackCWhite.Position:=Hex2Dec(inp.Substring(9,2));
-       end;
-     end
+       HexColorStringtoBank(inp.Substring(3))
      else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
-     begin
-       if(saveMode) then
-       begin
-         saveData.Add(inp);
-       end
-       else
-       begin
-       inp:=inp.Substring(3);
-       colours:=inp.Split(',');
-       ledFRed.Caption:=colours[0];
-       ledFGreen.Caption:=colours[1];
-       ledFBlue.Caption:=colours[2];
-       ledFWhite.Caption:=colours[3];
-       end;
-     end
+       DecClashStringtoBank(inp.Substring(3))
      else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
-     begin
-       if(saveMode) then
-       begin
-         saveData.Add(inp);
-       end
-       else
-       begin
-         //hex values
-         trackFRed.Position:=Hex2Dec(inp.Substring(3,2));
-         trackFGreen.Position:=Hex2Dec(inp.Substring(5,2));
-         trackFBlue.Position:=Hex2Dec(inp.Substring(7,2));
-         trackFWhite.Position:=Hex2Dec(inp.Substring(9,2));
-       end;
-     end;
+       HexClashStringtoBank(inp.Substring(3));
 
    end; //inp not empty
 
  end; //while contains 13
+end;
+
+procedure TForm1.DecColorStringtoBank(s:String);
+var
+  colours: Array of String;
+begin
+  colours:=s.Split(',');
+  ledCRed.Caption:=colours[0];
+  ledCGreen.Caption:=colours[1];
+  ledCBlue.Caption:=colours[2];
+  ledCWhite.Caption:=colours[3];
+end;
+
+procedure TForm1.HexColorStringtoBank(s:String);
+begin
+  //hex values
+  trackCRed.Position:=Hex2Dec(s.Substring(0,2));
+  trackCGreen.Position:=Hex2Dec(s.Substring(2,2));
+  trackCBlue.Position:=Hex2Dec(s.Substring(4,2));
+  trackCWhite.Position:=Hex2Dec(s.Substring(6,2));
+end;
+
+procedure TForm1.DecClashStringtoBank(s:String);
+var
+  colours: Array of String;
+begin
+  colours:=s.Split(',');
+  ledFRed.Caption:=colours[0];
+  ledFGreen.Caption:=colours[1];
+  ledFBlue.Caption:=colours[2];
+  ledFWhite.Caption:=colours[3];
+end;
+
+procedure TForm1.HexClashStringtoBank(s:String);
+begin
+  //hex values
+  trackFRed.Position:=Hex2Dec(s.Substring(0,2));
+  trackFGreen.Position:=Hex2Dec(s.Substring(2,2));
+  trackFBlue.Position:=Hex2Dec(s.Substring(4,2));
+  trackFWhite.Position:=Hex2Dec(s.Substring(6,2));
 end;
 
 procedure TForm1.ledCRedChange(Sender: TObject);
@@ -736,6 +729,14 @@ begin
                      mtInformation, [mbOK],0);
 end;
 
+procedure TForm1.menuItemClearLogClick(Sender: TObject);
+begin
+ if (MessageDlg('Debug Log',
+                   'Do you wish to clear the debug log ?',
+                   mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+     Memo1.Clear;
+end;
+
 procedure TForm1.menuItemFirmwareClick(Sender: TObject);
 begin
   doFirmware(Sender);
@@ -753,6 +754,158 @@ begin
 
   Memo1.Visible:=menuItemDebug.Checked;
   FormResize(Sender);
+end;
+
+procedure TForm1.miLoadAllClick(Sender: TObject);
+var
+ k: Integer;
+begin
+  OpenDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
+  OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+
+  if OpenDialog1.Execute then
+  begin
+    saveMode:=false;
+    saveData.Clear;
+    saveData.LoadFromFile(OpenDialog1.FileName);
+    if (saveData.Count>0) then
+    begin
+      for k:=0 to (saveData.Count-1) do
+      begin
+        if Not(saveData[k].StartsWith('!')) then
+          WriteLn(saveData[k]);
+
+        Application.ProcessMessages;
+      end;
+      saveData.Clear;
+      writeLn('B?');
+    end;
+
+  end;
+end;
+
+procedure TForm1.miLoadBankClick(Sender: TObject);
+var
+ k : Integer;
+begin
+  OpenDialog1.Filter:='OpenCore Bank|*.openCoreBank';
+  OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+
+  if OpenDialog1.Execute then
+  begin
+    saveMode:=false;
+    saveData.Clear;
+    saveData.LoadFromFile(OpenDialog1.FileName);
+
+    if (saveData.Count>0) then
+    begin
+      for k:=0 to (saveData.Count-1) do
+      begin
+        if saveData[k].StartsWith('c=') then
+          DecColorStringtoBank(saveData[k].Substring(2))
+        else if saveData[k].StartsWith('C=') then
+          HexColorStringtoBank(saveData[k].Substring(2))
+        else if saveData[k].StartsWith('f=') then
+          DecClashStringtoBank(saveData[k].Substring(2))
+        else if saveData[k].StartsWith('F=') then
+          HexClashStringtoBank(saveData[k].Substring(2));
+
+        Application.ProcessMessages;
+      end;
+      saveData.Clear;
+    end;
+  end;
+
+end;
+
+procedure TForm1.miSaveAllClick(Sender: TObject);
+var
+ fname:String;
+begin
+  SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
+  SaveDialog1.FileName:='unnamed.openCoreSettings';
+  SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+
+  if SaveDialog1.Execute then
+  begin
+    fname:=SaveDialog1.Filename;
+     if Not(SaveDialog1.Filename.EndsWith('.openCoreBank')) then
+       fname:=SaveDialog1.Filename+'.openCoreBank';
+
+     if FileExists(fname) then
+     begin
+       if (MessageDlg('Save Bank',
+                   ExtractFileName(fname)+' already Exists,'+#13+#13
+                   +'Do you wish to overwrite it ?',
+                   mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
+         fname:='';
+     end;
+     if Not(fname.IsEmpty) then
+     begin
+       //save current bank to saber
+      saveMode:=true;
+      saveData.Clear;
+      btnSendClick(Sender);
+      //expecting two responses
+      while (saveData.Count<2) do
+      begin
+        Application.ProcessMessages;
+        Delay(100);
+      end;
+
+      saveMode:=true;
+      saveData.Clear;
+      saveData.Add('!filetype=Giltoniel Saber Settings');
+      WriteLn('B?');
+      WriteLn('c?');
+      WriteLn('f?');
+      while (saveData.Count<17) do
+      begin
+        Application.ProcessMessages;
+        Delay(100);
+      end;
+      saveMode:=false;
+      saveData.SaveToFile(fname);
+      saveData.Clear;
+     end;
+  end;
+end;
+
+procedure TForm1.miSaveBankClick(Sender: TObject);
+var
+ fname:String;
+begin
+   SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
+   SaveDialog1.FileName:='unnamed.openCoreBank';
+   SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+
+   if SaveDialog1.Execute then
+   begin
+     fname:=SaveDialog1.Filename;
+     if Not(SaveDialog1.Filename.EndsWith('.openCoreBank')) then
+       fname:=SaveDialog1.Filename+'.openCoreBank';
+
+     if FileExists(fname) then
+     begin
+       if (MessageDlg('Save Bank',
+                   ExtractFileName(fname)+' already Exists,'+#13+#13
+                   +'Do you wish to overwrite it ?',
+                   mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
+         fname:='';
+     end;
+     if Not(fname.IsEmpty) then
+     begin
+       saveMode:=false;
+       saveData.Clear;
+       saveData.Add('!filetype=Giltoniel Saber Bank');
+       saveData.Add('c='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+       saveData.Add('f='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
+
+       saveData.SaveToFile(fname);
+       saveData.Clear;
+     end;
+
+   end;
 end;
 
 procedure TForm1.ComboBankSelect(Sender: TObject);

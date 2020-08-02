@@ -3692,21 +3692,24 @@ object Form1: TForm1
       Caption = '&File'
       object miSaveBank: TMenuItem
         Caption = 'Save &Bank'
-        Visible = False
-      end
-      object miSaveAll: TMenuItem
-        Caption = 'Save &All Saber Settings'
-        ShortCut = 16467
-        Visible = False
+        OnClick = miSaveBankClick
       end
       object miLoadBank: TMenuItem
         Caption = '&Load Bank'
-        Visible = False
+        OnClick = miLoadBankClick
+      end
+      object MenuItem1: TMenuItem
+        Caption = '-'
+      end
+      object miSaveAll: TMenuItem
+        Caption = 'Save &All Settings from Saber'
+        ShortCut = 16467
+        OnClick = miSaveAllClick
       end
       object miLoadAll: TMenuItem
-        Caption = 'L&oad All Saber Settings'
+        Caption = 'L&oad All Settings into Saber'
         ShortCut = 16463
-        Visible = False
+        OnClick = miLoadAllClick
       end
       object miSep10: TMenuItem
         Caption = '-'
@@ -3740,9 +3743,13 @@ object Form1: TForm1
     object menuTools: TMenuItem
       Caption = '&Tools'
       object menuItemDebug: TMenuItem
-        Caption = 'Show &Debug'
+        Caption = 'Show &Debug Log'
         ShowAlwaysCheckable = True
         OnClick = menuItemDebugClick
+      end
+      object menuItemClearLog: TMenuItem
+        Caption = '&Clear Debug Log'
+        OnClick = menuItemClearLogClick
       end
       object menuItemFirmware: TMenuItem
         Caption = 'Update &Firmware'
