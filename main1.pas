@@ -318,7 +318,7 @@ begin
  InfoBank.height:=self.Height-InfoBank.Top-10;
 
  Memo1.width:= InfoBank.width-20;
- Memo1.height:= InfoBank.height-Memo1.top-50;
+ Memo1.height:= InfoBank.height -Memo1.top -50 - appMainMenu.Height  ;
  labSerial.left:=Memo1.left;
  labBuild.left:=Memo1.left;
 
