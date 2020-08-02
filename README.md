@@ -4,11 +4,11 @@
 
 ### Windows 64-bit/32-bit
 The x64 an x32 executables will run standalone on windows, but do require the firmware subfolder
-to do firmware upgrades, just copying the binary will run - but the firmware upgrade button
+to do firmware upgrades, just copying the binary will run - but the firmware upgrade menu option
 will not be enabled/visible.
 
 Use the Windows installer which will install the correct 64/32 bit application on your system, along
-with the firmware folder and tools, download file "install_gilthoniel_0.1.0.40.exe" (or later version) 
+with the firmware folder and tools, download file "install_gilthoniel_0.1.0.47.exe" (or later version) 
 in the root of the repository.
 
 ### Mac OS
@@ -42,4 +42,4 @@ serial ports (this package does not work in Mac OS and an alternative is being i
   During install please add the Studio and ISCrypt optional components.
   
   When editing an/the .iss file use InnoScriptStudio (not InnoScript itself) to edit
-  the file, as studio provides macros and pre-processing.
+  the file, (right click on the .iss project file) as studio provides macros and pre-processing.
