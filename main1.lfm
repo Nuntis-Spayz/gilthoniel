@@ -3692,21 +3692,21 @@ object Form1: TForm1
       Caption = '&File'
       object miSaveBank: TMenuItem
         Caption = 'Save &Bank'
-        Enabled = False
+        Visible = False
       end
       object miSaveAll: TMenuItem
         Caption = 'Save &All Saber Settings'
-        Enabled = False
         ShortCut = 16467
+        Visible = False
       end
       object miLoadBank: TMenuItem
         Caption = '&Load Bank'
-        Enabled = False
+        Visible = False
       end
       object miLoadAll: TMenuItem
         Caption = 'L&oad All Saber Settings'
-        Enabled = False
         ShortCut = 16463
+        Visible = False
       end
       object miSep10: TMenuItem
         Caption = '-'
@@ -3720,6 +3720,7 @@ object Form1: TForm1
     end
     object menuConnect: TMenuItem
       Caption = '&Connect'
+      Visible = False
       object menuItemRescan: TMenuItem
         Caption = '&Re-Scan for Ports'
         Enabled = False
@@ -3752,11 +3753,11 @@ object Form1: TForm1
       Caption = '&Help'
       object menuCheckUpdate: TMenuItem
         Caption = '&Check for Update'
-        Enabled = False
+        Visible = False
       end
       object menuAbout: TMenuItem
         Caption = '&About'
-        Enabled = False
+        OnClick = menuAboutClick
       end
     end
   end

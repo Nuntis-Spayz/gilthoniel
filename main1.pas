@@ -84,6 +84,7 @@ type
     procedure cbDebugChange(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
+    procedure menuAboutClick(Sender: TObject);
     procedure menuItemFirmwareClick(Sender: TObject);
     procedure menuItemExitClick(Sender: TObject);
     procedure menuItemDebugClick(Sender: TObject);
@@ -725,6 +726,16 @@ begin
 
 end;
 
+procedure TForm1.menuAboutClick(Sender: TObject);
+begin
+  MessageDlg(Form1.Caption,
+                Form1.Caption+#13+#13
+                +'Settings Manager for OpenCore Saber'+#13
+                +'(C) MMXX Nuntis'+#13+#13
+                +'http://sabers.amazer.uk',
+                     mtInformation, [mbOK],0);
+end;
+
 procedure TForm1.menuItemFirmwareClick(Sender: TObject);
 begin
   doFirmware(Sender);
@@ -737,9 +748,6 @@ begin
 end;
 
 procedure TForm1.menuItemDebugClick(Sender: TObject);
-var
- bStr:String;
- bPrev:Boolean;
 begin
   menuItemDebug.Checked:= Not(menuItemDebug.Checked);
 
