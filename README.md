@@ -8,7 +8,7 @@ to do firmware upgrades, just copying the binary will run - but the firmware upg
 will not be enabled/visible.
 
 Use the Windows installer which will install the correct 64/32 bit application on your system, along
-with the firmware folder and tools, download file "install_gilthoniel_0.1.0.47.exe" (or later version) 
+with the firmware folder and tools, download file "install_gilthoniel_0.1.0.51.exe" (or later version) 
 in the root of the repository.
 
 ### Mac OS

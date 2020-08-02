@@ -1,9 +1,12 @@
-## Version Tracking
+# Version Tracking
 
-# 0.1.0.50 - Features
+## 0.1.0.51 - Features
+* Save Dialogs were presenting full path, changed to filename only, fixed
+
+## 0.1.0.50 - Features
 * Open/Save dialogs connect to Documents folder by default
 
-# 0.1.0.49 - Features
+#= 0.1.0.49 - Features
 * Save and load all saber settings to a file
 * Save and load settnigs for a single bank
 * Update Firmware

@@ -799,13 +799,13 @@ var
  k : Integer;
 begin
   OpenDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-  OpenDialog1.FileName:='';
   OpenDialog1.Title:='Select an OpenCoreBank File';
   {$IF defined(MSWindows)}
   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
   {$elseif defined(DARWIN)}
   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
   {$ENDIF}
+  OpenDialog1.FileName:='';
 
   if OpenDialog1.Execute then
   begin
@@ -842,10 +842,10 @@ begin
   OpenDialog1.Title:='Select an OpenCoreSettings File';
   {$IF defined(MSWindows)}
   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
-  SaveDialog1.FileName:=AppendPathDelim(GetWindowsSpecialDir(CSIDL_PERSONAL))+'unnamed.openCoreSettings';
+  SaveDialog1.FileName:= 'unnamed.openCoreSettings';
   {$elseif defined(DARWIN)}
   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
-  SaveDialog1.FileName:=AppendPathDelim(GetUserDir + 'Documents')+'unnamed.openCoreSettings';
+  SaveDialog1.FileName:= 'unnamed.openCoreSettings';
   {$ENDIF}
 
   if SaveDialog1.Execute then
@@ -1000,7 +1000,7 @@ var
    filename:String;
 begin
   Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware');
-  OpenDialog1.FileName:=ExtractFilePath(Application.ExeName)+'firmware';
+  OpenDialog1.FileName:='';
   OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware';
   OpenDialog1.Title:='Select an OpenCore Firmware HEX File';
   OpenDialog1.Filter:='Firmware HEX File|*.hex';
