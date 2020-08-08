@@ -8,6 +8,9 @@
 * With GUI colour picker
 * Selects saber COM port automatically
 
+### v.0.1.0.53
+* includes firmware json2 dated 08-Aug-2020
+
 ### v.0.1.0.52
 * BUGFIX: If started with no saber connected labels remained in rgbw 
   text fields, initialise to zero
