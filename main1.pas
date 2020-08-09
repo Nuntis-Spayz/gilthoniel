@@ -7,9 +7,10 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils, LazFileUtils,
-  FileInfo, crt, IniFiles, fphttpclient, Process, DCPsha256, DCPmd5, DCPsha1
+  FileInfo, crt, IniFiles, fphttpclient, Process, DCPsha256, DCPmd5, DCPsha1,
+  registry
   {$IF defined(MSWindows)}
-  , registry, windirs, LazSerial
+  , windirs, LazSerial
   {$elseif defined(DARWIN)}
   // mac os code
 
@@ -49,6 +50,11 @@ type
     Memo1: TMemo;
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
+    menuItemLicence: TMenuItem;
+    N2: TMenuItem;
+    menuItemCheckOnConnect: TMenuItem;
+    menuItemCheckFirmwareNow: TMenuItem;
+    N1: TMenuItem;
     menuItemClearLog: TMenuItem;
     miSep10: TMenuItem;
     miHelp: TMenuItem;
@@ -91,6 +97,8 @@ type
     procedure ComboBox1Select(Sender: TObject);
     procedure menuAboutClick(Sender: TObject);
     procedure menuCheckUpdateClick(Sender: TObject);
+    procedure menuItemCheckFirmwareNowClick(Sender: TObject);
+    procedure menuItemCheckOnConnectClick(Sender: TObject);
     procedure menuItemClearLogClick(Sender: TObject);
     procedure menuItemFirmwareClick(Sender: TObject);
     procedure menuItemExitClick(Sender: TObject);
@@ -128,8 +136,10 @@ type
     {$ENDIF}
     procedure OpenSerial(Sender: TObject);
     procedure CloseSerial();
-    procedure WriteLn(msg: String);
     procedure doFirmware(Sender: TObject);
+    procedure loadFirmware(Sender:Tobject; filename:String);
+    procedure checkFirmwareNow(Sender: TObject; silent:boolean);
+    procedure WriteLn(msg: String);
     procedure DecColorStringtoBank(s:String);
     procedure HexColorStringtoBank(s:String);
     procedure DecClashStringtoBank(s:String);
@@ -140,6 +150,8 @@ type
     function sha1Encrypt(fileName: String): String;
     function sha256Encrypt(fileName: String): String;
     procedure ZeroMemory(Destination: Pointer; Length: DWORD);
+    function stringFromURL(url: String) : String;
+    function iniFromURL(url: String) : TIniFile;
 
   public
 
@@ -534,10 +546,13 @@ begin
 
        WriteLn('S?');
        WriteLn('B?');
+
      end
      else if inp.StartsWith('S=') then
      begin
        labSerial.Caption:=inp.Replace('S=','Serial No. ');
+       if menuItemCheckOnConnect.Checked then
+          checkFirmwareNow(Sender, true);
      end
      else if saveMode then
        saveData.Add(inp)
@@ -556,6 +571,7 @@ begin
        DecClashStringtoBank(inp.Substring(3))
      else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
        HexClashStringtoBank(inp.Substring(3));
+
 
    end; //inp not empty
 
@@ -813,36 +829,60 @@ begin
                      mtInformation, [mbOK],0);
 end;
 
+function TForm1.stringFromURL(url: String) : String;
+var
+  httpresult : String;
+  cli : TFPHTTPClient;
+begin
+ cli := TFPHTTPClient.Create(nil);
+ cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+ httpresult:='';
+ try
+   try
+     httpresult:= cli.Get(url+'?xrnd='+InttoStr(Math.RandomRange(10000,99999)));
+   except
+     on E: Exception do
+     begin
+     Memo1.Append('Web exception raised: ' + E.Message);
+     httpresult:='';
+     end;
+   end;
+ finally
+   cli.free
+ end;
+
+ stringFromURL := httpresult;
+end;
+
+function TForm1.iniFromURL(url: String) : TIniFile;
+var
+  str : String;
+begin
+ str:=stringFromURL(url);
+
+ if str.IsEmpty then
+   iniFromURL := nil
+ else
+   iniFromURL := TIniFile.Create(TStringStream.Create(str), false);
+
+end;
+
 procedure TForm1.menuCheckUpdateClick(Sender: TObject);
 var
  ini : TIniFile;
- cli : TFPHTTPClient;
- result,changes, newv, url, OS, fExec : String;
+ changes, newv, url, OS, fExec : String;
  bvis : Boolean;
  aProcess : TProcess;
  fSize, dSize : Int64;
  //efile : file of byte;
  Info : TSearchRec;
+ cli : TFPHTTPClient;
 begin
   OS:='windows';
-  cli := TFPHTTPClient.Create(nil);
-  cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
-  result:='';
-  try
-    try
-      result:= cli.Get('http://sabers.amazer.uk/files/gilthoniel/release.ini?r='+InttoStr(Math.RandomRange(10000,99999)));
-    except
-      on E: Exception do
-      begin
-      Memo1.Append('Web exception raised: ' + E.Message);
-      result:='';
 
-      end;
-    end;
-  finally
-    cli.free
-  end;
-  if result.IsEmpty then
+  ini:=iniFromURL('http://sabers.amazer.uk/files/gilthoniel/release.php');
+
+  if Not(Assigned(ini)) then
   begin
     MessageDlg('Update Check',
                'Update Check Failed, see debug log',
@@ -850,12 +890,13 @@ begin
   end
   else
   begin
-    ini := TIniFile.Create(TStringStream.Create(result), false);
     //[windows]
     //v=0.1.0.53
     //changes=Beta Firmware OpenCore.1.9.13_20200808_json3.hex
     //url=http://sabers.amazer.uk/files/gilthoniel/install_gilthoniel_0.1.0.53.exe
     //size=12345667
+    //sha1=...
+    //sha256=...
 
     newv:=ini.ReadString(OS,'v','');
     if newv<>appVersion then
@@ -875,9 +916,9 @@ begin
         url:=ini.ReadString(OS,'url','');
         Memo1.Append('fetching url: '+url);
         fSize:= ini.ReadInt64(OS,'size',0);
+
         cli := TFPHTTPClient.Create(nil);
         cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
-        result:='';
         try
           try
             begin
@@ -966,6 +1007,160 @@ begin
 
 end;
 
+procedure TForm1.menuItemCheckFirmwareNowClick(Sender: TObject);
+begin
+  checkFirmwareNow(Sender, false);
+end;
+
+procedure TForm1.checkFirmwareNow(Sender: TObject; silent:boolean);
+var
+ ini : TIniFile;
+ newv, sver, fExec, url : String;
+ cli : TFPHTTPClient;
+ dSize, fSize :Int64;
+ Info : TSearchRec;
+begin
+  if not(assigned(winSerial)) or Not(winSerial.Active) then
+  begin
+    Memo1.Append('<>check 001');
+    if Not(silent) then
+    begin
+      Memo1.Append('<>check 002');
+      MessageDlg('Update Check',
+               'No saber connected',
+                mtConfirmation, [mbOK],0);
+    end;
+    Memo1.Append('<>check 003');
+    exit;
+  end;
+
+  ini:=form1.iniFromURL('http://sabers.amazer.uk/files/firmware/release.php');
+  Memo1.Append('<>check 004');
+  if Not(Assigned(ini)) or (ini=nil) then
+  begin
+    Memo1.Append('<>check 005');
+    if Not(silent) then
+    begin
+      Memo1.Append('<>check 006');
+      MessageDlg('Update Check',
+               'Update Check Failed, see debug log',
+                mtConfirmation, [mbOK],0);
+    end;
+    Memo1.Append('<>check 007');
+  end
+  else
+  begin
+    Memo1.Append('<>check 008');
+    newv:=ini.ReadString('master','v','');
+    if newv.IsEmpty then
+    begin
+      Memo1.Append('<>check 009');
+      if Not(silent) then
+      begin
+        Memo1.Append('<>check 010');
+        MessageDlg('Update Check',
+               'Update Check Failed, see debug log',
+                mtConfirmation, [mbOK],0);
+      end;
+      Memo1.Append('<>check 011');
+    end
+    else
+    begin
+      Memo1.Append('<>check 012');
+      sver:=labBuild.Caption;
+      if sver.EndsWith(newv) then
+      begin
+        Memo1.Append('<>check 013');
+        if Not(silent) then
+        begin
+          Memo1.Append('<>check 014');
+          MessageDlg('Update Check',
+               'You have the current Firmware'+#13+'v.'+newv,
+                mtConfirmation, [mbOK],0)
+        end;
+        Memo1.Append('<>check 015');
+      end
+      else
+      begin
+        url:=ini.ReadString('master','url','');
+        if (MessageDlg('Update',
+                 'Do you wish to Update Firmware to '+#13
+                 + ExtractFileName(url)+' ?',
+                 mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+        begin
+          cli := TFPHTTPClient.Create(nil);
+          cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+          try
+            try
+              begin
+                fExec:=GetTempDir(true)+'\opencore.'+newv+'.hex';
+                DeleteFile(fExec);
+                fSize:=ini.ReadInt64('master','size',0);
+
+                cli.Get(url,fExec);
+                Memo1.Append(fExec);
+                Memo1.Append('Download successful');
+
+                dSize:=0;
+                if FileExists(fExec) and (FindFirst (fExec,faAnyFile,Info)=0 ) then
+                begin
+                  dSize:=Info.Size;
+                  FindClose(Info);
+                  Memo1.Append('Downloaded File Size: '+IntToStr(dSize));
+                end;
+
+                //add crc checks here
+                //ini.ReadString(OS,'url','');
+                //Memo1.Append('md5 # '+md5Encrypt(fExec));
+                if sha1Encrypt(fExec)<>ini.ReadString('master','sha1','') then
+                begin
+                  Memo1.Append('SHA1 file check invalid');
+                  dSize:=-1
+                end;
+                if sha256Encrypt(fExec)<>ini.ReadString('master','sha256','') then
+                begin
+                  Memo1.Append('SHA256 file check invalid');
+                  dSize:=-2
+                end;
+
+                if(dSize=fSize) then
+                begin
+                  Memo1.Append('Running Updater');
+                  loadFirmware(Sender, fExec);
+                end;
+
+                if(dSize<>fSize) then
+                begin
+                  MessageDlg('Update',
+                     'Downloaded file is incomplete/unverified.'+#13+'Update Aborted, please retry',
+                     mtConfirmation, [mbOK],0);
+                end;
+
+                DeleteFile(fExec);
+              end;
+            except
+                on E: Exception do
+              begin
+                Memo1.Append('Web exception raised: ' + E.Message);
+                MessageDlg('Update',
+                     'Downloaded file failed.'+#13+E.Message+#13+'Update Aborted, please retry',
+                     mtConfirmation, [mbOK],0);
+              end;
+           end;
+          finally
+            cli.free
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TForm1.menuItemCheckOnConnectClick(Sender: TObject);
+begin
+  menuItemCheckOnConnect.Checked:= Not(menuItemCheckOnConnect.Checked);
+end;
+
 procedure TForm1.menuItemClearLogClick(Sender: TObject);
 begin
  if (MessageDlg('Debug Log',
@@ -1002,8 +1197,10 @@ end;
 procedure TForm1.miLoadAllClick(Sender: TObject);
 var
  k: Integer;
+ //opd : TLazOpenDialog;
 begin
   OpenDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
 
   {$IF defined(MSWindows)}
   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
@@ -1013,8 +1210,6 @@ begin
   OpenDialog1.FileName:='';
 
   OpenDialog1.Title:='Select an OpenCoreSettings File';
-
-
 
   if OpenDialog1.Execute then
   begin
@@ -1042,6 +1237,9 @@ var
  k : Integer;
 begin
   OpenDialog1.Filter:='OpenCore Bank|*.openCoreBank';
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  //ofOldStyleDialog
+
   OpenDialog1.Title:='Select an OpenCoreBank File';
   {$IF defined(MSWindows)}
   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
@@ -1083,12 +1281,15 @@ var
 begin
   {$IF defined(MSWindows)}
   //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
-  OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);//CSIDL_COMMON_DOCUMENTS);
+  SaveDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);//CSIDL_COMMON_DOCUMENTS);
   {$elseif defined(DARWIN)}
-  OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+  SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
   {$ENDIF}
   SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
-  OpenDialog1.Title:='Select an OpenCoreSettings File';
+  SaveDialog1.Options:=SaveDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  //ofOldStyleDialog
+
+  SaveDialog1.Title:='Select an OpenCoreSettings File';
   SaveDialog1.FileName:= 'unnamed.openCoreSettings';
 
   if SaveDialog1.Execute then
@@ -1142,7 +1343,8 @@ var
  fname:String;
 begin
    SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-   OpenDialog1.Title:='Select an OpenCoreBank File';
+   SaveDialog1.Options:=SaveDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+   SaveDialog1.Title:='Select an OpenCoreBank File';
    {$IF defined(MSWindows)}
    //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
    OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL); //CSIDL_COMMON_DOCUMENTS);
@@ -1236,60 +1438,61 @@ begin
 end;
 
 procedure TForm1.doFirmware(Sender: TObject);
-var
-   filename:String;
 begin
-  Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware');
+  //https://anfive.gnah.it/scintilla/?mode=opencore
+  //1.9.12 XN6jGT8JyTXbxsPehWxsAYRynI6KkVcZy5oCufu1LTg= https://anfive.gnah.it/scintilla/firmware.hex
+
+ Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware');
   OpenDialog1.FileName:='';
   OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware';
   OpenDialog1.Title:='Select an OpenCore Firmware HEX File';
   OpenDialog1.Filter:='Firmware HEX File|*.hex';
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
 
   if OpenDialog1.Execute then
-  begin
-    filename := OpenDialog1.Filename;
-
     if (MessageDlg('Update',
-                   'Do you wish to Update Firmware to '+#13
-                   + ExtractFileName(filename)+' ?',
-                   mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+                 'Do you wish to Update Firmware to '+#13
+                 + ExtractFileName(OpenDialog1.filename)+' ?',
+                 mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+        loadFirmware(Sender, OpenDialog1.Filename);
+
+end;
+procedure TForm1.loadFirmware(Sender:Tobject; filename:String);
+begin
+    //read all the settings to save back after the upgrade/downgrade
+    saveMode:=true;
+    saveData.Clear;
+    if Assigned(winSerial) and winSerial.Active then
     begin
-      //read all the settings to save back after the upgrade/downgrade
-      saveMode:=true;
-      saveData.Clear;
-      if Assigned(winSerial) and winSerial.Active then
+      WriteLn('B?');
+      WriteLn('C?');
+      WriteLn('F?');
+      while (saveData.Count<17) do
       begin
-        WriteLn('B?');
-        WriteLn('C?');
-        WriteLn('F?');
-        while (saveData.Count<17) do
-        begin
-          Application.ProcessMessages;
-          Delay(10);
-        end;
-
-        CloseSerial();
-
-        //wait to allow serial to disconnect properly
         Application.ProcessMessages;
-        Delay(250);
-        Application.ProcessMessages;
-        Delay(250);
-        Application.ProcessMessages;
+        Delay(10);
       end;
-      saveMode:=false;
 
-      ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
+      CloseSerial();
 
-      //wait before re-opening the serial device
+      //wait to allow serial to disconnect properly
       Application.ProcessMessages;
-      Delay(1500);
+      Delay(250);
       Application.ProcessMessages;
-
-      OpenSerial(Sender);
-      //ComboBox1Select(Sender);
+      Delay(250);
+      Application.ProcessMessages;
     end;
-  end; //Open file yes
+    saveMode:=false;
+
+    ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
+
+    //wait before re-opening the serial device
+    Application.ProcessMessages;
+    Delay(1500);
+    Application.ProcessMessages;
+
+    OpenSerial(Sender);
+    //ComboBox1Select(Sender);
 end;
 
 procedure TForm1.btnPreview1Click(Sender: TObject);
@@ -1371,9 +1574,7 @@ begin
   // Local variable 'Digest' does not seem to be initialized Fix
   ZeroMemory(@Digest, SizeOf(Digest));
   Source:= nil;
-  //f:=  UTF8ToSys(fileName);
   try
-    //한글 오류 수정 UTF8ToSys
     Source:= TFileStream.Create(fileName,fmOpenRead);
   except
     MessageDlg('Unable to open file',mtError,[mbOK],0);
@@ -1406,9 +1607,7 @@ begin
   // Local variable 'Digest' does not seem to be initialized Fix
   ZeroMemory(@Digest, SizeOf(Digest));
   Source:= nil;
-  //f:=  UTF8ToSys(fileName);
   try
-    //한글 오류 수정 UTF8ToSys
     Source:= TFileStream.Create(fileName,fmOpenRead);
   except
     MessageDlg('Unable to open file',mtError,[mbOK],0);
@@ -1440,9 +1639,7 @@ begin
   // Local variable 'Digest' does not seem to be initialized Fix
   ZeroMemory(@Digest, SizeOf(Digest));
   Source:= nil;
-  //f:=  UTF8ToSys(fileName);
   try
-    //한글 오류 수정 UTF8ToSys
     Source:= TFileStream.Create(fileName,fmOpenRead);
   except
     MessageDlg('Unable to open file',mtError,[mbOK],0);
