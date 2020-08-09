@@ -9,6 +9,13 @@
 * Selects saber COM port automatically
 
 ### v.0.1.0.53
+* Changed Colour Picker Buttons to TColorButton
+* Put color maths into functions RGBtoRGBW, RGBWtoRGB to allow future color correction
+* Menu option to refresh ports
+* Menu option to check for Gilthoniel Updates, download and install
+  checks filesize and SHA1/SHA256 hashes of downloaded file for security
+
+### v.0.1.0.53
 * includes firmware json2 dated 08-Aug-2020
 
 ### v.0.1.0.52

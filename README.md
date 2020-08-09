@@ -31,8 +31,11 @@ a bit of hair tearing going on in this department.)
      but you will have to adjust the compile mode options in the project, so don't.
 
 Once up and running, before you open the project you will have to use the online pacakage manager, 
-in the Lazarus IDE, to install the TLazSerial package for windows so the project can connect to the 
-serial ports (this package does not work in Mac OS and an alternative is being investigated).
+in the Lazarus IDE, to install the following packages
+
+* TLazSerial (this package does not work in Mac OS and an alternative is being investigated).
+* DCPcrypt
+
 
 ### InnoScript Studio QSP (Quick Setup Pack) [JR Software]
   https://jrsoftware.org/isdl.php

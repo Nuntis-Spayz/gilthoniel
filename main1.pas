@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils, LazFileUtils,
-   FileInfo, crt
+  FileInfo, crt, IniFiles, fphttpclient, Process, DCPsha256, DCPmd5, DCPsha1
   {$IF defined(MSWindows)}
   , registry, windirs, LazSerial
   {$elseif defined(DARWIN)}
@@ -24,6 +24,8 @@ type
     btnDisconnect: TBitBtn;
     btnResetColours: TBitBtn;
     btnSend: TBitBtn;
+    ColorButtonClash: TColorButton;
+    ColorButtonMain: TColorButton;
     ColorDialog1: TColorDialog;
     ComboBox1: TComboBox;
     ComboBank: TComboBox;
@@ -67,8 +69,6 @@ type
     menuItemExit: TMenuItem;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    SpeedButton1: TSpeedButton;
-    SpeedButton2: TSpeedButton;
     btnPreview1: TSpeedButton;
     TrackFGreen: TTrackBar;
     TrackFBlue: TTrackBar;
@@ -83,14 +83,19 @@ type
     procedure btnPreview1Click(Sender: TObject);
     procedure btnResetColoursClick(Sender: TObject);
     procedure btnSendClick(Sender: TObject);
-    procedure cbDebugChange(Sender: TObject);
+    procedure ColorButtonClashClick(Sender: TObject);
+    procedure ColorButtonClashColorChanged(Sender: TObject);
+    procedure ColorButtonMainClick(Sender: TObject);
+    procedure ColorButtonMainColorChanged(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
     procedure menuAboutClick(Sender: TObject);
+    procedure menuCheckUpdateClick(Sender: TObject);
     procedure menuItemClearLogClick(Sender: TObject);
     procedure menuItemFirmwareClick(Sender: TObject);
     procedure menuItemExitClick(Sender: TObject);
     procedure menuItemDebugClick(Sender: TObject);
+    procedure menuItemRescanClick(Sender: TObject);
     procedure miLoadAllClick(Sender: TObject);
     procedure miLoadBankClick(Sender: TObject);
     procedure miSaveAllClick(Sender: TObject);
@@ -99,7 +104,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure ledCRedChange(Sender: TObject);
     procedure TrackCBlueChange(Sender: TObject);
@@ -111,6 +115,7 @@ type
     procedure trackFRedChange(Sender: TObject);
     procedure TrackFWhiteChange(Sender: TObject);
   private
+    appVersion : String;
     validatedPort:String;
     serialInput:String;
     saveMode: Boolean;
@@ -129,6 +134,12 @@ type
     procedure HexColorStringtoBank(s:String);
     procedure DecClashStringtoBank(s:String);
     procedure HexClashStringtoBank(s:String);
+    function RGBWtoRGB(red,green,blue,white: Integer) : Integer;
+    function RGBtoRGBW(red,green,blue:Integer) : Integer;
+    function md5Encrypt(fileName: String): String;
+    function sha1Encrypt(fileName: String): String;
+    function sha256Encrypt(fileName: String): String;
+    procedure ZeroMemory(Destination: Pointer; Length: DWORD);
 
   public
 
@@ -145,9 +156,9 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-ver : String;
 Info: TVersionInfo;
 fpath : String;
+bInstalled: Boolean;
 begin
   saveMode:=false;
   saveData := TStringList.Create;
@@ -157,13 +168,16 @@ begin
   self.Height:=800;
 
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
-  menuItemFirmware.Visible := FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
+  bInstalled:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
+  //if the firmware directory files don't exist disable the firmware and update menu options
+  menuItemFirmware.Visible := bInstalled;
+  menuCheckUpdate.Visible  := bInstalled;
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
   btnPreview1.Visible:=false;
 
-  SpeedButton1.Caption:='Pick Main'+#13+'Colour';
-  SpeedButton2.Caption:='Pick Clash'+#13+'Colour';
+  ColorButtonMain.Caption:='Pick Main '+#13+'Colour ';
+  ColorButtonClash.Caption:='Pick Clash '+#13+'Colour ';
 
   serialInput:='';
 
@@ -183,13 +197,13 @@ begin
   Info.Load(HINSTANCE);
   // grab the Numbers
   //[0] = Major version, [1] = Minor ver, [2] = Revision, [3] = Build Number
-  ver:= IntToStr(Info.FixedInfo.FileVersion[0])
+  appVersion:= IntToStr(Info.FixedInfo.FileVersion[0])
       +'.'+IntToStr(Info.FixedInfo.FileVersion[1])
       +'.'+IntToStr(Info.FixedInfo.FileVersion[2])
       +'.'+IntToStr(Info.FixedInfo.FileVersion[3]);
   Info.Free;
   // Update the title string - include the version & ver #
-  Form1.Caption := Form1.Caption+' v.' + ver;
+  Form1.Caption := Form1.Caption+' v.' + appVersion;
 
   OpenSerial(Sender);
 
@@ -357,77 +371,94 @@ begin
  trackCBlue.width:=trackFRed.width;
  trackCWhite.width:=trackFRed.width;
 
- SpeedButton1.Left := trackCRed.Left + trackCRed.width - SpeedButton1.width - 16;
- SpeedButton2.Left := trackFRed.Left + trackFRed.width - SpeedButton2.width - 16;
+ ColorButtonMain.Left := trackCRed.Left + trackCRed.width - ColorButtonMain.width - 16;
+ ColorButtonClash.Left := trackFRed.Left + trackFRed.width - ColorButtonClash.width - 16;
 
-end;
-
-procedure TForm1.SpeedButton1Click(Sender: TObject);
-var
-   r,g,b,w: Integer;
-   mx : Integer;
-begin
-  w:=trackCWhite.Position;
-  r:=trackCRed.Position+w;
-  g:=trackCGreen.Position+w;
-  b:=trackCBlue.Position+w;
-
-  mx := Max(Max(r,g),b);
-  if(mx>255) then
-  begin
-    mx:=mx-255;
-    r:=Max(0,r-mx);
-    g:=Max(0,g-mx);
-    b:=Max(0,b-mx);
-  end;
-  ColorDialog1.Color:= r + 256*g + 65536*b;
-
-  if ColorDialog1.Execute then
-  begin
-    r:=Byte(ColorDialog1.Color);
-    g:=Byte(ColorDialog1.Color shr 8);
-    b:=Byte(ColorDialog1.Color shr 16);
-    w:=Min(Min(r,g),b);
-
-    trackCRed.Position:=r-w;
-    trackCGreen.Position:=g-w;
-    trackCBlue.Position:=b-w;
-    trackCWhite.Position:=w;
-  end;
 end;
 
 procedure TForm1.SpeedButton2Click(Sender: TObject);
-var
-   r,g,b,w: Integer;
-   mx : Integer;
 begin
-  w:=trackFWhite.Position;
-  r:=trackFRed.Position+w;
-  g:=trackFGreen.Position+w;
-  b:=trackFBlue.Position+w;
 
-  mx := Max(Max(r,g),b);
-  if(mx>255) then
-  begin
-    mx:=mx-255;
-    r:=Max(0,r-mx);
-    g:=Max(0,g-mx);
-    b:=Max(0,b-mx);
-  end;
-  ColorDialog1.Color:= r + 256*g + 65536*b;
+end;
 
-  if ColorDialog1.Execute then
-  begin
-    r:=Byte(ColorDialog1.Color);
-    g:=Byte(ColorDialog1.Color shr 8);
-    b:=Byte(ColorDialog1.Color shr 16);
-    w:=Min(Min(r,g),b);
+function TForm1.RGBWtoRGB(red,green,blue,white:Integer) : Integer;
+var
+ r,g,b: Integer;
+ mx : Integer;
+begin
+ r:=red+white;
+ g:=green+white;
+ b:=blue+white;
+ //w:=white;
 
-    trackFRed.Position:=r-w;
-    trackFGreen.Position:=g-w;
-    trackFBlue.Position:=b-w;
-    trackFWhite.Position:=w;
-  end;
+ mx := Max(Max(r,g),b);
+ if(mx>255) then
+ begin
+   mx:=mx-255;
+   r:=Max(0,r-mx);
+   g:=Max(0,g-mx);
+   b:=Max(0,b-mx);
+ end;
+
+ RGBWtoRGB:=  r + (g shl 8) + (b shl 16) ;
+end;
+function TForm1.RGBtoRGBW(red,green,blue:Integer) : Integer;
+var
+ r,g,b,w: Integer;
+begin
+ r:=red;
+ g:=green;
+ b:=blue;
+ w:=Min(Min(r,g),b);
+
+ r:=r-w;
+ g:=g-w;
+ b:=b-w;
+
+ RGBtoRGBW:= r + (g shl 8) + (b shl 16) + (w shl 24);
+end;
+
+procedure TForm1.ColorButtonMainClick(Sender: TObject);
+begin
+  ColorButtonMain.OnColorChanged:=@ColorButtonMainColorChanged;
+end;
+
+procedure TForm1.ColorButtonMainColorChanged(Sender: TObject);
+var
+ rgbw : Integer;
+begin
+ ColorButtonMain.OnColorChanged:=nil;
+
+ rgbw:=RGBtoRGBW(Byte(ColorButtonMain.ButtonColor),
+                  Byte(ColorButtonMain.ButtonColor shr 8),
+                  Byte(ColorButtonMain.ButtonColor shr 16));
+
+
+  trackCRed.Position:=Byte(rgbw);
+  trackCGreen.Position:=Byte(rgbw shr 8);
+  trackCBlue.Position:=Byte(rgbw shr 16);
+  trackCWhite.Position:=Byte(rgbw shr 24);
+end;
+
+procedure TForm1.ColorButtonClashClick(Sender: TObject);
+begin
+  ColorButtonClash.OnColorChanged:=@ColorButtonClashColorChanged;
+end;
+
+procedure TForm1.ColorButtonClashColorChanged(Sender: TObject);
+var
+  rgbw : Integer;
+begin
+  ColorButtonClash.OnColorChanged:= nil;
+
+  rgbw:=RGBtoRGBW(Byte(ColorButtonClash.ButtonColor),
+                  Byte(ColorButtonClash.ButtonColor shr 8),
+                  Byte(ColorButtonClash.ButtonColor shr 16));
+
+  trackFRed.Position:=Byte(rgbw);
+  trackFGreen.Position:=Byte(rgbw shr 8);
+  trackFBlue.Position:=Byte(rgbw shr 16);
+  trackFWhite.Position:=Byte(rgbw shr 24);
 end;
 
 procedure TForm1.RxData(Sender: TObject);
@@ -610,6 +641,8 @@ begin
    end;
 
   end;
+
+  //ColorButtonMain.ButtonColor:=TColor.cre;
 end;
 
 procedure TForm1.TrackCBlueChange(Sender: TObject);
@@ -619,6 +652,11 @@ begin
  s:=IntToStr(trackCBlue.Position);
  if(ledCBlue.Caption<>s) then
    ledCBlue.Caption:=s;
+
+ ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
+                                  trackCGreen.Position,
+                                  trackCBlue.Position,
+                                  trackCWhite.Position);
 end;
 
 procedure TForm1.TrackCGreenChange(Sender: TObject);
@@ -628,6 +666,11 @@ begin
  s:=IntToStr(trackCGreen.Position);
  if(ledCGreen.Caption<>s) then
    ledCGreen.Caption:=s;
+
+  ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
+                                  trackCGreen.Position,
+                                  trackCBlue.Position,
+                                  trackCWhite.Position);
 end;
 
 procedure TForm1.trackCRedChange(Sender: TObject);
@@ -637,6 +680,12 @@ begin
  s:=IntToStr(trackCRed.Position);
  if(ledCRed.Caption<>s) then
    ledCRed.Caption:=s;
+
+ Application.ProcessMessages;
+ ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
+                                  trackCGreen.Position,
+                                  trackCBlue.Position,
+                                  trackCWhite.Position);
 end;
 
 procedure TForm1.TrackCWhiteChange(Sender: TObject);
@@ -646,6 +695,11 @@ begin
  s:=IntToStr(trackCWhite.Position);
  if(ledCWhite.Caption<>s) then
    ledCWhite.Caption:=s;
+
+  ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
+                                  trackCGreen.Position,
+                                  trackCBlue.Position,
+                                  trackCWhite.Position);
 end;
 
 procedure TForm1.TrackFBlueChange(Sender: TObject);
@@ -655,6 +709,11 @@ begin
  s:=IntToStr(trackFBlue.Position);
  if(ledFBlue.Caption<>s) then
    ledFBlue.Caption:=s;
+
+  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+                                  trackFGreen.Position,
+                                  trackFBlue.Position,
+                                  trackFWhite.Position);
 end;
 
 procedure TForm1.TrackFGreenChange(Sender: TObject);
@@ -664,6 +723,11 @@ begin
  s:=IntToStr(trackFGreen.Position);
  if(ledFGreen.Caption<>s) then
    ledFGreen.Caption:=s;
+
+  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+                                  trackFGreen.Position,
+                                  trackFBlue.Position,
+                                  trackFWhite.Position);
 end;
 
 procedure TForm1.trackFRedChange(Sender: TObject);
@@ -673,6 +737,11 @@ begin
  s:=IntToStr(trackFRed.Position);
  if(ledFRed.Caption<>s) then
    ledFRed.Caption:=s;
+
+  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+                                  trackFGreen.Position,
+                                  trackFBlue.Position,
+                                  trackFWhite.Position);
 end;
 
 procedure TForm1.TrackFWhiteChange(Sender: TObject);
@@ -682,6 +751,11 @@ begin
  s:=IntToStr(trackFWhite.Position);
  if(ledFWhite.Caption<>s) then
    ledFWhite.Caption:=s;
+
+  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+                                  trackFGreen.Position,
+                                  trackFBlue.Position,
+                                  trackFWhite.Position);
 end;
 
 procedure TForm1.ComboBox1Select(Sender: TObject);
@@ -739,6 +813,159 @@ begin
                      mtInformation, [mbOK],0);
 end;
 
+procedure TForm1.menuCheckUpdateClick(Sender: TObject);
+var
+ ini : TIniFile;
+ cli : TFPHTTPClient;
+ result,changes, newv, url, OS, fExec : String;
+ bvis : Boolean;
+ aProcess : TProcess;
+ fSize, dSize : Int64;
+ //efile : file of byte;
+ Info : TSearchRec;
+begin
+  OS:='windows';
+  cli := TFPHTTPClient.Create(nil);
+  cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+  result:='';
+  try
+    try
+      result:= cli.Get('http://sabers.amazer.uk/files/gilthoniel/release.ini?r='+InttoStr(Math.RandomRange(10000,99999)));
+    except
+      on E: Exception do
+      begin
+      Memo1.Append('Web exception raised: ' + E.Message);
+      result:='';
+
+      end;
+    end;
+  finally
+    cli.free
+  end;
+  if result.IsEmpty then
+  begin
+    MessageDlg('Update Check',
+               'Update Check Failed, see debug log',
+                mtConfirmation, [mbOK],0);
+  end
+  else
+  begin
+    ini := TIniFile.Create(TStringStream.Create(result), false);
+    //[windows]
+    //v=0.1.0.53
+    //changes=Beta Firmware OpenCore.1.9.13_20200808_json3.hex
+    //url=http://sabers.amazer.uk/files/gilthoniel/install_gilthoniel_0.1.0.53.exe
+    //size=12345667
+
+    newv:=ini.ReadString(OS,'v','');
+    if newv<>appVersion then
+    begin
+      changes:=ini.ReadString(OS,'changes','');
+
+      if(MessageDlg('New Version',
+                    'There is a new version available,v= '+newv+#13
+                    +#13+'New Features include...'+#13+changes+#13
+                    +#13+'You have version '+appVersion+#13
+                    +#13+'Do you want to download & update Gilthoniel?',
+                    mtConfirmation, [mbYes, mbNo],0)= mrYes ) then
+      begin
+        bvis:=Memo1.Visible;
+        Memo1.Visible:=true;
+        Memo1.SelStart := Length(Memo1.Lines.Text);
+        url:=ini.ReadString(OS,'url','');
+        Memo1.Append('fetching url: '+url);
+        fSize:= ini.ReadInt64(OS,'size',0);
+        cli := TFPHTTPClient.Create(nil);
+        cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+        result:='';
+        try
+          try
+            begin
+              fExec:=GetTempDir(true)+'\install_gilthoniel_'+newv+'.exe';
+              DeleteFile(fExec);
+
+              cli.Get(url,fExec);
+              Memo1.Append(fExec);
+              Memo1.Append('Download successful');
+
+              dSize:=0;
+              if FileExists(fExec) and (FindFirst (fExec,faAnyFile,Info)=0 ) then
+              begin
+                dSize:=Info.Size;
+                FindClose(Info);
+                Memo1.Append('Downloaded File Size: '+IntToStr(dSize));
+              end;
+
+              //add crc checks here
+              //ini.ReadString(OS,'url','');
+              //Memo1.Append('md5 # '+md5Encrypt(fExec));
+              if sha1Encrypt(fExec)<>ini.ReadString(OS,'sha1','') then
+              begin
+                Memo1.Append('SHA1 file check invalid');
+                dSize:=-1
+              end;
+              if sha256Encrypt(fExec)<>ini.ReadString(OS,'sha256','') then
+              begin
+                Memo1.Append('SHA256 file check invalid');
+                dSize:=-2
+              end;
+
+              if(dSize=fSize) then
+              begin
+                Memo1.Append('Running Updater');
+
+                aProcess := TProcess.Create(nil);
+                aProcess.Executable:= fExec;
+                //aProcess.Parameters.Add('-silent');
+                //aProcess.Options := aProcess.Options + [poWaitOnExit];
+                aProcess.Options := aProcess.Options - [poWaitOnExit];
+                aProcess.Execute;
+                Memo1.Append('Updater is Running');
+                Application.ProcessMessages;
+                //aProcess.Free; //doing this will wait for the process which we do not want
+
+                //now exit the application the updater is running
+                Application.Terminate;
+                Halt;
+              end;
+
+              if(dSize<>fSize) then
+              begin
+                MessageDlg('Update',
+                   'Downloaded file is incomplete/unverified.'+#13+'Update Aborted, please retry',
+                   mtConfirmation, [mbOK],0);
+              end;
+
+              DeleteFile(fExec);
+            end;
+
+          except
+            on E: Exception do
+            begin
+              Memo1.Append('Web exception raised: ' + E.Message);
+              MessageDlg('Update',
+                   'Downloaded file failed.'+#13+E.Message+#13+'Update Aborted, please retry',
+                   mtConfirmation, [mbOK],0);
+            end;
+         end;
+        finally
+          cli.free
+        end;
+        Memo1.Visible:=bvis;
+      end;
+    end
+    else
+    begin
+       MessageDlg('Current Version',
+                   'You have the current version of Gilthoniel'+#13+'v= '+newv,
+                   mtConfirmation, [mbOK],0);
+    end;
+
+    ini.Free;
+  end;
+
+end;
+
 procedure TForm1.menuItemClearLogClick(Sender: TObject);
 begin
  if (MessageDlg('Debug Log',
@@ -763,7 +990,13 @@ begin
   menuItemDebug.Checked:= Not(menuItemDebug.Checked);
 
   Memo1.Visible:=menuItemDebug.Checked;
+  Memo1.SelStart := Length(Memo1.Lines.Text);
   FormResize(Sender);
+end;
+
+procedure TForm1.menuItemRescanClick(Sender: TObject);
+begin
+  OpenSerial(Sender);
 end;
 
 procedure TForm1.miLoadAllClick(Sender: TObject);
@@ -971,11 +1204,6 @@ begin
   end;
 end;
 
-procedure TForm1.cbDebugChange(Sender: TObject);
-begin
-
-end;
-
 procedure TForm1.btnSendClick(Sender: TObject);
 var
    bank:String;
@@ -1120,6 +1348,115 @@ begin
   //DataPortSerial1.SerialClient.SendString(msg+char(13));
   //DataPortSerial1.SerialClient.Serial.Flush;
   {$ENDIF}
+end;
+
+
+//------------------------ crc
+function TForm1.sha256Encrypt(fileName: String): String;
+var
+  Hash: TDCP_sha256;
+  Digest: array[0..63] of byte;
+  Source: TFileStream;
+  i: integer;
+  s: string;
+begin
+  s:= '';
+  // Local variable 'Digest' does not seem to be initialized Fix
+  ZeroMemory(@Digest, SizeOf(Digest));
+  Source:= nil;
+  //f:=  UTF8ToSys(fileName);
+  try
+    //한글 오류 수정 UTF8ToSys
+    Source:= TFileStream.Create(fileName,fmOpenRead);
+  except
+    MessageDlg('Unable to open file',mtError,[mbOK],0);
+  end;
+  if Source <> nil then
+  begin
+    Hash:= TDCP_sha256.Create(Self);
+    Hash.Init;
+    Hash.UpdateStream(Source,Source.Size);
+    Hash.Final(Digest);
+    Source.Free;
+    s:= '';
+    for i:= 0 to 31 do
+      s:= s + IntToHex(Digest[i],2);
+
+  end;
+  sha256Encrypt:= s;
+end;
+
+function TForm1.sha1Encrypt(fileName: String): String;
+var
+  Hash: TDCP_sha1;
+  Digest: array[0..39] of byte;
+  Source: TFileStream;
+  i: integer;
+  s: string;
+begin
+  s:='';
+
+  // Local variable 'Digest' does not seem to be initialized Fix
+  ZeroMemory(@Digest, SizeOf(Digest));
+  Source:= nil;
+  //f:=  UTF8ToSys(fileName);
+  try
+    //한글 오류 수정 UTF8ToSys
+    Source:= TFileStream.Create(fileName,fmOpenRead);
+  except
+    MessageDlg('Unable to open file',mtError,[mbOK],0);
+  end;
+  if Source <> nil then
+  begin
+    Hash:= TDCP_sha1.Create(Self);
+    Hash.Init;
+    Hash.UpdateStream(Source,Source.Size);
+    Hash.Final(Digest);
+    Source.Free;
+
+    for i:= 0 to 19 do
+      s:= s + IntToHex(Digest[i],2);
+
+  end;
+  sha1Encrypt:=s;
+end;
+
+function TForm1.md5Encrypt(fileName: String): String;
+var
+  Hash: TDCP_md5;
+  Digest: array[0..31] of byte;
+  Source: TFileStream;
+  i: integer;
+  s: string;
+begin
+  s:= '';
+  // Local variable 'Digest' does not seem to be initialized Fix
+  ZeroMemory(@Digest, SizeOf(Digest));
+  Source:= nil;
+  //f:=  UTF8ToSys(fileName);
+  try
+    //한글 오류 수정 UTF8ToSys
+    Source:= TFileStream.Create(fileName,fmOpenRead);
+  except
+    MessageDlg('Unable to open file',mtError,[mbOK],0);
+  end;
+  if Source <> nil then
+  begin
+    Hash:= TDCP_md5.Create(Self);
+    Hash.Init;
+    Hash.UpdateStream(Source,Source.Size);
+    Hash.Final(Digest);
+    Source.Free;
+
+    for i:= 0 to 15 do
+      s:= s + IntToHex(Digest[i],2);
+
+  end;
+  md5Encrypt:=s;
+end;
+procedure TForm1.ZeroMemory(Destination: Pointer; Length: DWORD);
+begin
+  FillChar(Destination^, Length, 0);
 end;
 
 end.
