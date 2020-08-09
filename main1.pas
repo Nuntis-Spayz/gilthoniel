@@ -1257,28 +1257,35 @@ begin
       //read all the settings to save back after the upgrade/downgrade
       saveMode:=true;
       saveData.Clear;
-      WriteLn('B?');
-      WriteLn('C?');
-      WriteLn('F?');
-      while (saveData.Count<17) do
+      if Assigned(winSerial) and winSerial.Active then
       begin
+        WriteLn('B?');
+        WriteLn('C?');
+        WriteLn('F?');
+        while (saveData.Count<17) do
+        begin
+          Application.ProcessMessages;
+          Delay(10);
+        end;
+
+        CloseSerial();
+
+        //wait to allow serial to disconnect properly
         Application.ProcessMessages;
-        Delay(10);
+        Delay(250);
+        Application.ProcessMessages;
+        Delay(250);
+        Application.ProcessMessages;
       end;
-
-      CloseSerial();
       saveMode:=false;
-
-      Application.ProcessMessages;
-      Delay(250);
-      Application.ProcessMessages;
-      Delay(250);
-      Application.ProcessMessages;
 
       ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
 
+      //wait before re-opening the serial device
+      Application.ProcessMessages;
       Delay(1500);
       Application.ProcessMessages;
+
       OpenSerial(Sender);
       //ComboBox1Select(Sender);
     end;

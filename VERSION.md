@@ -2,13 +2,18 @@
 
 ## Application Features
 * Save and load all saber settings to a file
-* Save and load settnigs for a single bank
+* Save and load settings for a single bank
 * Update Firmware
 * Manage Main and Clash colours for all eight banks
 * With GUI colour picker
 * Selects saber COM port automatically
+* Application update over the Internet
 
-### v.0.1.0.53
+### v.0.1.0.55
+* No saber detected, update firmware failed, was trying to access a 
+  closed serial port, fixed
+
+### v.0.1.0.54
 * Changed Colour Picker Buttons to TColorButton
 * Put color maths into functions RGBtoRGBW, RGBWtoRGB to allow future color correction
 * Menu option to refresh ports
