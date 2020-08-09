@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 582
+  Left = 444
   Height = 830
-  Top = 259
+  Top = 260
   Width = 1513
   Caption = 'Gilthoniel'
   ClientHeight = 791
@@ -3170,6 +3170,18 @@ object Form1: TForm1
         Caption = '&Clear Debug Log'
         OnClick = menuItemClearLogClick
       end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object menuItemCheckOnConnect: TMenuItem
+        Caption = 'C&heck Firmware on Connect'
+        ShowAlwaysCheckable = True
+        OnClick = menuItemCheckOnConnectClick
+      end
+      object menuItemCheckFirmwareNow: TMenuItem
+        Caption = 'Chec&k Firmware Now'
+        OnClick = menuItemCheckFirmwareNowClick
+      end
       object menuItemFirmware: TMenuItem
         Caption = 'Update &Firmware'
         OnClick = menuItemFirmwareClick
@@ -3178,8 +3190,14 @@ object Form1: TForm1
     object miHelp: TMenuItem
       Caption = '&Help'
       object menuCheckUpdate: TMenuItem
-        Caption = '&Check for Update'
+        Caption = '&Check for App Update'
         OnClick = menuCheckUpdateClick
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object menuItemLicence: TMenuItem
+        Caption = '&Licence'
       end
       object menuAbout: TMenuItem
         Caption = '&About'
