@@ -14,7 +14,6 @@
 * Move get Internet code to it's own function
 * Changed App update info url to a dynamic file
 
-
 ### v.0.1.0.55
 * No saber detected, update firmware failed, was trying to access a 
   closed serial port, fixed
