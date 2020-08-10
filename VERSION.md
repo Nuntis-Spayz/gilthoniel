@@ -9,6 +9,10 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.57
+* Installer now includes latest master build OpenCore.1.9.13_20200810.hex
+* Giltoniel no changes
+
 ### v.0.1.0.56
 * Corrected settings for Open and Save dialogs.
 * Move get Internet code to it's own function

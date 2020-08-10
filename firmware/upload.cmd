@@ -10,9 +10,8 @@ pause
 exit
 
 :blank
-@echo Uploading OpenCore.1.9.13_20200808_json3.hex
-@echo --------------------------------------------
+@echo Uploading OpenCore.1.9.13_20200810.hex
+@echo --------------------------------------
 @echo.
-tycmd upload OpenCore.1.9.13_20200808_json3.hex
-pause
+tycmd upload OpenCore.1.9.13_20200810.hex
 exit
