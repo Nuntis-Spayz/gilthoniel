@@ -9,6 +9,11 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.58
+* Window size fixed for alternte screen resolutions
+* Installer fixed for Windows 32bit
+* All firmware update menus hidden if run standalone (no tycmd updater tools)
+
 ### v.0.1.0.57
 * Installer now includes latest master build OpenCore.1.9.13_20200810.hex
 * Giltoniel no changes

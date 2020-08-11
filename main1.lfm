@@ -2370,6 +2370,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize
+  OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object GroupPort: TGroupBox
     Left = 16
@@ -2428,7 +2429,7 @@ object Form1: TForm1
   object GroupBanks: TGroupBox
     Left = 24
     Height = 640
-    Top = 144
+    Top = 128
     Width = 928
     Caption = 'Colour Banks'
     ClientHeight = 603
@@ -3030,11 +3031,11 @@ object Form1: TForm1
   end
   object InfoBank: TGroupBox
     Left = 1048
-    Height = 632
-    Top = 144
+    Height = 640
+    Top = 128
     Width = 440
     Caption = 'Info'
-    ClientHeight = 595
+    ClientHeight = 603
     ClientWidth = 436
     ParentFont = False
     TabOrder = 2
@@ -3102,8 +3103,8 @@ object Form1: TForm1
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 408
-    Top = 696
+    Left = 496
+    Top = 616
   end
   object appMainMenu: TMainMenu
     Left = 616

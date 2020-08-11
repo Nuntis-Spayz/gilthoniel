@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gilthoniel"
-#define MyAppVersion "0.1.0.57"
+#define MyAppVersion "0.1.0.58"
 #define MyAppPublisher "Amazing Sabers"
 #define MyAppURL "http://sabers.amazer.uk/"
 #define MyAppExeName "Gilthoniel.exe"
@@ -21,7 +21,7 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 ArchitecturesAllowed=x86 x64 ia64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64 ia64
 DefaultDirName={pf}\gilthoniel
 DefaultGroupName={#MyAppName}
 OutputDir={#MyDevDir}
@@ -61,13 +61,14 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "{#MyDevDir}\Gilthonielx32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion 32bit
-Source: "{#MyDevDir}\Gilthonielx64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion 64bit
-Source: "{#MyDevDir}\firmware\tycmd_x32.exe"; DestDir: "{app}\firmware\"; DestName:"tycmd.exe"; Flags: ignoreversion 32bit
-Source: "{#MyDevDir}\firmware\tycmd_x64.exe"; DestDir: "{app}\firmware\"; DestName:"tycmd.exe"; Flags: ignoreversion 64bit
+Source: "{#MyDevDir}\Gilthonielx32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: Not IsWin64; Flags: ignoreversion
+Source: "{#MyDevDir}\Gilthonielx64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: IsWin64; Flags: ignoreversion
+Source: "{#MyDevDir}\firmware\tycmd_x32.exe"; DestDir: "{app}\firmware\"; DestName: "tycmd.exe"; Check: Not IsWin64; Flags: ignoreversion
+Source: "{#MyDevDir}\firmware\tycmd_x64.exe"; DestDir: "{app}\firmware\"; DestName: "tycmd.exe"; Check: IsWin64; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\*.cmd"; DestDir: "{app}\firmware\"; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\*.hex"; DestDir: "{app}\firmware\"; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\*.md"; DestDir: "{app}\firmware\"; Flags: ignoreversion
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -78,3 +79,6 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Dirs]
+Name: "{app}\firmware"; Flags: uninsalwaysuninstall

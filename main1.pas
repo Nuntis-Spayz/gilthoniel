@@ -95,6 +95,7 @@ type
     procedure ColorButtonMainColorChanged(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure menuAboutClick(Sender: TObject);
     procedure menuCheckUpdateClick(Sender: TObject);
     procedure menuItemCheckFirmwareNowClick(Sender: TObject);
@@ -128,6 +129,7 @@ type
     serialInput:String;
     saveMode: Boolean;
     saveData: TStringList;
+    defWidth, defHeight : Integer;
     {$IF defined(MSWindows)}
      winSerial: TLazSerial;
     {$elseif defined(DARWIN)}
@@ -172,6 +174,9 @@ Info: TVersionInfo;
 fpath : String;
 bInstalled: Boolean;
 begin
+  defWidth:=0;
+  defHeight:=0;
+
   saveMode:=false;
   saveData := TStringList.Create;
   saveData.Clear;
@@ -183,6 +188,8 @@ begin
   bInstalled:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
   //if the firmware directory files don't exist disable the firmware and update menu options
   menuItemFirmware.Visible := bInstalled;
+  menuItemCheckFirmwareNow.Visible := bInstalled;
+  menuItemCheckOnConnect.Visible := bInstalled;
   menuCheckUpdate.Visible  := bInstalled;
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
@@ -332,10 +339,10 @@ procedure TForm1.FormResize(Sender: TObject);
 var
  x,c2 : Integer;
 begin
- if(self.Width<1500) then
-   self.Width:=1500;
- if(self.Height<800) then
-   self.Height:=800;
+ if(self.Width<defWidth) then
+   self.Width:=defWidth;
+ if(self.Height<defHeight) then
+    self.Height:=defHeight;
 
  GroupPort.Left:=5;
  GroupPort.Width:=self.Width-10;
@@ -360,8 +367,8 @@ begin
 
  x:=GroupBanks.width -20;
  btnSend.left:= x - btnSend.width;
- btnSend.top:= GroupBanks.height - btnSend.height-40 - appMainMenu.Height ;
- btnResetColours.Top:=btnSend.top;
+ //btnSend.top:= GroupBanks.height - btnSend.height-40 - appMainMenu.Height ;
+ //btnResetColours.Top:=btnSend.top;
 
  c2:=(x div 2)+16; // <<-- ((x-32)/2)+16 -- div is integer division
  ledFRed.left:=c2;
@@ -551,7 +558,7 @@ begin
      else if inp.StartsWith('S=') then
      begin
        labSerial.Caption:=inp.Replace('S=','Serial No. ');
-       if menuItemCheckOnConnect.Checked then
+       if menuItemCheckOnConnect.Visible and  menuItemCheckOnConnect.Checked then
           checkFirmwareNow(Sender, true);
      end
      else if saveMode then
@@ -817,6 +824,14 @@ begin
 
   end;
 
+end;
+
+procedure TForm1.FormShow(Sender: TObject);
+begin
+  if defWidth=0 then
+      defWidth:=self.Width;
+  if defHeight=0 then
+      defHeight:=self.Height;
 end;
 
 procedure TForm1.menuAboutClick(Sender: TObject);
