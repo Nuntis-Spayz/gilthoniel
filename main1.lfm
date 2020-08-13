@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 444
-  Height = 830
+  Height = 840
   Top = 260
   Width = 1513
   Caption = 'Gilthoniel'
-  ClientHeight = 791
+  ClientHeight = 801
   ClientWidth = 1513
   DesignTimePPI = 192
   Icon.Data = {
@@ -2371,6 +2371,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
+  Position = poScreenCenter
   LCLVersion = '2.0.10.0'
   object GroupPort: TGroupBox
     Left = 16
