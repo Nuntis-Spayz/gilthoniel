@@ -23,9 +23,15 @@ type
 
   TForm1 = class(TForm)
     btnDisconnect: TBitBtn;
+    btnPreview2: TSpeedButton;
+    btnPreview3: TSpeedButton;
     btnResetColours: TBitBtn;
-    btnSend: TBitBtn;
+    btnSendBanks: TBitBtn;
+    btnSend1: TBitBtn;
+    btnSend2: TBitBtn;
+    btnSend3: TBitBtn;
     ColorButtonClash: TColorButton;
+    ColorButtonSwing: TColorButton;
     ColorButtonMain: TColorButton;
     ColorDialog1: TColorDialog;
     ComboBox1: TComboBox;
@@ -39,14 +45,18 @@ type
     labStatus: TLabel;
     Label3: TLabel;
     ledFBlue: TLabeledEdit;
+    ledSwBlue: TLabeledEdit;
     ledFGreen: TLabeledEdit;
     ledCRed: TLabeledEdit;
     ledCGreen: TLabeledEdit;
     ledCBlue: TLabeledEdit;
+    ledSwGreen: TLabeledEdit;
     ledFRed: TLabeledEdit;
     ledCWhite: TLabeledEdit;
+    ledSwRed: TLabeledEdit;
     ledFWhite: TLabeledEdit;
     appMainMenu: TMainMenu;
+    ledSwWhite: TLabeledEdit;
     Memo1: TMemo;
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
@@ -74,8 +84,16 @@ type
     miLoadAll: TMenuItem;
     menuItemExit: TMenuItem;
     OpenDialog1: TOpenDialog;
+    PageControl1: TPageControl;
     SaveDialog1: TSaveDialog;
     btnPreview1: TSpeedButton;
+    TabMain: TTabSheet;
+    TabClash: TTabSheet;
+    TabSwing: TTabSheet;
+    TrackSwBlue: TTrackBar;
+    TrackSwGreen: TTrackBar;
+    trackSwRed: TTrackBar;
+    TrackSwWhite: TTrackBar;
     TrackFGreen: TTrackBar;
     TrackFBlue: TTrackBar;
     TrackFWhite: TTrackBar;
@@ -87,12 +105,19 @@ type
     procedure btnDisconnectClick(Sender: TObject);
     procedure btnFirmwareClick(Sender: TObject);
     procedure btnPreview1Click(Sender: TObject);
+    procedure btnPreview2Click(Sender: TObject);
+    procedure btnPreview3Click(Sender: TObject);
     procedure btnResetColoursClick(Sender: TObject);
-    procedure btnSendClick(Sender: TObject);
+    procedure btnSend1Click(Sender: TObject);
+    procedure btnSend2Click(Sender: TObject);
+    procedure btnSend3Click(Sender: TObject);
+    procedure btnSendBanksClick(Sender: TObject);
     procedure ColorButtonClashClick(Sender: TObject);
     procedure ColorButtonClashColorChanged(Sender: TObject);
     procedure ColorButtonMainClick(Sender: TObject);
     procedure ColorButtonMainColorChanged(Sender: TObject);
+    procedure ColorButtonSwingClick(Sender: TObject);
+    procedure ColorButtonSwingColorChanged(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -109,11 +134,11 @@ type
     procedure miLoadBankClick(Sender: TObject);
     procedure miSaveAllClick(Sender: TObject);
     procedure miSaveBankClick(Sender: TObject);
+    procedure PageControl1Change(Sender: TObject);
     procedure RxData(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
     procedure ledCRedChange(Sender: TObject);
     procedure TrackCBlueChange(Sender: TObject);
     procedure TrackCGreenChange(Sender: TObject);
@@ -123,6 +148,10 @@ type
     procedure TrackFGreenChange(Sender: TObject);
     procedure trackFRedChange(Sender: TObject);
     procedure TrackFWhiteChange(Sender: TObject);
+    procedure TrackSwBlueChange(Sender: TObject);
+    procedure TrackSwGreenChange(Sender: TObject);
+    procedure trackSwRedChange(Sender: TObject);
+    procedure TrackSwWhiteChange(Sender: TObject);
   private
     appVersion : String;
     validatedPort:String;
@@ -146,6 +175,8 @@ type
     procedure HexColorStringtoBank(s:String);
     procedure DecClashStringtoBank(s:String);
     procedure HexClashStringtoBank(s:String);
+    procedure DecSwingStringtoBank(s:String);
+    procedure HexSwingStringtoBank(s:String);
     function RGBWtoRGB(red,green,blue,white: Integer) : Integer;
     function RGBtoRGBW(red,green,blue:Integer) : Integer;
     function md5Encrypt(fileName: String): String;
@@ -184,6 +215,8 @@ begin
   self.Width:=1500;
   self.Height:=800;
 
+  PageControl1.TabIndex:=0;
+
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
   bInstalled:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
   //if the firmware directory files don't exist disable the firmware and update menu options
@@ -194,9 +227,12 @@ begin
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
   btnPreview1.Visible:=false;
+  btnPreview2.Visible:=false;
+  btnPreview3.Visible:=false;
 
   ColorButtonMain.Caption:='Pick Main '+#13+'Colour ';
   ColorButtonClash.Caption:='Pick Clash '+#13+'Colour ';
+  ColorButtonSwing.Caption:='Pick Swing '+#13+'Colour ';
 
   serialInput:='';
 
@@ -211,6 +247,11 @@ begin
   ledFGreen.Caption:='0';
   ledFBlue.Caption:='0';
   ledFWhite.Caption:='0';
+
+  ledSwRed.Caption:='0';
+  ledSwGreen.Caption:='0';
+  ledSwBlue.Caption:='0';
+  ledSwWhite.Caption:='0';
 
   Info := TVersionInfo.Create;
   Info.Load(HINSTANCE);
@@ -325,6 +366,8 @@ begin
   validatedPort:='';
   serialInput:='';
   GroupBanks.Enabled:=False;
+  PageControl1.Enabled:=False;
+
   btnDisconnect.Caption:='Connect';
 
 end;
@@ -365,20 +408,14 @@ begin
  labSerial.left:=Memo1.left;
  labBuild.left:=Memo1.left;
 
+ PageControl1.Width:=GroupBanks.Width-2*PageControl1.Left;
+
  x:=GroupBanks.width -20;
- btnSend.left:= x - btnSend.width;
- //btnSend.top:= GroupBanks.height - btnSend.height-40 - appMainMenu.Height ;
- //btnResetColours.Top:=btnSend.top;
+ btnSendBanks.left:= x - btnSendBanks.width;
+ //btnSendBanks.top:= GroupBanks.height - btnSendBanks.height-40 - appMainMenu.Height ;
+ //btnResetColours.Top:=btnSendBanks.top;
 
  c2:=(x div 2)+16; // <<-- ((x-32)/2)+16 -- div is integer division
- ledFRed.left:=c2;
- trackFRed.left:=c2+ ledFRed.width +16;
- ledFGreen.left:=c2;
- trackFGreen.left:=trackFRed.left;
- ledFBlue.left:=c2;
- trackFBlue.left:=trackFRed.left;
- ledFWhite.left:=c2;
- trackFWhite.left:=trackFRed.left;
 
  trackFRed.width:=c2- ledFRed.width -32;
  trackFGreen.width:=trackFRed.width;
@@ -390,13 +427,22 @@ begin
  trackCBlue.width:=trackFRed.width;
  trackCWhite.width:=trackFRed.width;
 
- ColorButtonMain.Left := trackCRed.Left + trackCRed.width - ColorButtonMain.width - 16;
- ColorButtonClash.Left := trackFRed.Left + trackFRed.width - ColorButtonClash.width - 16;
+ trackSwRed.width:=trackFRed.width;
+ trackSwGreen.width:=trackFRed.width;
+ trackSwBlue.width:=trackFRed.width;
+ trackSwWhite.width:=trackFRed.width;
 
-end;
+ ColorButtonMain.Left := trackCRed.Left + trackCRed.width + 16;
+ ColorButtonClash.Left := trackFRed.Left + trackFRed.width + 16;
+ ColorButtonSwing.Left := trackSwRed.Left + trackSwRed.width + 16;
 
-procedure TForm1.SpeedButton2Click(Sender: TObject);
-begin
+ btnPreview1.Left := PageControl1.Width -16 - btnPreview1.Width;
+ btnPreview2.Left := PageControl1.Width -16 - btnPreview2.Width;
+ btnPreview3.Left := PageControl1.Width -16 - btnPreview3.Width;
+
+ btnSend1.Left := TabMain.Width -16 - btnSend1.Width;
+ btnSend2.Left := TabClash.Width -16 - btnSend2.Width;
+ btnSend3.Left := TabSwing.Width -16 - btnSend3.Width;
 
 end;
 
@@ -446,9 +492,9 @@ procedure TForm1.ColorButtonMainColorChanged(Sender: TObject);
 var
  rgbw : Integer;
 begin
- ColorButtonMain.OnColorChanged:=nil;
+  ColorButtonMain.OnColorChanged:=nil;
 
- rgbw:=RGBtoRGBW(Byte(ColorButtonMain.ButtonColor),
+  rgbw:=RGBtoRGBW(Byte(ColorButtonMain.ButtonColor),
                   Byte(ColorButtonMain.ButtonColor shr 8),
                   Byte(ColorButtonMain.ButtonColor shr 16));
 
@@ -459,9 +505,30 @@ begin
   trackCWhite.Position:=Byte(rgbw shr 24);
 end;
 
+procedure TForm1.ColorButtonSwingClick(Sender: TObject);
+begin
+ ColorButtonSwing.OnColorChanged:=@ColorButtonSwingColorChanged;
+end;
+
 procedure TForm1.ColorButtonClashClick(Sender: TObject);
 begin
   ColorButtonClash.OnColorChanged:=@ColorButtonClashColorChanged;
+end;
+
+procedure TForm1.ColorButtonSwingColorChanged(Sender: TObject);
+var
+  rgbw : Integer;
+begin
+  ColorButtonSwing.OnColorChanged:= nil;
+
+  rgbw:=RGBtoRGBW(Byte(ColorButtonSwing.ButtonColor),
+                  Byte(ColorButtonSwing.ButtonColor shr 8),
+                  Byte(ColorButtonSwing.ButtonColor shr 16));
+
+  trackSwRed.Position:=Byte(rgbw);
+  trackSwGreen.Position:=Byte(rgbw shr 8);
+  trackSwBlue.Position:=Byte(rgbw shr 16);
+  trackSwWhite.Position:=Byte(rgbw shr 24);
 end;
 
 procedure TForm1.ColorButtonClashColorChanged(Sender: TObject);
@@ -531,8 +598,9 @@ begin
        btnDisconnect.Caption:='Disconnect/Save';
 
        ComboBank.Enabled:=True;
-       btnSend.Enabled:=True;
+       btnSendBanks.Enabled:=True;
        GroupBanks.Enabled:=True;
+       PageControl1.Enabled:=True;
 
        labBuild.Caption:='Build: '+inp;
 
@@ -577,7 +645,17 @@ begin
      else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
        DecClashStringtoBank(inp.Substring(3))
      else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
-       HexClashStringtoBank(inp.Substring(3));
+       HexClashStringtoBank(inp.Substring(3))
+     else if( (inp.StartsWith('w')) and (inp.Chars[2]='=') ) then
+     begin
+       TabSwing.TabVisible:=true;
+       DecSwingStringtoBank(inp.Substring(3));
+     end
+     else if( (inp.StartsWith('W')) and (inp.Chars[2]='=') ) then
+     begin
+       TabSwing.TabVisible:=true;
+       HexSwingStringtoBank(inp.Substring(3));
+     end;
 
 
    end; //inp not empty
@@ -625,6 +703,26 @@ begin
   trackFWhite.Position:=Hex2Dec(s.Substring(6,2));
 end;
 
+procedure TForm1.DecSwingStringtoBank(s:String);
+var
+  colours: Array of String;
+begin
+  colours:=s.Split(',');
+  ledSwRed.Caption:=colours[0];
+  ledSwGreen.Caption:=colours[1];
+  ledSwBlue.Caption:=colours[2];
+  ledSwWhite.Caption:=colours[3];
+end;
+
+procedure TForm1.HexSwingStringtoBank(s:String);
+begin
+  //hex values
+  trackSwRed.Position:=Hex2Dec(s.Substring(0,2));
+  trackSwGreen.Position:=Hex2Dec(s.Substring(2,2));
+  trackSwBlue.Position:=Hex2Dec(s.Substring(4,2));
+  trackSwWhite.Position:=Hex2Dec(s.Substring(6,2));
+end;
+
 procedure TForm1.ledCRedChange(Sender: TObject);
 var
  i:LongInt;
@@ -662,6 +760,17 @@ begin
     if(capt.Contains('White') and (trackFWhite.Position<>i)) then
         trackFWhite.Position:=i;
    end;
+   if(capt.Contains('Swi')) then
+   begin
+    if(capt.Contains('Red') and (trackSwRed.Position<>i)) then
+        trackSwRed.Position:=i;
+    if(capt.Contains('Green') and (trackSwGreen.Position<>i)) then
+        trackSwGreen.Position:=i;
+    if(capt.Contains('Blue') and (trackSwBlue.Position<>i)) then
+        trackSwBlue.Position:=i;
+    if(capt.Contains('White') and (trackSwWhite.Position<>i)) then
+        trackSwWhite.Position:=i;
+   end;
 
   end;
 
@@ -676,6 +785,7 @@ begin
  if(ledCBlue.Caption<>s) then
    ledCBlue.Caption:=s;
 
+ Application.ProcessMessages;
  ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
                                   trackCGreen.Position,
                                   trackCBlue.Position,
@@ -690,6 +800,7 @@ begin
  if(ledCGreen.Caption<>s) then
    ledCGreen.Caption:=s;
 
+  Application.ProcessMessages;
   ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
                                   trackCGreen.Position,
                                   trackCBlue.Position,
@@ -719,7 +830,8 @@ begin
  if(ledCWhite.Caption<>s) then
    ledCWhite.Caption:=s;
 
-  ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
+ Application.ProcessMessages;
+ ColorButtonMain.ButtonColor:=RGBWtoRGB(trackCRed.Position,
                                   trackCGreen.Position,
                                   trackCBlue.Position,
                                   trackCWhite.Position);
@@ -733,7 +845,8 @@ begin
  if(ledFBlue.Caption<>s) then
    ledFBlue.Caption:=s;
 
-  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+ Application.ProcessMessages;
+ ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
                                   trackFGreen.Position,
                                   trackFBlue.Position,
                                   trackFWhite.Position);
@@ -747,7 +860,8 @@ begin
  if(ledFGreen.Caption<>s) then
    ledFGreen.Caption:=s;
 
-  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+ Application.ProcessMessages;
+ ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
                                   trackFGreen.Position,
                                   trackFBlue.Position,
                                   trackFWhite.Position);
@@ -761,7 +875,8 @@ begin
  if(ledFRed.Caption<>s) then
    ledFRed.Caption:=s;
 
-  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+ Application.ProcessMessages;
+ ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
                                   trackFGreen.Position,
                                   trackFBlue.Position,
                                   trackFWhite.Position);
@@ -775,10 +890,73 @@ begin
  if(ledFWhite.Caption<>s) then
    ledFWhite.Caption:=s;
 
-  ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
+ Application.ProcessMessages;
+ ColorButtonClash.ButtonColor:=RGBWtoRGB(trackFRed.Position,
                                   trackFGreen.Position,
                                   trackFBlue.Position,
                                   trackFWhite.Position);
+end;
+
+procedure TForm1.TrackSwBlueChange(Sender: TObject);
+var
+ s : String;
+begin
+ s:=IntToStr(trackSwBlue.Position);
+ if(ledSwBlue.Caption<>s) then
+   ledSwBlue.Caption:=s;
+
+ Application.ProcessMessages;
+ ColorButtonSwing.ButtonColor:=RGBWtoRGB(trackSwRed.Position,
+                                  trackSwGreen.Position,
+                                  trackSwBlue.Position,
+                                  trackSwWhite.Position);
+
+end;
+
+procedure TForm1.TrackSwGreenChange(Sender: TObject);
+var
+ s : String;
+begin
+ s:=IntToStr(trackSwGreen.Position);
+ if(ledSwGreen.Caption<>s) then
+   ledSwGreen.Caption:=s;
+
+ Application.ProcessMessages;
+ ColorButtonSwing.ButtonColor:=RGBWtoRGB(trackSwRed.Position,
+                                  trackSwGreen.Position,
+                                  trackSwBlue.Position,
+                                  trackSwWhite.Position);
+
+end;
+
+procedure TForm1.trackSwRedChange(Sender: TObject);
+var
+ s : String;
+begin
+ s:=IntToStr(trackSwRed.Position);
+ if(ledSwRed.Caption<>s) then
+   ledSwRed.Caption:=s;
+
+ Application.ProcessMessages;
+ ColorButtonSwing.ButtonColor:=RGBWtoRGB(trackSwRed.Position,
+                                  trackSwGreen.Position,
+                                  trackSwBlue.Position,
+                                  trackSwWhite.Position);
+end;
+
+procedure TForm1.TrackSwWhiteChange(Sender: TObject);
+var
+ s : String;
+begin
+ s:=IntToStr(trackSwWhite.Position);
+ if(ledSwWhite.Caption<>s) then
+   ledSwWhite.Caption:=s;
+
+ Application.ProcessMessages;
+ ColorButtonSwing.ButtonColor:=RGBWtoRGB(trackSwRed.Position,
+                                  trackSwGreen.Position,
+                                  trackSwBlue.Position,
+                                  trackSwWhite.Position);
 end;
 
 procedure TForm1.ComboBox1Select(Sender: TObject);
@@ -790,8 +968,12 @@ begin
   serialInput:='';
 
   ComboBank.Enabled:=False;
-  btnSend.Enabled:=False;
+  btnSendBanks.Enabled:=False;
   GroupBanks.Enabled:=False;
+
+  PageControl1.Enabled:=false;
+  PageControl1.TabIndex:=0;
+  TabSwing.TabVisible:=false;
 
   btnDisconnect.Caption:='Disconnect/Save';
 
@@ -1037,63 +1219,48 @@ var
 begin
   if not(assigned(winSerial)) or Not(winSerial.Active) then
   begin
-    Memo1.Append('<>check 001');
     if Not(silent) then
     begin
-      Memo1.Append('<>check 002');
       MessageDlg('Update Check',
                'No saber connected',
                 mtConfirmation, [mbOK],0);
     end;
-    Memo1.Append('<>check 003');
     exit;
   end;
 
   ini:=form1.iniFromURL('http://sabers.amazer.uk/files/firmware/release.php');
-  Memo1.Append('<>check 004');
   if Not(Assigned(ini)) or (ini=nil) then
   begin
-    Memo1.Append('<>check 005');
     if Not(silent) then
     begin
-      Memo1.Append('<>check 006');
       MessageDlg('Update Check',
                'Update Check Failed, see debug log',
                 mtConfirmation, [mbOK],0);
     end;
-    Memo1.Append('<>check 007');
   end
   else
   begin
-    Memo1.Append('<>check 008');
     newv:=ini.ReadString('master','v','');
     if newv.IsEmpty then
     begin
-      Memo1.Append('<>check 009');
       if Not(silent) then
       begin
-        Memo1.Append('<>check 010');
         MessageDlg('Update Check',
                'Update Check Failed, see debug log',
                 mtConfirmation, [mbOK],0);
       end;
-      Memo1.Append('<>check 011');
     end
     else
     begin
-      Memo1.Append('<>check 012');
       sver:=labBuild.Caption;
       if sver.EndsWith(newv) then
       begin
-        Memo1.Append('<>check 013');
         if Not(silent) then
         begin
-          Memo1.Append('<>check 014');
           MessageDlg('Update Check',
                'You have the current Firmware'+#13+'v.'+newv,
                 mtConfirmation, [mbOK],0)
         end;
-        Memo1.Append('<>check 015');
       end
       else
       begin
@@ -1212,7 +1379,6 @@ end;
 procedure TForm1.miLoadAllClick(Sender: TObject);
 var
  k: Integer;
- //opd : TLazOpenDialog;
 begin
   OpenDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
   OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
@@ -1280,7 +1446,11 @@ begin
         else if saveData[k].StartsWith('f=') then
           DecClashStringtoBank(saveData[k].Substring(2))
         else if saveData[k].StartsWith('F=') then
-          HexClashStringtoBank(saveData[k].Substring(2));
+          HexClashStringtoBank(saveData[k].Substring(2))
+        else if saveData[k].StartsWith('w=') then
+          DecSwingStringtoBank(saveData[k].Substring(2))
+        else if saveData[k].StartsWith('W=') then
+          HexSwingStringtoBank(saveData[k].Substring(2));
 
         Application.ProcessMessages;
       end;
@@ -1293,6 +1463,7 @@ end;
 procedure TForm1.miSaveAllClick(Sender: TObject);
 var
  fname:String;
+ getlines : Integer;
 begin
   {$IF defined(MSWindows)}
   //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
@@ -1327,7 +1498,7 @@ begin
        //save current bank to saber
       saveMode:=true;
       saveData.Clear;
-      btnSendClick(Sender);
+      btnSendBanksClick(Sender);
       //expecting two responses
       while (saveData.Count<2) do
       begin
@@ -1339,10 +1510,16 @@ begin
       saveData.Clear;
       saveData.Add('!filetype=Giltoniel Saber Settings');
       WriteLn('B?');
+      WriteLn('w?');
       WriteLn('c?');
       WriteLn('f?');
-      while (saveData.Count<18) do
+      getlines:=18;
+      while (saveData.Count<getlines) do
       begin
+        if (getlines=18) and (saveData.count>0) then
+          if saveData[saveData.count-1].StartsWith('w') then
+             getlines:=26;
+
         Application.ProcessMessages;
         Delay(10);
       end;
@@ -1390,12 +1567,18 @@ begin
        saveData.Add('!filetype=Giltoniel Saber Bank');
        saveData.Add('c='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
        saveData.Add('f='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
+       saveData.Add('w='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
 
        saveData.SaveToFile(fname);
        saveData.Clear;
      end;
 
    end;
+end;
+
+procedure TForm1.PageControl1Change(Sender: TObject);
+begin
+
 end;
 
 procedure TForm1.ComboBankSelect(Sender: TObject);
@@ -1417,11 +1600,12 @@ begin
 
     WriteLn('c'+bank+'?');
     WriteLn('f'+bank+'?');
+    WriteLn('w'+bank+'?');
     WriteLn('B='+bank);
   end;
 end;
 
-procedure TForm1.btnSendClick(Sender: TObject);
+procedure TForm1.btnSendBanksClick(Sender: TObject);
 var
    bank:String;
 begin
@@ -1430,20 +1614,12 @@ begin
     bank:=IntToStr(ComboBank.ItemIndex);
     WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
     WriteLn('f'+bank+'='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
-
-    //WriteLn('DC'+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+    WriteLn('w'+bank+'='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
 
     //request values back to confirm
     WriteLn('c'+bank+'?');
     WriteLn('f'+bank+'?');
-
-    //Sleep(1200);
-    //WriteLn('DC'+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
-    //Sleep(400);
-    //WriteLn('DC'+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
-    //Sleep(500);
-    //WriteLn('OFF');
-
+    WriteLn('w'+bank+'?');
   end;
 end;
 
@@ -1473,6 +1649,8 @@ begin
 
 end;
 procedure TForm1.loadFirmware(Sender:Tobject; filename:String);
+var
+  getlines : Integer;
 begin
     //read all the settings to save back after the upgrade/downgrade
     saveMode:=true;
@@ -1480,10 +1658,18 @@ begin
     if Assigned(winSerial) and winSerial.Active then
     begin
       WriteLn('B?');
+      WriteLn('W?');
       WriteLn('C?');
       WriteLn('F?');
-      while (saveData.Count<17) do
+      getlines:=17;
+      while (saveData.Count<getlines) do
       begin
+        if(getlines=17) and (saveData.Count>0) then
+        begin
+          // see if we have a W swing response in which case we need 25 lines of data
+          if saveData[saveData.Count-1].StartsWith('W') then
+             getlines:=25;
+        end;
         Application.ProcessMessages;
         Delay(10);
       end;
@@ -1512,7 +1698,17 @@ end;
 
 procedure TForm1.btnPreview1Click(Sender: TObject);
 begin
+  WriteLn('P='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+end;
+
+procedure TForm1.btnPreview2Click(Sender: TObject);
+begin
   WriteLn('P='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
+end;
+
+procedure TForm1.btnPreview3Click(Sender: TObject);
+begin
+    WriteLn('P='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
 end;
 
 procedure TForm1.btnDisconnectClick(Sender: TObject);
@@ -1539,6 +1735,7 @@ begin
      validatedPort:='';
      labStatus.Caption:='Disconnected';
      GroupBanks.Enabled:=False;
+     PageControl1.Enabled:=false;
 
      btnDisconnect.Caption:='Connect';
    end;
@@ -1554,6 +1751,48 @@ begin
     WriteLn('RESET');
     delay(500);
     ComboBankSelect(Sender);
+  end;
+end;
+
+procedure TForm1.btnSend1Click(Sender: TObject);
+var
+   bank:String;
+begin
+  if(validatedPort<>'') then
+  begin
+    bank:=IntToStr(ComboBank.ItemIndex);
+    WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+
+    //request values back to confirm
+    WriteLn('c'+bank+'?');
+  end;
+end;
+
+procedure TForm1.btnSend2Click(Sender: TObject);
+var
+   bank:String;
+begin
+  if(validatedPort<>'') then
+  begin
+    bank:=IntToStr(ComboBank.ItemIndex);
+    WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+
+    //request values back to confirm
+    WriteLn('f'+bank+'?');
+  end;
+end;
+
+procedure TForm1.btnSend3Click(Sender: TObject);
+var
+   bank:String;
+begin
+  if(validatedPort<>'') then
+  begin
+    bank:=IntToStr(ComboBank.ItemIndex);
+    WriteLn('w'+bank+'='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
+
+    //request values back to confirm
+    WriteLn('w'+bank+'?');
   end;
 end;
 
