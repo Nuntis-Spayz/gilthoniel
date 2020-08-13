@@ -11,6 +11,8 @@ Use the Windows installer which will install the correct 64/32 bit application o
 with the firmware folder and tools, download file "install_gilthoniel_0.1.0.53.exe" (or later version) 
 in the root of the repository.
 
+The installer (and application) has been tested on Windows 10 (64-bit) and Windows 7 (32 and 64-bit).
+
 ### Mac OS
 Although some development work is happening with a Mac OS version of the application 
 progress getting the serial comms to work is on-going, please be patient. (There is definitely 
