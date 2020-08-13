@@ -9,6 +9,9 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.59
+* Set swing colour
+
 ### v.0.1.0.58
 * Window size fixed for alternte screen resolutions
 * Installer fixed for Windows 32bit
