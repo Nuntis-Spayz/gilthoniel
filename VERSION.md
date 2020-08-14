@@ -9,6 +9,11 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.60
+* Set swing colour
+* Changed names of firmware menu items
+* Disabled menu for check on connect as not yet implmented
+
 ### v.0.1.0.59
 * Set swing colour
 
