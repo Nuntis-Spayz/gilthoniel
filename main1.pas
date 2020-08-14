@@ -1472,7 +1472,7 @@ begin
   SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
   {$ENDIF}
   SaveDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
-  SaveDialog1.Options:=SaveDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  SaveDialog1.Options:=SaveDialog1.Options + [ofEnableSizing, ofDontAddToRecent];
   //ofOldStyleDialog
 
   SaveDialog1.Title:='Select an OpenCoreSettings File';
@@ -1535,7 +1535,7 @@ var
  fname:String;
 begin
    SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-   SaveDialog1.Options:=SaveDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+   SaveDialog1.Options:=SaveDialog1.Options + [ofEnableSizing, ofDontAddToRecent];
    SaveDialog1.Title:='Select an OpenCoreBank File';
    {$IF defined(MSWindows)}
    //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
@@ -1775,7 +1775,7 @@ begin
   if(validatedPort<>'') then
   begin
     bank:=IntToStr(ComboBank.ItemIndex);
-    WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+    WriteLn('f'+bank+'='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
 
     //request values back to confirm
     WriteLn('f'+bank+'?');

@@ -2495,8 +2495,8 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabSwing
-      TabIndex = 2
+      ActivePage = TabMain
+      TabIndex = 0
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
@@ -3954,15 +3954,16 @@ object Form1: TForm1
       end
       object menuItemCheckOnConnect: TMenuItem
         Caption = 'C&heck Firmware on Connect'
+        Enabled = False
         ShowAlwaysCheckable = True
         OnClick = menuItemCheckOnConnectClick
       end
       object menuItemCheckFirmwareNow: TMenuItem
-        Caption = 'Chec&k Firmware Now'
+        Caption = 'Chec&k Firmware Online'
         OnClick = menuItemCheckFirmwareNowClick
       end
       object menuItemFirmware: TMenuItem
-        Caption = 'Update &Firmware'
+        Caption = 'Update &Firmware from File'
         OnClick = menuItemFirmwareClick
       end
     end
