@@ -226,9 +226,9 @@ begin
   menuCheckUpdate.Visible  := bInstalled;
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
-  btnPreview1.Visible:=false;
-  btnPreview2.Visible:=false;
-  btnPreview3.Visible:=false;
+  //btnPreview1.Visible:=false;
+  //btnPreview2.Visible:=false;
+  //btnPreview3.Visible:=false;
 
   ColorButtonMain.Caption:='Pick Main '+#13+'Colour ';
   ColorButtonClash.Caption:='Pick Clash '+#13+'Colour ';

@@ -9,7 +9,10 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
-### v.0.1.0.60
+### v.0.1.0.62
+* Preview colours on saber
+
+### v.0.1.0.61
 * Set swing colour
 * Changed names of firmware menu items
 * Disabled menu for check on connect as not yet implmented
