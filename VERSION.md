@@ -4,10 +4,16 @@
 * Save and load all saber settings to a file
 * Save and load settings for a single bank
 * Update Firmware
-* Manage Main and Clash colours for all eight banks
-* With GUI colour picker
+* Manage Main, Swing and Clash colours for all eight banks
+* With GUI colour picker (RGB to RGBW color correction does not take 
+  into account each LED colour have different brightnesses)
+* Preview each colour on saber
 * Selects saber COM port automatically
 * Application update over the Internet
+
+### v.0.1.0.63
+* BUG: Save all settings did not save all data, fixed
+* Moved Swing Panel to middle tab
 
 ### v.0.1.0.62
 * Preview colours on saber

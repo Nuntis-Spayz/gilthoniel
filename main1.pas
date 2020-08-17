@@ -1401,7 +1401,7 @@ begin
     begin
       for k:=0 to (saveData.Count-1) do
       begin
-        if Not(saveData[k].StartsWith('!')) then
+        if Not(saveData[k].StartsWith('#')) and Not(saveData[k].StartsWith('!'))then
           WriteLn(saveData[k]);
 
         Application.ProcessMessages;
@@ -1508,21 +1508,22 @@ begin
 
       saveMode:=true;
       saveData.Clear;
-      saveData.Add('!filetype=Giltoniel Saber Settings');
+      saveData.Add('#filetype=Giltoniel Saber Settings');
       WriteLn('B?');
       WriteLn('w?');
       WriteLn('c?');
       WriteLn('f?');
+
       getlines:=18;
+      if tabSwing.IsEnabled then
+         getlines:=26;
+
       while (saveData.Count<getlines) do
       begin
-        if (getlines=18) and (saveData.count>0) then
-          if saveData[saveData.count-1].StartsWith('w') then
-             getlines:=26;
-
         Application.ProcessMessages;
         Delay(10);
       end;
+
       saveMode:=false;
       saveData.SaveToFile(fname);
       saveData.Clear;
@@ -1564,7 +1565,7 @@ begin
      begin
        saveMode:=false;
        saveData.Clear;
-       saveData.Add('!filetype=Giltoniel Saber Bank');
+       saveData.Add('#filetype=Giltoniel Saber Bank');
        saveData.Add('c='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
        saveData.Add('f='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
        saveData.Add('w='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
@@ -1662,14 +1663,10 @@ begin
       WriteLn('C?');
       WriteLn('F?');
       getlines:=17;
+      if tabSwing.IsEnabled then
+         getlines:=25;
       while (saveData.Count<getlines) do
       begin
-        if(getlines=17) and (saveData.Count>0) then
-        begin
-          // see if we have a W swing response in which case we need 25 lines of data
-          if saveData[saveData.Count-1].StartsWith('W') then
-             getlines:=25;
-        end;
         Application.ProcessMessages;
         Delay(10);
       end;
