@@ -5,13 +5,13 @@
 @echo Uploading %1
 @echo --------------------------------------
 @echo.
-tycmd upload %1
+tycmd upload "%1"
 pause
 exit
 
 :blank
-@echo Uploading OpenCore.1.9.14sx_20200814_swing.hex
+@echo Uploading OpenCore.1.9.15_20200820.hex
 @echo --------------------------------------
 @echo.
-tycmd upload OpenCore.1.9.14sx_20200814_swing.hex
+tycmd upload OpenCore.1.9.15_20200820.hex
 exit

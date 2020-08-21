@@ -2495,8 +2495,8 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabClash
-      TabIndex = 2
+      ActivePage = TabSwing
+      TabIndex = 1
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet

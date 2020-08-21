@@ -11,6 +11,11 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.64
+* BUG: save data from old firmwares hung, upgrade firmware and save saber,
+  Added timeout and disconnect button aborts
+* Added master build of firmware 1.9.15
+  
 ### v.0.1.0.63
 * BUG: Save all settings did not save all data, fixed
 * Moved Swing Panel to middle tab

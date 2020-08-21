@@ -1463,7 +1463,7 @@ end;
 procedure TForm1.miSaveAllClick(Sender: TObject);
 var
  fname:String;
- getlines : Integer;
+ getlines, abort : Integer;
 begin
   {$IF defined(MSWindows)}
   //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
@@ -1515,18 +1515,33 @@ begin
       WriteLn('f?');
 
       getlines:=18;
-      if tabSwing.IsEnabled then
+      if tabSwing.TabVisible then
          getlines:=26;
 
-      while (saveData.Count<getlines) do
+      abort:=0;
+      while (saveData.Count<getlines) and (abort<4096) and (WinSerial.Active) do
       begin
         Application.ProcessMessages;
         Delay(10);
+        abort:=abort+1;
+        Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
+      end;
+      if (abort>=4096) or Not(WinSerial.Active) then
+      begin
+        saveData.Clear;
+        Memo1.append('Saving data from saber timed out.');
+        Memo1.append('Save settings aborted.');
+        MessageDlg('Save Saber Settings',
+                   'Saving data from saber timed out,'+#13+#13
+                   +'Save settings aborted.',
+                   mtConfirmation, [mbOK],0);
+        exit;
       end;
 
       saveMode:=false;
       saveData.SaveToFile(fname);
       saveData.Clear;
+
      end;
   end;
 end;
@@ -1652,6 +1667,7 @@ end;
 procedure TForm1.loadFirmware(Sender:Tobject; filename:String);
 var
   getlines : Integer;
+  abort : Integer;
 begin
     //read all the settings to save back after the upgrade/downgrade
     saveMode:=true;
@@ -1663,12 +1679,27 @@ begin
       WriteLn('C?');
       WriteLn('F?');
       getlines:=17;
-      if tabSwing.IsEnabled then
+      if tabSwing.TabVisible then
          getlines:=25;
-      while (saveData.Count<getlines) do
+
+      abort:=0;
+      while (saveData.Count<getlines) and (abort<4096) and (WinSerial.Active) do
       begin
         Application.ProcessMessages;
         Delay(10);
+        abort:=abort+1;
+        Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
+      end;
+      if (abort>=4096) or Not(WinSerial.Active) then
+      begin
+        saveData.Clear;
+        Memo1.append('Saving data from saber timed out.');
+        Memo1.append('Firmware update aborted');
+        MessageDlg('Save Saber Settings',
+                   'Saving data from saber timed out,'+#13+#13
+                   +'Firmware update aborted.',
+                   mtConfirmation, [mbOK],0);
+        exit;
       end;
 
       CloseSerial();
