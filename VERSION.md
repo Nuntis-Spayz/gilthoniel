@@ -11,6 +11,12 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 
+### v.0.1.0.66
+* HTML help internal and external hypelinks working
+
+### v.0.1.0.65
+* HTML based About, Licence and Help Dialog Box
+
 ### v.0.1.0.64
 * BUG: save data from old firmwares hung, upgrade firmware and save saber,
   Added timeout and disconnect button aborts

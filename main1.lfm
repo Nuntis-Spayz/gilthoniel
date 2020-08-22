@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 444
+  Left = 550
   Height = 840
-  Top = 260
+  Top = 247
   Width = 1513
   Caption = 'Gilthoniel'
   ClientHeight = 801
@@ -2429,11 +2429,11 @@ object Form1: TForm1
   end
   object GroupBanks: TGroupBox
     Left = 24
-    Height = 640
+    Height = 648
     Top = 120
     Width = 984
     Caption = 'Colour Banks'
-    ClientHeight = 603
+    ClientHeight = 611
     ClientWidth = 980
     ParentFont = False
     TabOrder = 1
@@ -2475,6 +2475,8 @@ object Form1: TForm1
       Height = 70
       Top = 520
       Width = 270
+      HelpType = htKeyword
+      HelpKeyword = 'html/licence.html'
       Caption = 'Write Bank to Saber'
       OnClick = btnSendBanksClick
       ParentFont = False
@@ -3891,10 +3893,12 @@ object Form1: TForm1
       Caption = '&File'
       object miSaveBank: TMenuItem
         Caption = 'Save Current Editor &Bank'
+        ShortCut = 16470
         OnClick = miSaveBankClick
       end
       object miLoadBank: TMenuItem
         Caption = '&Load Current Editor Bank'
+        ShortCut = 16460
         OnClick = miLoadBankClick
       end
       object MenuItem1: TMenuItem
@@ -3924,6 +3928,7 @@ object Form1: TForm1
       Caption = '&Connect'
       object menuItemRescan: TMenuItem
         Caption = '&Re-Scan for Ports'
+        ShortCut = 16466
         OnClick = menuItemRescanClick
       end
       object miSep13: TMenuItem
@@ -3942,11 +3947,13 @@ object Form1: TForm1
       Caption = '&Tools'
       object menuItemDebug: TMenuItem
         Caption = 'Show &Debug Log'
+        ShortCut = 16452
         ShowAlwaysCheckable = True
         OnClick = menuItemDebugClick
       end
       object menuItemClearLog: TMenuItem
         Caption = '&Clear Debug Log'
+        ShortCut = 16451
         OnClick = menuItemClearLogClick
       end
       object N1: TMenuItem
@@ -3960,10 +3967,12 @@ object Form1: TForm1
       end
       object menuItemCheckFirmwareNow: TMenuItem
         Caption = 'Chec&k Firmware Online'
+        ShortCut = 16461
         OnClick = menuItemCheckFirmwareNowClick
       end
       object menuItemFirmware: TMenuItem
         Caption = 'Update &Firmware from File'
+        ShortCut = 16454
         OnClick = menuItemFirmwareClick
       end
     end
@@ -3971,16 +3980,25 @@ object Form1: TForm1
       Caption = '&Help'
       object menuCheckUpdate: TMenuItem
         Caption = '&Check for App Update'
+        ShortCut = 16449
         OnClick = menuCheckUpdateClick
       end
       object N2: TMenuItem
         Caption = '-'
       end
+      object MenuItem2: TMenuItem
+        Caption = '&Help'
+        ShortCut = 16496
+        OnClick = MenuItem2Click
+      end
       object menuItemLicence: TMenuItem
         Caption = '&Licence'
+        ShortCut = 16457
+        OnClick = menuItemLicenceClick
       end
       object menuAbout: TMenuItem
         Caption = '&About'
+        ShortCut = 24688
         OnClick = menuAboutClick
       end
     end
@@ -3989,5 +4007,16 @@ object Form1: TForm1
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
     Left = 936
     Top = 16
+  end
+  object HTMLBrowserHelpViewer1: THTMLBrowserHelpViewer
+    BrowserParams = '%s'
+    AutoRegister = False
+    Left = 744
+    Top = 112
+  end
+  object SimpleIPCClient1: TSimpleIPCClient
+    Active = False
+    Left = 625
+    Top = 172
   end
 end

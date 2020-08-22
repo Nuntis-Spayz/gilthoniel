@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
-  Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, Math, StrUtils, LazFileUtils,
-  FileInfo, crt, IniFiles, fphttpclient, Process, DCPsha256, DCPmd5, DCPsha1,
-  registry
+  Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, LazHelpHTML, Math, StrUtils,
+  LazFileUtils, RTTICtrls, FileInfo, crt, IniFiles, fphttpclient, Process,
+  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , frmHelp
   {$IF defined(MSWindows)}
   , windirs, LazSerial
   {$elseif defined(DARWIN)}
@@ -36,6 +36,7 @@ type
     ColorDialog1: TColorDialog;
     ComboBox1: TComboBox;
     ComboBank: TComboBox;
+    HTMLBrowserHelpViewer1: THTMLBrowserHelpViewer;
     InfoBank: TGroupBox;
     GroupPort: TGroupBox;
     GroupBanks: TGroupBox;
@@ -60,6 +61,7 @@ type
     Memo1: TMemo;
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
     menuItemLicence: TMenuItem;
     N2: TMenuItem;
     menuItemCheckOnConnect: TMenuItem;
@@ -87,6 +89,7 @@ type
     PageControl1: TPageControl;
     SaveDialog1: TSaveDialog;
     btnPreview1: TSpeedButton;
+    SimpleIPCClient1: TSimpleIPCClient;
     TabMain: TTabSheet;
     TabClash: TTabSheet;
     TabSwing: TTabSheet;
@@ -123,12 +126,14 @@ type
     procedure FormShow(Sender: TObject);
     procedure menuAboutClick(Sender: TObject);
     procedure menuCheckUpdateClick(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
     procedure menuItemCheckFirmwareNowClick(Sender: TObject);
     procedure menuItemCheckOnConnectClick(Sender: TObject);
     procedure menuItemClearLogClick(Sender: TObject);
     procedure menuItemFirmwareClick(Sender: TObject);
     procedure menuItemExitClick(Sender: TObject);
     procedure menuItemDebugClick(Sender: TObject);
+    procedure menuItemLicenceClick(Sender: TObject);
     procedure menuItemRescanClick(Sender: TObject);
     procedure miLoadAllClick(Sender: TObject);
     procedure miLoadBankClick(Sender: TObject);
@@ -185,6 +190,7 @@ type
     procedure ZeroMemory(Destination: Pointer; Length: DWORD);
     function stringFromURL(url: String) : String;
     function iniFromURL(url: String) : TIniFile;
+    procedure showHtml(title, url:String);
 
   public
 
@@ -1018,12 +1024,13 @@ end;
 
 procedure TForm1.menuAboutClick(Sender: TObject);
 begin
-  MessageDlg(Form1.Caption,
-                Form1.Caption+#13+#13
-                +'Settings Manager for OpenCore Saber'+#13
-                +'(C) MMXX Nuntis'+#13+#13
-                +'http://sabers.amazer.uk',
-                     mtInformation, [mbOK],0);
+ showHtml('','help/about.html');
+ // MessageDlg(Form1.Caption,
+ //               Form1.Caption+#13+#13
+ //               +'Settings Manager for OpenCore Saber'+#13
+ //               +'(C) MMXX Nuntis'+#13+#13
+ //               +'http://sabers.amazer.uk',
+ //                    mtInformation, [mbOK],0);
 end;
 
 function TForm1.stringFromURL(url: String) : String;
@@ -1204,6 +1211,11 @@ begin
 
 end;
 
+procedure TForm1.MenuItem2Click(Sender: TObject);
+begin
+  showHtml('', 'help/index.html');
+end;
+
 procedure TForm1.menuItemCheckFirmwareNowClick(Sender: TObject);
 begin
   checkFirmwareNow(Sender, false);
@@ -1370,6 +1382,23 @@ begin
   Memo1.SelStart := Length(Memo1.Lines.Text);
   FormResize(Sender);
 end;
+
+procedure TForm1.menuItemLicenceClick(Sender: TObject);
+begin
+  showHtml('Gilthoniel Licence','help/licence.html');
+end;
+
+procedure TForm1.showHtml(title, url:String);
+var
+ fh : TFormHelp;
+begin
+  fh := TFormHelp.Create(self);
+  fh.Width:= self.Width * 9 div 10;
+  fh.Height:= self.Height * 8 div 10;
+
+  fh.OpenShow(title, url);
+end;
+
 
 procedure TForm1.menuItemRescanClick(Sender: TObject);
 begin

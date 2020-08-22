@@ -21,7 +21,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="1"/>
-      <BuildNr Value="64"/>
+      <BuildNr Value="66"/>
       <Language Value="0809"/>
       <StringTable CompanyName="Lama De Luce" InternalName="OpenCore Manager"/>
     </VersionInfo>
@@ -63,18 +63,27 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="3">
+    <RequiredPackages Count="6">
       <Item1>
-        <PackageName Value="dcpcrypt"/>
+        <PackageName Value="TurboPowerIPro"/>
       </Item1>
       <Item2>
-        <PackageName Value="LazSerialPort"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCL"/>
+        <PackageName Value="FCL"/>
       </Item3>
+      <Item4>
+        <PackageName Value="dcpcrypt"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="LazSerialPort"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="LCL"/>
+      </Item6>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="gilthoniel.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -86,6 +95,14 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="frmhelp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormHelp"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="frmHelp"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

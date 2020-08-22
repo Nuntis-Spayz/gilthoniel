@@ -33,6 +33,11 @@ devtools/win32/
 devtools/win64/
 devtools/macOS-64/
 
+# Windows Links
+*.lnk
+*.url
+
+
 # Application bundle for Mac OS
 XX*.app/
 .DS_Store

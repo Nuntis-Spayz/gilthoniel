@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gilthoniel"
-#define MyAppVersion "0.1.0.64"
+#define MyAppVersion "0.1.0.66"
 #define MyAppPublisher "Amazing Sabers"
 #define MyAppURL "http://sabers.amazer.uk/"
 #define MyAppExeName "Gilthoniel.exe"
@@ -65,6 +65,7 @@ Source: "{#MyDevDir}\Gilthonielx32.exe"; DestDir: "{app}"; DestName: "{#MyAppExe
 Source: "{#MyDevDir}\Gilthonielx64.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: IsWin64; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\tycmd_x32.exe"; DestDir: "{app}\firmware\"; DestName: "tycmd.exe"; Check: Not IsWin64; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\tycmd_x64.exe"; DestDir: "{app}\firmware\"; DestName: "tycmd.exe"; Check: IsWin64; Flags: ignoreversion
+Source: "{#MyDevDir}\help\*.*"; DestDir: "{app}\help\"; Flags: ignoreversion recursesubdirs
 Source: "{#MyDevDir}\firmware\*.cmd"; DestDir: "{app}\firmware\"; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\*.hex"; DestDir: "{app}\firmware\"; Flags: ignoreversion
 Source: "{#MyDevDir}\firmware\*.md"; DestDir: "{app}\firmware\"; Flags: ignoreversion
