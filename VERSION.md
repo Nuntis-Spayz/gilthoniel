@@ -10,6 +10,10 @@
 * Preview each colour on saber
 * Selects saber COM port automatically
 * Application update over the Internet
+* Help files
+
+### v.0.1.1.00
+* First batch of serious help files added
 
 ### v.0.1.0.66
 * HTML help internal and external hypelinks working

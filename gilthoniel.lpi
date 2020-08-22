@@ -21,9 +21,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="1"/>
-      <BuildNr Value="66"/>
+      <RevisionNr Value="1"/>
       <Language Value="0809"/>
-      <StringTable CompanyName="Lama De Luce" InternalName="OpenCore Manager"/>
+      <StringTable CompanyName="Sabers.Amazer.uk" InternalName="OpenCore Manager" LegalCopyright="(C)MMXX Sabers.Amazer.uk" ProductName="Gilthoniel"/>
     </VersionInfo>
     <BuildModes Count="2">
       <Item1 Name="Default" Default="True"/>
