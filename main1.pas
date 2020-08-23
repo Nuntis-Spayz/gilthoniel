@@ -62,6 +62,7 @@ type
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    miExtraDebugInfo: TMenuItem;
     menuItemLicence: TMenuItem;
     N2: TMenuItem;
     menuItemCheckOnConnect: TMenuItem;
@@ -135,6 +136,7 @@ type
     procedure menuItemDebugClick(Sender: TObject);
     procedure menuItemLicenceClick(Sender: TObject);
     procedure menuItemRescanClick(Sender: TObject);
+    procedure miExtraDebugInfoClick(Sender: TObject);
     procedure miLoadAllClick(Sender: TObject);
     procedure miLoadBankClick(Sender: TObject);
     procedure miSaveAllClick(Sender: TObject);
@@ -454,14 +456,32 @@ end;
 
 function TForm1.RGBWtoRGB(red,green,blue,white:Integer) : Integer;
 var
- r,g,b: Integer;
+ r,g,b, w: Integer;
  mx : Integer;
 begin
- r:=red+white;
- g:=green+white;
- b:=blue+white;
- //w:=white;
+ if miExtraDebugInfo.Checked then
+   Memo1.Append('RGBW : ' + IntToStr(red)+', ' + IntToStr(green)+', ' + IntToStr(blue)+', ' + IntToStr(white));
+ r:=red;
+ g:=green;
+ b:=blue;
+ w:=white;
 
+  //Normalize RED
+ r:=256 * r div 110;
+ mx := Max(Max(r,g),b);
+ if(mx>255) then
+ begin
+   mx:=mx-255;
+   r:=Max(0,r-mx);
+   g:=Max(0,g-mx);
+   b:=Max(0,b-mx);
+   //w:=Max(0,w-mx);
+ end;
+
+ r:=r+w;
+ g:=g+w;
+ b:=b+w;
+ //normalize vs white
  mx := Max(Max(r,g),b);
  if(mx>255) then
  begin
@@ -471,21 +491,29 @@ begin
    b:=Max(0,b-mx);
  end;
 
+
+ if miExtraDebugInfo.Checked then
+   Memo1.Append('-> RGB : ' + IntToStr(r)+', ' + IntToStr(g)+', ' + IntToStr(b));
  RGBWtoRGB:=  r + (g shl 8) + (b shl 16) ;
 end;
 function TForm1.RGBtoRGBW(red,green,blue:Integer) : Integer;
 var
  r,g,b,w: Integer;
 begin
- r:=red;
- g:=green;
- b:=blue;
- w:=Min(Min(r,g),b);
+ if miExtraDebugInfo.Checked then
+   Memo1.Append('RGB : ' + IntToStr(red)+', ' + IntToStr(green)+', ' + IntToStr(blue));
 
- r:=r-w;
- g:=g-w;
- b:=b-w;
+ //calculate a white
+ w:=Min(Min(red,green),blue);
+ r:=red-w;
+ g:=green-w;
+ b:=blue-w;
 
+ //REVERSE NORMALISE THE RED
+ r:=r * 110 div 255;
+
+ if miExtraDebugInfo.Checked then
+   Memo1.Append('-> RGBW : ' + IntToStr(r)+', ' + IntToStr(g)+', ' + IntToStr(b)+', ' + IntToStr(w));
  RGBtoRGBW:= r + (g shl 8) + (b shl 16) + (w shl 24);
 end;
 
@@ -496,7 +524,7 @@ end;
 
 procedure TForm1.ColorButtonMainColorChanged(Sender: TObject);
 var
- rgbw : Integer;
+  rgbw : Integer;
 begin
   ColorButtonMain.OnColorChanged:=nil;
 
@@ -1403,6 +1431,11 @@ end;
 procedure TForm1.menuItemRescanClick(Sender: TObject);
 begin
   OpenSerial(Sender);
+end;
+
+procedure TForm1.miExtraDebugInfoClick(Sender: TObject);
+begin
+  miExtraDebugInfo.Checked:= Not(miExtraDebugInfo.Checked);
 end;
 
 procedure TForm1.miLoadAllClick(Sender: TObject);

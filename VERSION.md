@@ -12,6 +12,9 @@
 * Application update over the Internet
 * Help files
 
+### v.0.1.1.01
+* Colour picker closer resembles actual saber LED colour
+
 ### v.0.1.1.00
 * First batch of serious help files added
 

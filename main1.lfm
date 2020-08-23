@@ -2497,8 +2497,8 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabSwing
-      TabIndex = 1
+      ActivePage = TabMain
+      TabIndex = 0
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
@@ -3950,6 +3950,11 @@ object Form1: TForm1
         ShortCut = 16452
         ShowAlwaysCheckable = True
         OnClick = menuItemDebugClick
+      end
+      object miExtraDebugInfo: TMenuItem
+        Caption = 'Show E&xtra Debug Info'
+        ShowAlwaysCheckable = True
+        OnClick = miExtraDebugInfoClick
       end
       object menuItemClearLog: TMenuItem
         Caption = '&Clear Debug Log'
