@@ -2411,8 +2411,8 @@ object Form1: TForm1
       Left = 392
       Height = 32
       Top = 8
-      Width = 79
-      Caption = 'Status...'
+      Width = 179
+      Caption = 'No Saber Found.'
       ParentColor = False
       ParentFont = False
     end
@@ -2497,8 +2497,8 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabMain
-      TabIndex = 0
+      ActivePage = TabSwing
+      TabIndex = 1
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
@@ -3937,10 +3937,12 @@ object Form1: TForm1
       object miOpenPort: TMenuItem
         Caption = '&Open'
         Enabled = False
+        Visible = False
       end
       object miClosePort: TMenuItem
         Caption = '&Close'
         Enabled = False
+        Visible = False
       end
     end
     object menuTools: TMenuItem
@@ -3954,11 +3956,18 @@ object Form1: TForm1
       object miExtraDebugInfo: TMenuItem
         Caption = 'Show E&xtra Debug Info'
         ShowAlwaysCheckable = True
+        Visible = False
         OnClick = miExtraDebugInfoClick
+      end
+      object MenuItem3: TMenuItem
+        Caption = 'Send &Manual Command to Saber'
+        Visible = False
+        OnClick = MenuItem3Click
       end
       object menuItemClearLog: TMenuItem
         Caption = '&Clear Debug Log'
         ShortCut = 16451
+        Visible = False
         OnClick = menuItemClearLogClick
       end
       object N1: TMenuItem
@@ -3968,6 +3977,7 @@ object Form1: TForm1
         Caption = 'C&heck Firmware on Connect'
         Enabled = False
         ShowAlwaysCheckable = True
+        Visible = False
         OnClick = menuItemCheckOnConnectClick
       end
       object menuItemCheckFirmwareNow: TMenuItem
@@ -4023,5 +4033,10 @@ object Form1: TForm1
     Active = False
     Left = 625
     Top = 172
+  end
+  object Timer1: TTimer
+    Interval = 2000
+    Left = 1071
+    Top = 27
   end
 end

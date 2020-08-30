@@ -62,6 +62,7 @@ type
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
     miExtraDebugInfo: TMenuItem;
     menuItemLicence: TMenuItem;
     N2: TMenuItem;
@@ -94,6 +95,7 @@ type
     TabMain: TTabSheet;
     TabClash: TTabSheet;
     TabSwing: TTabSheet;
+    Timer1: TTimer;
     TrackSwBlue: TTrackBar;
     TrackSwGreen: TTrackBar;
     trackSwRed: TTrackBar;
@@ -128,6 +130,7 @@ type
     procedure menuAboutClick(Sender: TObject);
     procedure menuCheckUpdateClick(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
+    procedure MenuItem3Click(Sender: TObject);
     procedure menuItemCheckFirmwareNowClick(Sender: TObject);
     procedure menuItemCheckOnConnectClick(Sender: TObject);
     procedure menuItemClearLogClick(Sender: TObject);
@@ -147,6 +150,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure ledCRedChange(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
     procedure TrackCBlueChange(Sender: TObject);
     procedure TrackCGreenChange(Sender: TObject);
     procedure trackCRedChange(Sender: TObject);
@@ -273,8 +277,13 @@ begin
   // Update the title string - include the version & ver #
   Form1.Caption := Form1.Caption+' v.' + appVersion;
 
-  OpenSerial(Sender);
+  TabMain.TabVisible:=false;
+  TabSwing.TabVisible:=false;
+  TabClash.TabVisible:=false;
 
+  Application.ProcessMessages;
+
+  OpenSerial(Sender);
 end;
 
 procedure TForm1.OpenSerial(Sender: TObject);
@@ -376,7 +385,12 @@ begin
   GroupBanks.Enabled:=False;
   PageControl1.Enabled:=False;
 
+  labStatus.Caption:='Disconnected';
   btnDisconnect.Caption:='Connect';
+
+  TabMain.TabVisible:=false;
+  TabSwing.TabVisible:=false;
+  TabClash.TabVisible:=false;
 
 end;
 
@@ -620,7 +634,40 @@ begin
    if(Not(inp.IsEmpty)) then
    begin
      Memo1.Append(inp);
-     if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') or inp.StartsWith('V=OpenCore')) then
+     if validatedPort.IsEmpty and inp.StartsWith('Build: ') then
+     begin
+       labBuild.Caption:=inp;
+       if( inp.StartsWith('Build: 1.9.1') and (inp<='Build: 1.9.12') ) then
+       begin
+         CloseSerial();
+
+         labStatus.Caption:='Early Open Core Detected';
+         if(MessageDlg('Early Open Core Saber Detected',
+                    'You have the initial release of'+#13
+                    +'OpenCore Saber Firmware '+inp+#13
+                    +#13+'Upgrade Required for Colour Control, '+#13
+                    +#13+'Do you want to update the saber now?',
+                    mtConfirmation, [mbYes, mbNo],0)= mrYes ) then
+         begin
+           Application.ProcessMessages;
+           Delay(250);
+           ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[],[]);
+           Application.ProcessMessages;
+           Delay(250);
+           ComboBox1Select(Sender);
+         end;
+       end
+       else
+       begin
+         writeLn('V?');
+       end;
+     end
+     else if validatedPort.IsEmpty and inp.StartsWith('Serial: ') then
+     begin
+       labSerial.Caption:=inp;
+       writeLn('V?');
+     end
+     else if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') or inp.StartsWith('V=OpenCore')) then
      begin
        {$IF defined(MSWindows)}
        validatedPort:=winSerial.Device;
@@ -673,13 +720,25 @@ begin
        ComboBankSelect(Sender);
      end
      else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
+     begin
+       TabMain.TabVisible:=true;
        DecColorStringtoBank(inp.Substring(3))
+     end
      else if( (inp.StartsWith('C')) and (inp.Chars[2]='=') ) then
+     begin
+       TabMain.TabVisible:=true;
        HexColorStringtoBank(inp.Substring(3))
+     end
      else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
+     begin
+       TabClash.TabVisible:=True;
        DecClashStringtoBank(inp.Substring(3))
+     end
      else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
+     begin
+       TabClash.TabVisible:=True;
        HexClashStringtoBank(inp.Substring(3))
+     end
      else if( (inp.StartsWith('w')) and (inp.Chars[2]='=') ) then
      begin
        TabSwing.TabVisible:=true;
@@ -809,6 +868,18 @@ begin
   end;
 
   //ColorButtonMain.ButtonColor:=TColor.cre;
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+   Timer1.Enabled:=false;
+   Timer1.OnTimer:=nil;
+   if validatedPort.IsEmpty then
+   begin
+     labStatus.Caption:='No Open Core Saber Detected.';
+     writeLn('V');
+   end;
+
 end;
 
 procedure TForm1.TrackCBlueChange(Sender: TObject);
@@ -1007,7 +1078,9 @@ begin
 
   PageControl1.Enabled:=false;
   PageControl1.TabIndex:=0;
+  TabMain.TabVisible:=false;
   TabSwing.TabVisible:=false;
+  TabClash.TabVisible:=false;
 
   btnDisconnect.Caption:='Disconnect/Save';
 
@@ -1032,6 +1105,11 @@ begin
     Sleep(1400);
     if winSerial.Active then
     begin
+      //WriteLn('V');
+      Timer1.Enabled:=false;
+      Timer1.OnTimer:=@ Timer1Timer;
+      Timer1.Interval:=2500;
+      Timer1.Enabled:=True;
       WriteLn('V?');
     end;
     {$elseif defined(DARWIN)}
@@ -1244,6 +1322,19 @@ begin
   showHtml('', 'help/index.html');
 end;
 
+procedure TForm1.MenuItem3Click(Sender: TObject);
+var
+ s:String;
+begin
+  s:=InputBox('Send Manual Command...','Enter the command to ber sent to the saber', '');
+  if(Not(s.IsEmpty)) then
+  begin
+    menuItemDebug.Checked:=True;
+    memo1.Visible:=True;
+    writeLn(s);
+  end;
+end;
+
 procedure TForm1.menuItemCheckFirmwareNowClick(Sender: TObject);
 begin
   checkFirmwareNow(Sender, false);
@@ -1407,7 +1498,12 @@ begin
   menuItemDebug.Checked:= Not(menuItemDebug.Checked);
 
   Memo1.Visible:=menuItemDebug.Checked;
+  MenuItem3.Visible:=menuItemDebug.Checked;
+  miExtraDebugInfo.Visible:=menuItemDebug.Checked;
+  menuItemClearLog.Visible:=menuItemDebug.Checked;
+
   Memo1.SelStart := Length(Memo1.Lines.Text);
+
   FormResize(Sender);
 end;
 

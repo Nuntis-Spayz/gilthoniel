@@ -12,6 +12,11 @@
 * Application update over the Internet
 * Help files
 
+### v.0.1.1.02
+* Improved Saber detection
+* Auto offer upgrade for early saber firmware.
+* Installer adds "Manual Firmware Update" command in Windows menu
+
 ### v.0.1.1.01
 * Colour picker closer resembles actual saber LED colour
 

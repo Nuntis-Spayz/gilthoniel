@@ -1,7 +1,7 @@
 object FormHelp: TFormHelp
-  Left = 1075
+  Left = 1506
   Height = 480
-  Top = 324
+  Top = 311
   Width = 640
   ActiveControl = IpHtmlPanel1
   BorderStyle = bsDialog
