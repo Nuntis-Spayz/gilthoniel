@@ -3845,9 +3845,9 @@ object Form1: TForm1
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlack
       Font.Height = -22
-      Font.Name = 'Segoe UI'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Font.Name = 'Courier New'
+      Font.Pitch = fpFixed
+      Font.Quality = fqCleartypeNatural
       ParentFont = False
       ReadOnly = True
       ScrollBars = ssAutoVertical

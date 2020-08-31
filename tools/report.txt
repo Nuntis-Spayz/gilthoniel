@@ -1,0 +1,6 @@
+Apologies in advance - I just killed my Anima-Evo
+- was attempting to add read write files to the anima code so we can download config files and upload replacement raw sound files
+- testing reading a file from the anima and it hung, now - no matter what I do - it is completely un-responsive
+No click when turned off an on again
+Windows does not detect it as a serial port, nor any other type of device
+teensy tools do not detect it at all, nor does the tycmd uploader
