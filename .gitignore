@@ -28,6 +28,7 @@ backup/
 lib/
 
 # binary sdk files
+sounds/
 devtools/*.exe
 devtools/win32/
 devtools/win64/
