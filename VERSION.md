@@ -12,6 +12,9 @@
 * Application update over the Internet
 * Help files
 
+### v.0.01.01.03
+* Changed numbering, padded sub version numbers
+
 ### v.0.1.1.02
 * Improved Saber detection
 * Auto offer upgrade for early saber firmware.
