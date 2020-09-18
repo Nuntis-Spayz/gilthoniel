@@ -270,9 +270,9 @@ begin
   // grab the Numbers
   //[0] = Major version, [1] = Minor ver, [2] = Revision, [3] = Build Number
   appVersion:= IntToStr(Info.FixedInfo.FileVersion[0])
-      +'.'+IntToStr(Info.FixedInfo.FileVersion[1])
-      +'.'+IntToStr(Info.FixedInfo.FileVersion[2])
-      +'.'+IntToStr(Info.FixedInfo.FileVersion[3]);
+      +'.'+IntToStr(Info.FixedInfo.FileVersion[1]).PadLeft(2,'0')
+      +'.'+IntToStr(Info.FixedInfo.FileVersion[2]).PadLeft(2,'0')
+      +'.'+IntToStr(Info.FixedInfo.FileVersion[3]).PadLeft(2,'0');
   Info.Free;
   // Update the title string - include the version & ver #
   Form1.Caption := Form1.Caption+' v.' + appVersion;

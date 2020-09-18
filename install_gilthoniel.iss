@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gilthoniel"
-#define MyAppVersion "0.1.1.02"
+#define MyAppVersion "0.01.01.03"
 #define MyAppPublisher "Amazing Sabers"
 #define MyAppURL "http://sabers.amazer.uk/"
 #define MyAppExeName "Gilthoniel.exe"
