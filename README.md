@@ -12,7 +12,7 @@ Use the Windows installer which will install the correct 64/32 bit
 application on your system, along with the firmware folder and tools.
 
 * Binary files available at http://sabers.amazer.uk (see right hand 
-  download panel)
+  download panel) -- Not available until after OpenCore has been released
 
 The installer (and application) has been tested on Windows 10 (32 and 
 64-bit) and Windows 7 (32 and 64-bit).
