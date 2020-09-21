@@ -22,7 +22,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="4"/>
+      <BuildNr Value="6"/>
       <Language Value="0809"/>
       <StringTable CompanyName="Sabers.Amazer.uk" InternalName="OpenCore Manager" LegalCopyright="(C)MMXX Sabers.Amazer.uk" ProductName="Gilthoniel"/>
     </VersionInfo>

@@ -12,6 +12,12 @@
 * Application update over the Internet
 * Help files
 
+### v.0.01.01.06
+* Colour bank names change depending on firmware detected
+
+### v.0.01.01.06
+* updated firmware bundled
+
 ### v.0.01.01.04
 * Changed Colour Bank Names to match Rainbow order in latest firmware
   hex of latest master firmware added to installer

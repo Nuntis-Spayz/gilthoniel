@@ -667,13 +667,37 @@ begin
        labSerial.Caption:=inp;
        writeLn('V?');
      end
-     else if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') or inp.StartsWith('V=OpenCore')) then
+     else if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') ) then
      begin
        {$IF defined(MSWindows)}
        validatedPort:=winSerial.Device;
        {$elseif defined(DARWIN)}
        // mac os code
        {$ENDIF}
+       if inp<'V=1.9.16' then
+       begin
+         ComboBank.Items.Clear;
+         ComboBank.Items.Add('0 - [Red]');
+         ComboBank.Items.Add('1 - [Green]');
+         ComboBank.Items.Add('2 - [Blue]');
+         ComboBank.Items.Add('3 - [Yellow');
+         ComboBank.Items.Add('4 - [Acqua]');
+         ComboBank.Items.Add('5 - [Purple]');
+         ComboBank.Items.Add('6 - [Orange]');
+         ComboBank.Items.Add('7 - [White]');
+       end
+       else
+       begin
+         ComboBank.Items.Clear;
+         ComboBank.Items.Add('0 - [Red]');
+         ComboBank.Items.Add('1 - [Orange]');
+         ComboBank.Items.Add('2 - [Yellow]');
+         ComboBank.Items.Add('3 - [Green]');
+         ComboBank.Items.Add('4 - [White]');
+         ComboBank.Items.Add('5 - [Acqua]');
+         ComboBank.Items.Add('6 - [Blue]');
+         ComboBank.Items.Add('7 - [Purple]');
+       end;
 
        labStatus.Caption:='Connected.';
        btnDisconnect.Caption:='Disconnect/Save';
