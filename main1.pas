@@ -901,6 +901,7 @@ begin
    if validatedPort.IsEmpty then
    begin
      labStatus.Caption:='No Open Core Saber Detected.';
+     writeln('');
      writeLn('V');
    end;
 
@@ -1852,10 +1853,11 @@ var
   abort : Integer;
 begin
     //read all the settings to save back after the upgrade/downgrade
-    saveMode:=true;
-    saveData.Clear;
-    if Assigned(winSerial) and winSerial.Active then
+
+    if Assigned(winSerial) and winSerial.Active and Not(self.validatedPort.IsEmpty) then
     begin
+      saveMode:=true;
+      saveData.Clear;
       WriteLn('B?');
       WriteLn('W?');
       WriteLn('C?');
@@ -1865,14 +1867,15 @@ begin
          getlines:=25;
 
       abort:=0;
-      while (saveData.Count<getlines) and (abort<4096) and (WinSerial.Active) do
+      while (saveData.Count<getlines) and (abort<256) and (WinSerial.Active) do
       begin
         Application.ProcessMessages;
         Delay(10);
         abort:=abort+1;
         Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
       end;
-      if (abort>=4096) or Not(WinSerial.Active) then
+      saveMode:=false;
+      if (abort>=256) or Not(WinSerial.Active) then
       begin
         saveData.Clear;
         Memo1.append('Saving data from saber timed out.');
@@ -1884,6 +1887,9 @@ begin
         exit;
       end;
 
+    end;
+    if Assigned(winSerial) and winSerial.Active then
+    begin
       CloseSerial();
 
       //wait to allow serial to disconnect properly
@@ -1893,7 +1899,7 @@ begin
       Delay(250);
       Application.ProcessMessages;
     end;
-    saveMode:=false;
+
 
     ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
 

@@ -12,6 +12,10 @@
 * Application update over the Internet
 * Help files
 
+### v.0.01.01.07
+* Copes better with early firmware, allowing upgrade from file
+  Upgrade from file failed with paths with spaces, fixed
+
 ### v.0.01.01.06
 * Colour bank names change depending on firmware detected
 

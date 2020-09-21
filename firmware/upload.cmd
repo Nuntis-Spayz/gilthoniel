@@ -10,7 +10,7 @@
 @echo Uploading %1
 @echo --------------------------------------
 @echo.
-tycmd upload "%1"
+tycmd upload %1
 pause
 exit
 
