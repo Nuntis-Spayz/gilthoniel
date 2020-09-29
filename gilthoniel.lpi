@@ -90,19 +90,19 @@
     </RunParams>
     <RequiredPackages Count="6">
       <Item1>
-        <PackageName Value="TurboPowerIPro"/>
+        <PackageName Value="laz_synapse"/>
       </Item1>
       <Item2>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="TurboPowerIPro"/>
       </Item2>
       <Item3>
-        <PackageName Value="FCL"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item3>
       <Item4>
-        <PackageName Value="dcpcrypt"/>
+        <PackageName Value="FCL"/>
       </Item4>
       <Item5>
-        <PackageName Value="LazSerialPort"/>
+        <PackageName Value="dcpcrypt"/>
       </Item5>
       <Item6>
         <PackageName Value="LCL"/>

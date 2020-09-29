@@ -1,26 +1,21 @@
 unit main1;
-
 {$mode objfpc}{$H+}
-
 interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, LazHelpHTML, Math, StrUtils,
   LazFileUtils, RTTICtrls, FileInfo, crt, IniFiles, fphttpclient, Process,
-  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , frmHelp
+  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , frmHelp, synaser
   {$IF defined(MSWindows)}
-  , windirs, LazSerial
+  , windirs
   {$elseif defined(DARWIN)}
   // mac os code
-
+  //BaseUnix --not used?
   {$ENDIF}
   ;
-
 type
-
   { TForm1 }
-
   TForm1 = class(TForm)
     btnDisconnect: TBitBtn;
     btnPreview2: TSpeedButton;
@@ -96,6 +91,7 @@ type
     TabClash: TTabSheet;
     TabSwing: TTabSheet;
     Timer1: TTimer;
+    TimerRX: TTimer;
     TrackSwBlue: TTrackBar;
     TrackSwGreen: TTrackBar;
     trackSwRed: TTrackBar;
@@ -145,12 +141,12 @@ type
     procedure miSaveAllClick(Sender: TObject);
     procedure miSaveBankClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
-    procedure RxData(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure ledCRedChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure TimerRXTimer(Sender: TObject);
     procedure TrackCBlueChange(Sender: TObject);
     procedure TrackCGreenChange(Sender: TObject);
     procedure trackCRedChange(Sender: TObject);
@@ -170,18 +166,15 @@ type
     saveMode: Boolean;
     saveData: TStringList;
     defWidth, defHeight : Integer;
-    {$IF defined(MSWindows)}
-     winSerial: TLazSerial;
-    {$elseif defined(DARWIN)}
-    // mac os code
-
-    {$ENDIF}
+    winSerial: TBlockSerial;
+    procedure RxData();
     procedure OpenSerial(Sender: TObject);
     procedure CloseSerial();
     procedure doFirmware(Sender: TObject);
     procedure loadFirmware(Sender:Tobject; filename:String);
     procedure checkFirmwareNow(Sender: TObject; silent:boolean);
     procedure WriteLn(msg: String);
+    function getReply(): String;
     procedure DecColorStringtoBank(s:String);
     procedure HexColorStringtoBank(s:String);
     procedure DecClashStringtoBank(s:String);
@@ -201,14 +194,10 @@ type
   public
 
   end;
-
 var
   Form1: TForm1;
-
 implementation
-
 {$R *.lfm}
-
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -241,12 +230,16 @@ begin
   //btnPreview1.Visible:=false;
   //btnPreview2.Visible:=false;
   //btnPreview3.Visible:=false;
+  {$IF  defined(DARWIN)}
+  // mac os code
+  btnPreview1.Glyph.SetSize(32,32);
+  btnPreview2.Glyph.SetSize(32,32);
+  btnPreview3.Glyph.SetSize(32,32);
+  {$ENDIF}
 
   ColorButtonMain.Caption:='Pick Main '+#13+'Colour ';
   ColorButtonClash.Caption:='Pick Clash '+#13+'Colour ';
   ColorButtonSwing.Caption:='Pick Swing '+#13+'Colour ';
-
-  serialInput:='';
 
   Memo1.Visible:=menuItemDebug.Checked;
 
@@ -285,121 +278,11 @@ begin
 
   OpenSerial(Sender);
 end;
-
-procedure TForm1.OpenSerial(Sender: TObject);
-var
-  I:integer;
-  {$IF defined(MSWindows)}
-  Reg:TRegistry;
-  {$elseif defined(DARWIN)}
-  // mac os code to be done, fetch list of ports
-  {$ENDIF}
-  lastItem:String;
-  rs, cs:String;
-begin
- lastItem:='';
- ComboBox1.Items.Clear;
- {$IF defined(MSWindows)}
- // code for all kinds of windows
- Reg := TRegistry.Create;
- try
-   Reg.RootKey := HKEY_LOCAL_MACHINE;
-   if Reg.OpenKeyReadOnly('HARDWARE\DEVICEMAP\SERIALCOMM') then
-   begin
-     for I:=0 to 99 do
-     begin
-       // both anima and opencore present as --> \Device\USBSER000
-       rs:='\Device\USBSER' + InttoStr(I).PadLeft(3,'0');
-
-       //Memo1.Append(rs);
-       if (reg.ValueExists(rs))then
-       begin
-         cs:= reg.ReadString(rs);
-         Memo1.Append(cs+' : '+rs);
-         ComboBox1.Items.Append(cs);
-         lastItem:=cs;
-       end;
-     end;
-
-   end;
-   finally
-     Reg.Free;
-   end;
-   //rNames.Free;
-   //rData.Free;
-   {$elseif defined(DARWIN)}
-   // mac os code to be done, fetch list of ports
-
-   {$ENDIF}
-
-   //temporarily disabled for non-windows
-   {$IF defined(MSWindows)}
-   if(lastItem.IsEmpty()) then
-   begin
-     //ComboBox1.Items.Add('--');
-     if MessageDlg(Form1.Caption,
-                'No USB Sabers Ports Detected.'+#13+#13
-                +'Connect an OpenCore saber.'+#13
-                +'Use a Good Quality USB Cable that is for Data.'+#13+#13
-                +'Do you wish to Start '+Form1.Caption+' anyway?',
-                     mtConfirmation, [mbYes, mbNo],0) = mrNo then
-     begin
-       //exit application
-       Application.Terminate;
-       Halt; //<< ^Terminate seems to work Halt is boot and braces
-     end;
-   end
-   else
-   begin
-     ComboBox1.Caption:=lastItem;
-     ComboBox1Select(Sender);
-   end;
-   {$ENDIF}
-
-end;
-procedure TForm1.CloseSerial();
-begin
-  {$IF defined(MSWindows)}
-  if Assigned(winSerial) then
-    begin
-     if winSerial.Active then
-     begin
-       winSerial.Close();
-     end;
-     winSerial.OnRxData:=nil;
-     winSerial.OnStatus:=nil;
-     winSerial.Device:='';
-     winSerial.Destroy;
-     winSerial:=nil;
-  end;
-
-
-  {$elseif defined(DARWIN)}
-  // mac os code
-  //DataPortSerial,
-
-  {$ENDIF}
-
-  validatedPort:='';
-  serialInput:='';
-  GroupBanks.Enabled:=False;
-  PageControl1.Enabled:=False;
-
-  labStatus.Caption:='Disconnected';
-  btnDisconnect.Caption:='Connect';
-
-  TabMain.TabVisible:=false;
-  TabSwing.TabVisible:=false;
-  TabClash.TabVisible:=false;
-
-end;
-
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   CloseSerial();
   saveData.Free;
 end;
-
 procedure TForm1.FormResize(Sender: TObject);
 var
  x,c2 : Integer;
@@ -466,6 +349,366 @@ begin
  btnSend2.Left := TabClash.Width -16 - btnSend2.Width;
  btnSend3.Left := TabSwing.Width -16 - btnSend3.Width;
 
+end;
+procedure TForm1.FormShow(Sender: TObject);
+begin
+  {$IF defined(MSWindows)}
+    if defWidth=0 then
+    begin
+      //self.width:=790;
+      defWidth:=self.Width;
+    end;
+    if defHeight=0 then
+    begin
+      //self.Height:=430;
+      defHeight:=self.Height;
+    end;
+    ComboBox1.Width:=100;
+  {$elseif defined(DARWIN)}
+    if defWidth=0 then
+    begin
+      self.width:=800;
+      defWidth:=self.Width;
+    end;
+    if defHeight=0 then
+    begin
+      self.Height:=430;
+      defHeight:=self.Height;
+    end;
+    ComboBox1.Width:=220;
+  {$ENDIF}
+  LabStatus.Left:=ComboBox1.Left+ComboBox1.Width+10;
+end;
+
+procedure TForm1.OpenSerial(Sender: TObject);
+var
+  I:integer;
+  {$IF defined(MSWindows)}
+  Reg:TRegistry;
+  {$elseif defined(DARWIN)}
+  // mac os code to be done, fetch list of ports
+  SearchResult  : TSearchRec;
+  {$ENDIF}
+  lastItem:String;
+  rs, cs:String;
+begin
+ lastItem:='';
+ ComboBox1.Items.Clear;
+ {$IF defined(MSWindows)}
+ // code for all kinds of windows
+ Reg := TRegistry.Create;
+ try
+   Reg.RootKey := HKEY_LOCAL_MACHINE;
+   if Reg.OpenKeyReadOnly('HARDWARE\DEVICEMAP\SERIALCOMM') then
+   begin
+     for I:=0 to 99 do
+     begin
+       // both anima and opencore present as --> \Device\USBSER000
+       rs:='\Device\USBSER' + InttoStr(I).PadLeft(3,'0');
+
+       //Memo1.Append(rs);
+       if (reg.ValueExists(rs))then
+       begin
+         cs:= reg.ReadString(rs);
+         Memo1.Append(cs+' : '+rs);
+         ComboBox1.Items.Append(cs);
+         lastItem:=cs;
+       end;
+     end;
+
+   end;
+   finally
+     Reg.Free;
+   end;
+   //rNames.Free;
+   //rData.Free;
+   {$elseif defined(DARWIN)}
+   // mac os code to be done, fetch list of ports
+   // List the files
+   //Memo1.Append('Searching for devices');
+   if FindFirst('/dev/cu*.*', faAnyFile, SearchResult)=0 then
+   repeat
+     rs := SearchResult.Name;
+     if rs.StartsWith('cu.usb') then
+     begin
+       //Memo1.Append('? '+rs);
+       lastItem:='/dev/'+rs;
+       ComboBox1.Items.Append(lastItem);
+     end;
+   until FindNext(SearchResult)<>0;
+   FindClose(SearchResult);
+   //Memo1.Append('---------------------');
+
+   //lastItem:='/dev/cu.usbmodem42949672951';
+   //ComboBox1.Items.Append(lastItem);
+   {$ENDIF}
+
+
+   if(lastItem.IsEmpty()) then
+   begin
+     //ComboBox1.Items.Add('--');
+     if MessageDlg(Form1.Caption,
+                'No USB Sabers Ports Detected.'+#13+#13
+                +'Connect an OpenCore saber.'+#13
+                +'Use a Good Quality USB Cable that is for Data.'+#13+#13
+                +'Do you wish to Start '+Form1.Caption+' anyway?',
+                     mtConfirmation, [mbYes, mbNo],0) = mrNo then
+     begin
+       //exit application
+       Application.Terminate;
+       Halt; //<< ^Terminate seems to work Halt is boot and braces
+     end;
+   end
+   else
+   begin
+     ComboBox1.Caption:=lastItem;
+     ComboBox1Select(Sender);
+   end;
+end;
+procedure TForm1.CloseSerial();
+begin
+  TimerRx.Enabled:=False;
+  if Assigned(winSerial) then
+    begin
+     if Not(winSerial.Device.IsEmpty) then
+     begin
+       winSerial.CloseSocket;
+     end;
+     winSerial.Destroy;
+     winSerial:=nil;
+  end;
+
+  GroupBanks.Enabled:=False;
+  PageControl1.Enabled:=False;
+
+  labStatus.Caption:='Disconnected';
+  btnDisconnect.Caption:='Connect';
+
+  TabMain.TabVisible:=false;
+  TabSwing.TabVisible:=false;
+  TabClash.TabVisible:=false;
+
+end;
+procedure TForm1.ComboBox1Select(Sender: TObject);
+var
+ port:String;
+begin
+  labStatus.Caption:='Not an Open Core Saber';
+  labBuild.Caption:='Build: --';
+  labSerial.Caption:='Serial No.: --';
+  validatedPort:='';
+  serialInput:='';
+
+  ComboBank.Enabled:=False;
+  btnSendBanks.Enabled:=False;
+  GroupBanks.Enabled:=False;
+
+  PageControl1.Enabled:=false;
+  PageControl1.TabIndex:=0;
+  TabMain.TabVisible:=false;
+  TabSwing.TabVisible:=false;
+  TabClash.TabVisible:=false;
+
+  btnDisconnect.Caption:='Disconnect/Save';
+
+  if((ComboBox1.Caption<>'') and (ComboBox1.Caption<>'--')) then
+  begin
+    CloseSerial();
+
+    winSerial := TBlockSerial.Create;
+
+    //Memo1.Clear;
+    Memo1.Append('-----------------');
+    Memo1.Append('Opening '+ComboBox1.Caption);
+
+    //winSerial.DeadlockTimeout:=10;
+    try
+      port:=ComboBox1.Caption;
+      //devserial:=FPOpen(port.Trim([':',' ']));
+
+      winSerial.config(115200, 8, 'N', SB1, False, False);
+      winSerial.Connect(port.Trim([':',' ']));
+
+      TimerRx.Enabled:=True;
+
+      Memo1.Append('Port Open');
+    finally
+    end;
+
+    WriteLn('V?');
+
+  end;
+
+end;
+function TForm1.getReply():String;
+var
+ inp : String;
+begin
+ inp:=winSerial.RecvTerminated(10,#10);
+ if Not(inp.IsEmpty) then
+   Memo1.Append(inp);
+
+ getReply:=inp;
+end;
+procedure TForm1.RxData();
+var
+ inp : String;
+ k : Integer;
+begin
+ inp:=getReply();
+
+ while Not(inp.IsEmpty) do
+ begin
+   if validatedPort.IsEmpty and inp.StartsWith('Build: ') then
+   begin
+     labBuild.Caption:=inp;
+     if( inp.StartsWith('Build: 1.9.1') and (inp<='Build: 1.9.12') ) then
+     begin
+       CloseSerial();
+
+       labStatus.Caption:='Early Open Core Detected';
+       if(MessageDlg('Early Open Core Saber Detected',
+                    'You have the initial release of'+#13
+                    +'OpenCore Saber Firmware '+inp+#13
+                    +#13+'Upgrade Required for Colour Control, '+#13
+                    +#13+'Do you want to update the saber now?',
+                    mtConfirmation, [mbYes, mbNo],0)= mrYes ) then
+       begin
+         Application.ProcessMessages;
+         ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[],[]);
+         Application.ProcessMessages;
+         Delay(250);
+         ComboBox1Select(nil);
+       end;
+     end
+     else
+     begin
+         writeLn('V?');
+     end;
+   end
+   else if validatedPort.IsEmpty and inp.StartsWith('Serial: ') then
+   begin
+     labSerial.Caption:=inp;
+     writeLn('V?');
+   end
+   else if inp.StartsWith('V=') then
+   begin
+     validatedPort:=winSerial.Device;
+     if inp<'V=1.9.16' then
+     begin
+         ComboBank.Items.Clear;
+         ComboBank.Items.Add('0 - [Red]');
+         ComboBank.Items.Add('1 - [Green]');
+         ComboBank.Items.Add('2 - [Blue]');
+         ComboBank.Items.Add('3 - [Yellow');
+         ComboBank.Items.Add('4 - [Acqua]');
+         ComboBank.Items.Add('5 - [Purple]');
+         ComboBank.Items.Add('6 - [Orange]');
+         ComboBank.Items.Add('7 - [White]');
+     end
+     else
+     begin
+         ComboBank.Items.Clear;
+         ComboBank.Items.Add('0 - [Red]');
+         ComboBank.Items.Add('1 - [Orange]');
+         ComboBank.Items.Add('2 - [Yellow]');
+         ComboBank.Items.Add('3 - [Green]');
+         ComboBank.Items.Add('4 - [White]');
+         ComboBank.Items.Add('5 - [Acqua]');
+         ComboBank.Items.Add('6 - [Blue]');
+         ComboBank.Items.Add('7 - [Purple]');
+     end;
+
+     labStatus.Caption:='Connected.';
+     btnDisconnect.Caption:='Disconnect/Save';
+
+     ComboBank.Enabled:=True;
+     btnSendBanks.Enabled:=True;
+     GroupBanks.Enabled:=True;
+     PageControl1.Enabled:=True;
+
+     labBuild.Caption:='Build: '+inp;
+
+     //writeback data saved from before a firmware update
+     if (saveData.Count>0) then
+     begin
+       for k:=0 to (saveData.Count-1) do
+       begin
+         WriteLn(saveData[k]);
+         Application.ProcessMessages;
+         getReply();
+       end;
+       saveData.Clear;
+       WriteLn('SAVE');
+       Application.ProcessMessages;
+       getReply();
+     end;
+
+     WriteLn('S?');
+     WriteLn('B?');
+   end
+   else if (inp.StartsWith('B=')) then
+   begin
+     Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
+     ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
+     ComboBankSelect(nil);
+   end
+   else if inp.StartsWith('S=') then
+   begin
+      labSerial.Caption:=inp.Replace('S=','Serial No. ');
+      if menuItemCheckOnConnect.Visible and  menuItemCheckOnConnect.Checked then
+         checkFirmwareNow(nil, true);
+   end
+   else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
+   begin
+     TabMain.TabVisible:=true;
+     DecColorStringtoBank(inp.Substring(3))
+   end
+   else if( (inp.StartsWith('C')) and (inp.Chars[2]='=') ) then
+   begin
+     TabMain.TabVisible:=true;
+     HexColorStringtoBank(inp.Substring(3))
+   end
+   else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
+   begin
+     TabClash.TabVisible:=True;
+     DecClashStringtoBank(inp.Substring(3))
+   end
+   else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
+   begin
+       TabClash.TabVisible:=True;
+       HexClashStringtoBank(inp.Substring(3))
+   end
+   else if( (inp.StartsWith('w')) and (inp.Chars[2]='=') ) then
+     begin
+       TabSwing.TabVisible:=true;
+       DecSwingStringtoBank(inp.Substring(3));
+     end
+   else if( (inp.StartsWith('W')) and (inp.Chars[2]='=') ) then
+   begin
+     TabSwing.TabVisible:=true;
+     HexSwingStringtoBank(inp.Substring(3));
+   end;
+
+   inp:=getReply();
+ end; //while
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+   Timer1.Enabled:=false;
+   Timer1.OnTimer:=nil;
+   if validatedPort.IsEmpty then
+   begin
+     labStatus.Caption:='No Open Core Saber Detected.';
+     writeLn('V');
+   end;
+
+end;
+procedure TForm1.TimerRXTimer(Sender: TObject);
+begin
+  if  Assigned(WinSerial) and WinSerial.CanReadEx(1) then
+    RxData();
 end;
 
 function TForm1.RGBWtoRGB(red,green,blue,white:Integer) : Integer;
@@ -535,7 +778,6 @@ procedure TForm1.ColorButtonMainClick(Sender: TObject);
 begin
   ColorButtonMain.OnColorChanged:=@ColorButtonMainColorChanged;
 end;
-
 procedure TForm1.ColorButtonMainColorChanged(Sender: TObject);
 var
   rgbw : Integer;
@@ -552,17 +794,10 @@ begin
   trackCBlue.Position:=Byte(rgbw shr 16);
   trackCWhite.Position:=Byte(rgbw shr 24);
 end;
-
 procedure TForm1.ColorButtonSwingClick(Sender: TObject);
 begin
  ColorButtonSwing.OnColorChanged:=@ColorButtonSwingColorChanged;
 end;
-
-procedure TForm1.ColorButtonClashClick(Sender: TObject);
-begin
-  ColorButtonClash.OnColorChanged:=@ColorButtonClashColorChanged;
-end;
-
 procedure TForm1.ColorButtonSwingColorChanged(Sender: TObject);
 var
   rgbw : Integer;
@@ -578,7 +813,10 @@ begin
   trackSwBlue.Position:=Byte(rgbw shr 16);
   trackSwWhite.Position:=Byte(rgbw shr 24);
 end;
-
+procedure TForm1.ColorButtonClashClick(Sender: TObject);
+begin
+  ColorButtonClash.OnColorChanged:=@ColorButtonClashColorChanged;
+end;
 procedure TForm1.ColorButtonClashColorChanged(Sender: TObject);
 var
   rgbw : Integer;
@@ -595,191 +833,6 @@ begin
   trackFWhite.Position:=Byte(rgbw shr 24);
 end;
 
-procedure TForm1.RxData(Sender: TObject);
-var
- inp : String;
- k : Integer;
-begin
- inp:='';
- //Memo1.Append('*');
-
- {$IF defined(MSWindows)}
- while winSerial.DataAvailable do
- begin
-   serialInput:=serialInput + winSerial.ReadData();
- end;
- {$elseif defined(DARWIN)}
- // mac os code
- {$ENDIF}
-
- serialInput:=TrimLeft(serialInput);
- //Memo1.Append('>'+serialInput+'<');
-
- while(serialInput.Contains(char(10))) do
- begin
-   //Memo1.Append('10 detected');
-
-   inp:=serialInput.Substring(0,serialInput.IndexOf(char(10)));
-   //Memo1.Append('inp:='+inp+':');
-
-   serialInput:=TrimLeft(serialInput.Substring(inp.Length));
-   //Memo1.Append('serialInput:='+serialInput+':');
-   inp:=trim(inp);
-   while(inp.Chars[0]<=' ') do
-   begin
-     inp:=inp.Substring(1);
-   end;
-
-
-   if(Not(inp.IsEmpty)) then
-   begin
-     Memo1.Append(inp);
-     if validatedPort.IsEmpty and inp.StartsWith('Build: ') then
-     begin
-       labBuild.Caption:=inp;
-       if( inp.StartsWith('Build: 1.9.1') and (inp<='Build: 1.9.12') ) then
-       begin
-         CloseSerial();
-
-         labStatus.Caption:='Early Open Core Detected';
-         if(MessageDlg('Early Open Core Saber Detected',
-                    'You have the initial release of'+#13
-                    +'OpenCore Saber Firmware '+inp+#13
-                    +#13+'Upgrade Required for Colour Control, '+#13
-                    +#13+'Do you want to update the saber now?',
-                    mtConfirmation, [mbYes, mbNo],0)= mrYes ) then
-         begin
-           Application.ProcessMessages;
-           Delay(250);
-           ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[],[]);
-           Application.ProcessMessages;
-           Delay(250);
-           ComboBox1Select(Sender);
-         end;
-       end
-       else
-       begin
-         writeLn('V?');
-       end;
-     end
-     else if validatedPort.IsEmpty and inp.StartsWith('Serial: ') then
-     begin
-       labSerial.Caption:=inp;
-       writeLn('V?');
-     end
-     else if( inp.StartsWith('V=1.') or inp.StartsWith('V=2.') ) then
-     begin
-       {$IF defined(MSWindows)}
-       validatedPort:=winSerial.Device;
-       {$elseif defined(DARWIN)}
-       // mac os code
-       {$ENDIF}
-       if inp<'V=1.9.16' then
-       begin
-         ComboBank.Items.Clear;
-         ComboBank.Items.Add('0 - [Red]');
-         ComboBank.Items.Add('1 - [Green]');
-         ComboBank.Items.Add('2 - [Blue]');
-         ComboBank.Items.Add('3 - [Yellow');
-         ComboBank.Items.Add('4 - [Acqua]');
-         ComboBank.Items.Add('5 - [Purple]');
-         ComboBank.Items.Add('6 - [Orange]');
-         ComboBank.Items.Add('7 - [White]');
-       end
-       else
-       begin
-         ComboBank.Items.Clear;
-         ComboBank.Items.Add('0 - [Red]');
-         ComboBank.Items.Add('1 - [Orange]');
-         ComboBank.Items.Add('2 - [Yellow]');
-         ComboBank.Items.Add('3 - [Green]');
-         ComboBank.Items.Add('4 - [White]');
-         ComboBank.Items.Add('5 - [Acqua]');
-         ComboBank.Items.Add('6 - [Blue]');
-         ComboBank.Items.Add('7 - [Purple]');
-       end;
-
-       labStatus.Caption:='Connected.';
-       btnDisconnect.Caption:='Disconnect/Save';
-
-       ComboBank.Enabled:=True;
-       btnSendBanks.Enabled:=True;
-       GroupBanks.Enabled:=True;
-       PageControl1.Enabled:=True;
-
-       labBuild.Caption:='Build: '+inp;
-
-       //writeback data saved from before a firmware update
-       if (saveData.Count>0) then
-       begin
-         for k:=0 to (saveData.Count-1) do
-         begin
-           WriteLn(saveData[k]);
-           Application.ProcessMessages;
-           Delay(250);
-         end;
-         saveData.Clear;
-         Application.ProcessMessages;
-         Delay(250);
-         WriteLn('SAVE');
-       end;
-
-       WriteLn('S?');
-       WriteLn('B?');
-
-     end
-     else if inp.StartsWith('S=') then
-     begin
-       labSerial.Caption:=inp.Replace('S=','Serial No. ');
-       if menuItemCheckOnConnect.Visible and  menuItemCheckOnConnect.Checked then
-          checkFirmwareNow(Sender, true);
-     end
-     else if saveMode then
-       saveData.Add(inp)
-     else if (inp.StartsWith('B=')) then
-     begin
-       //labSerial.Caption:=inp.Replace('S=','Serial No. ');
-       Memo1.Append('switching to live bank '+InttoStr(Ord(inp.Chars[2])-48));
-       ComboBank.ItemIndex:=Ord(inp.Chars[2])-48;
-       ComboBankSelect(Sender);
-     end
-     else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
-     begin
-       TabMain.TabVisible:=true;
-       DecColorStringtoBank(inp.Substring(3))
-     end
-     else if( (inp.StartsWith('C')) and (inp.Chars[2]='=') ) then
-     begin
-       TabMain.TabVisible:=true;
-       HexColorStringtoBank(inp.Substring(3))
-     end
-     else if( (inp.StartsWith('f')) and (inp.Chars[2]='=') ) then
-     begin
-       TabClash.TabVisible:=True;
-       DecClashStringtoBank(inp.Substring(3))
-     end
-     else if( (inp.StartsWith('F')) and (inp.Chars[2]='=') ) then
-     begin
-       TabClash.TabVisible:=True;
-       HexClashStringtoBank(inp.Substring(3))
-     end
-     else if( (inp.StartsWith('w')) and (inp.Chars[2]='=') ) then
-     begin
-       TabSwing.TabVisible:=true;
-       DecSwingStringtoBank(inp.Substring(3));
-     end
-     else if( (inp.StartsWith('W')) and (inp.Chars[2]='=') ) then
-     begin
-       TabSwing.TabVisible:=true;
-       HexSwingStringtoBank(inp.Substring(3));
-     end;
-
-
-   end; //inp not empty
-
- end; //while contains 13
-end;
-
 procedure TForm1.DecColorStringtoBank(s:String);
 var
   colours: Array of String;
@@ -790,7 +843,6 @@ begin
   ledCBlue.Caption:=colours[2];
   ledCWhite.Caption:=colours[3];
 end;
-
 procedure TForm1.HexColorStringtoBank(s:String);
 begin
   //hex values
@@ -799,7 +851,6 @@ begin
   trackCBlue.Position:=Hex2Dec(s.Substring(4,2));
   trackCWhite.Position:=Hex2Dec(s.Substring(6,2));
 end;
-
 procedure TForm1.DecClashStringtoBank(s:String);
 var
   colours: Array of String;
@@ -810,7 +861,6 @@ begin
   ledFBlue.Caption:=colours[2];
   ledFWhite.Caption:=colours[3];
 end;
-
 procedure TForm1.HexClashStringtoBank(s:String);
 begin
   //hex values
@@ -819,7 +869,6 @@ begin
   trackFBlue.Position:=Hex2Dec(s.Substring(4,2));
   trackFWhite.Position:=Hex2Dec(s.Substring(6,2));
 end;
-
 procedure TForm1.DecSwingStringtoBank(s:String);
 var
   colours: Array of String;
@@ -830,7 +879,6 @@ begin
   ledSwBlue.Caption:=colours[2];
   ledSwWhite.Caption:=colours[3];
 end;
-
 procedure TForm1.HexSwingStringtoBank(s:String);
 begin
   //hex values
@@ -839,7 +887,6 @@ begin
   trackSwBlue.Position:=Hex2Dec(s.Substring(4,2));
   trackSwWhite.Position:=Hex2Dec(s.Substring(6,2));
 end;
-
 procedure TForm1.ledCRedChange(Sender: TObject);
 var
  i:LongInt;
@@ -894,19 +941,6 @@ begin
   //ColorButtonMain.ButtonColor:=TColor.cre;
 end;
 
-procedure TForm1.Timer1Timer(Sender: TObject);
-begin
-   Timer1.Enabled:=false;
-   Timer1.OnTimer:=nil;
-   if validatedPort.IsEmpty then
-   begin
-     labStatus.Caption:='No Open Core Saber Detected.';
-     writeln('');
-     writeLn('V');
-   end;
-
-end;
-
 procedure TForm1.TrackCBlueChange(Sender: TObject);
 var
  s : String;
@@ -921,7 +955,6 @@ begin
                                   trackCBlue.Position,
                                   trackCWhite.Position);
 end;
-
 procedure TForm1.TrackCGreenChange(Sender: TObject);
 var
  s : String;
@@ -936,7 +969,6 @@ begin
                                   trackCBlue.Position,
                                   trackCWhite.Position);
 end;
-
 procedure TForm1.trackCRedChange(Sender: TObject);
 var
  s : String;
@@ -951,7 +983,6 @@ begin
                                   trackCBlue.Position,
                                   trackCWhite.Position);
 end;
-
 procedure TForm1.TrackCWhiteChange(Sender: TObject);
 var
  s : String;
@@ -966,7 +997,6 @@ begin
                                   trackCBlue.Position,
                                   trackCWhite.Position);
 end;
-
 procedure TForm1.TrackFBlueChange(Sender: TObject);
 var
  s : String;
@@ -981,7 +1011,6 @@ begin
                                   trackFBlue.Position,
                                   trackFWhite.Position);
 end;
-
 procedure TForm1.TrackFGreenChange(Sender: TObject);
 var
  s : String;
@@ -996,7 +1025,6 @@ begin
                                   trackFBlue.Position,
                                   trackFWhite.Position);
 end;
-
 procedure TForm1.trackFRedChange(Sender: TObject);
 var
  s : String;
@@ -1011,7 +1039,6 @@ begin
                                   trackFBlue.Position,
                                   trackFWhite.Position);
 end;
-
 procedure TForm1.TrackFWhiteChange(Sender: TObject);
 var
  s : String;
@@ -1026,7 +1053,6 @@ begin
                                   trackFBlue.Position,
                                   trackFWhite.Position);
 end;
-
 procedure TForm1.TrackSwBlueChange(Sender: TObject);
 var
  s : String;
@@ -1042,7 +1068,6 @@ begin
                                   trackSwWhite.Position);
 
 end;
-
 procedure TForm1.TrackSwGreenChange(Sender: TObject);
 var
  s : String;
@@ -1058,7 +1083,6 @@ begin
                                   trackSwWhite.Position);
 
 end;
-
 procedure TForm1.trackSwRedChange(Sender: TObject);
 var
  s : String;
@@ -1073,7 +1097,6 @@ begin
                                   trackSwBlue.Position,
                                   trackSwWhite.Position);
 end;
-
 procedure TForm1.TrackSwWhiteChange(Sender: TObject);
 var
  s : String;
@@ -1089,79 +1112,9 @@ begin
                                   trackSwWhite.Position);
 end;
 
-procedure TForm1.ComboBox1Select(Sender: TObject);
-begin
-  labStatus.Caption:='Not an Open Core Saber';
-  labBuild.Caption:='Build: --';
-  labSerial.Caption:='Serial No.: --';
-  validatedPort:='';
-  serialInput:='';
-
-  ComboBank.Enabled:=False;
-  btnSendBanks.Enabled:=False;
-  GroupBanks.Enabled:=False;
-
-  PageControl1.Enabled:=false;
-  PageControl1.TabIndex:=0;
-  TabMain.TabVisible:=false;
-  TabSwing.TabVisible:=false;
-  TabClash.TabVisible:=false;
-
-  btnDisconnect.Caption:='Disconnect/Save';
-
-  if((ComboBox1.Caption<>'') and (ComboBox1.Caption<>'--')) then
-  begin
-    CloseSerial();
-
-    winSerial := TLazSerial.Create(Form1);
-    winSerial.OnRxData:=@ RxData;
-
-
-    //Memo1.Clear;
-    Memo1.Append('-----------------');
-    Memo1.Append('Opening '+ComboBox1.Caption);
-
-    {$IF defined(MSWindows)}
-    winSerial.Device:=ComboBox1.Caption;
-
-    winSerial.Open();
-    winSerial.SynSer.DeadlockTimeout:=10;
-
-    Sleep(1400);
-    if winSerial.Active then
-    begin
-      //WriteLn('V');
-      Timer1.Enabled:=false;
-      Timer1.OnTimer:=@ Timer1Timer;
-      Timer1.Interval:=2500;
-      Timer1.Enabled:=True;
-      WriteLn('V?');
-    end;
-    {$elseif defined(DARWIN)}
-    // mac os code
-    {$ENDIF}
-
-  end;
-
-end;
-
-procedure TForm1.FormShow(Sender: TObject);
-begin
-  if defWidth=0 then
-      defWidth:=self.Width;
-  if defHeight=0 then
-      defHeight:=self.Height;
-end;
-
 procedure TForm1.menuAboutClick(Sender: TObject);
 begin
  showHtml('','help/about.html');
- // MessageDlg(Form1.Caption,
- //               Form1.Caption+#13+#13
- //               +'Settings Manager for OpenCore Saber'+#13
- //               +'(C) MMXX Nuntis'+#13+#13
- //               +'http://sabers.amazer.uk',
- //                    mtInformation, [mbOK],0);
 end;
 
 function TForm1.stringFromURL(url: String) : String;
@@ -1188,7 +1141,6 @@ begin
 
  stringFromURL := httpresult;
 end;
-
 function TForm1.iniFromURL(url: String) : TIniFile;
 var
   str : String;
@@ -1209,7 +1161,6 @@ var
  bvis : Boolean;
  aProcess : TProcess;
  fSize, dSize : Int64;
- //efile : file of byte;
  Info : TSearchRec;
  cli : TFPHTTPClient;
 begin
@@ -1225,14 +1176,6 @@ begin
   end
   else
   begin
-    //[windows]
-    //v=0.1.0.53
-    //changes=Beta Firmware OpenCore.1.9.13_20200808_json3.hex
-    //url=http://sabers.amazer.uk/files/gilthoniel/install_gilthoniel_0.1.0.53.exe
-    //size=12345667
-    //sha1=...
-    //sha256=...
-
     newv:=ini.ReadString(OS,'v','');
     if newv<>appVersion then
     begin
@@ -1272,9 +1215,6 @@ begin
                 Memo1.Append('Downloaded File Size: '+IntToStr(dSize));
               end;
 
-              //add crc checks here
-              //ini.ReadString(OS,'url','');
-              //Memo1.Append('md5 # '+md5Encrypt(fExec));
               if sha1Encrypt(fExec)<>ini.ReadString(OS,'sha1','') then
               begin
                 Memo1.Append('SHA1 file check invalid');
@@ -1341,30 +1281,31 @@ begin
   end;
 
 end;
-
 procedure TForm1.MenuItem2Click(Sender: TObject);
 begin
   showHtml('', 'help/index.html');
 end;
-
 procedure TForm1.MenuItem3Click(Sender: TObject);
 var
  s:String;
 begin
-  s:=InputBox('Send Manual Command...','Enter the command to ber sent to the saber', '');
+  s:=InputBox('Send Manual Command...','Enter the command to be sent to the saber', '');
   if(Not(s.IsEmpty)) then
   begin
     menuItemDebug.Checked:=True;
     memo1.Visible:=True;
     writeLn(s);
+
+    s:=getReply();
+    while Not(s.IsEmpty) do
+      s:=getReply();
+
   end;
 end;
-
 procedure TForm1.menuItemCheckFirmwareNowClick(Sender: TObject);
 begin
   checkFirmwareNow(Sender, false);
 end;
-
 procedure TForm1.checkFirmwareNow(Sender: TObject; silent:boolean);
 var
  ini : TIniFile;
@@ -1373,7 +1314,7 @@ var
  dSize, fSize :Int64;
  Info : TSearchRec;
 begin
-  if not(assigned(winSerial)) or Not(winSerial.Active) then
+  if not(assigned(winSerial)) then
   begin
     if Not(silent) then
     begin
@@ -1493,12 +1434,10 @@ begin
     end;
   end;
 end;
-
 procedure TForm1.menuItemCheckOnConnectClick(Sender: TObject);
 begin
   menuItemCheckOnConnect.Checked:= Not(menuItemCheckOnConnect.Checked);
 end;
-
 procedure TForm1.menuItemClearLogClick(Sender: TObject);
 begin
  if (MessageDlg('Debug Log',
@@ -1506,7 +1445,6 @@ begin
                    mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
      Memo1.Clear;
 end;
-
 procedure TForm1.menuItemFirmwareClick(Sender: TObject);
 begin
   doFirmware(Sender);
@@ -1517,7 +1455,6 @@ begin
   // Exit Quit
   Form1.Close;
 end;
-
 procedure TForm1.menuItemDebugClick(Sender: TObject);
 begin
   menuItemDebug.Checked:= Not(menuItemDebug.Checked);
@@ -1531,7 +1468,6 @@ begin
 
   FormResize(Sender);
 end;
-
 procedure TForm1.menuItemLicenceClick(Sender: TObject);
 begin
   showHtml('Gilthoniel Licence','help/licence.html');
@@ -1548,17 +1484,14 @@ begin
   fh.OpenShow(title, url);
 end;
 
-
 procedure TForm1.menuItemRescanClick(Sender: TObject);
 begin
   OpenSerial(Sender);
 end;
-
 procedure TForm1.miExtraDebugInfoClick(Sender: TObject);
 begin
   miExtraDebugInfo.Checked:= Not(miExtraDebugInfo.Checked);
 end;
-
 procedure TForm1.miLoadAllClick(Sender: TObject);
 var
  k: Integer;
@@ -1588,14 +1521,15 @@ begin
           WriteLn(saveData[k]);
 
         Application.ProcessMessages;
+        getReply();
       end;
       saveData.Clear;
       writeLn('B?');
+      //RxData();
     end;
 
   end;
 end;
-
 procedure TForm1.miLoadBankClick(Sender: TObject);
 var
  k : Integer;
@@ -1642,11 +1576,10 @@ begin
   end;
 
 end;
-
 procedure TForm1.miSaveAllClick(Sender: TObject);
 var
- fname:String;
- getlines, abort : Integer;
+ fname, inp:String;
+ getlines, abort, i : Integer;
 begin
   {$IF defined(MSWindows)}
   //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
@@ -1667,49 +1600,41 @@ begin
      if Not(SaveDialog1.Filename.EndsWith('.openCoreSettings')) then
        fname:=SaveDialog1.Filename+'.openCoreSettings';
 
-     //Use the built in file exists option in the dialog
-     //if FileExists(fname) then
-     //begin
-     //  if (MessageDlg('Save Bank',
-     //              ExtractFileName(fname)+' already Exists,'+#13+#13
-     //              +'Do you wish to overwrite it ?',
-     //              mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
-     //    fname:='';
-     //end;
      if Not(fname.IsEmpty) then
      begin
-       //save current bank to saber
-      saveMode:=true;
-      saveData.Clear;
+      //save current bank to saber
       btnSendBanksClick(Sender);
-      //expecting two responses
-      while (saveData.Count<2) do
+      //expecting 2 or 3 responses
+      for i:=0 to 3 do
       begin
         Application.ProcessMessages;
-        Delay(100);
+        getReply();
       end;
 
-      saveMode:=true;
+      TimerRx.Enabled:=False;
       saveData.Clear;
       saveData.Add('#filetype=Giltoniel Saber Settings');
       WriteLn('B?');
       WriteLn('w?');
       WriteLn('c?');
       WriteLn('f?');
-
+      //expecting 18 or 26 responses
       getlines:=18;
       if tabSwing.TabVisible then
          getlines:=26;
 
       abort:=0;
-      while (saveData.Count<getlines) and (abort<4096) and (WinSerial.Active) do
+      while (saveData.Count<getlines) and (abort<4096) do
       begin
         Application.ProcessMessages;
-        Delay(10);
+        inp:=getReply();
+        if Not(inp.IsEmpty) then
+          saveData.Append(inp);
+
         abort:=abort+1;
         Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
       end;
-      if (abort>=4096) or Not(WinSerial.Active) then
+      if (abort>=4096) then
       begin
         saveData.Clear;
         Memo1.append('Saving data from saber timed out.');
@@ -1721,14 +1646,13 @@ begin
         exit;
       end;
 
-      saveMode:=false;
       saveData.SaveToFile(fname);
       saveData.Clear;
+      TimerRx.Enabled:=True;
 
      end;
   end;
 end;
-
 procedure TForm1.miSaveBankClick(Sender: TObject);
 var
  fname:String;
@@ -1750,15 +1674,6 @@ begin
      if Not(SaveDialog1.Filename.EndsWith('.openCoreBank')) then
        fname:=SaveDialog1.Filename+'.openCoreBank';
 
-     // Use the built in file exists option in the dialog
-     //if FileExists(fname) then
-     //begin
-     //  if (MessageDlg('Save Bank',
-     //              ExtractFileName(fname)+' already Exists,'+#13+#13
-     //              +'Do you wish to overwrite it ?',
-     //              mtConfirmation, [mbYes, mbNo],0) = mrNo ) then
-     //    fname:='';
-     //end;
      if Not(fname.IsEmpty) then
      begin
        saveMode:=false;
@@ -1774,12 +1689,10 @@ begin
 
    end;
 end;
-
 procedure TForm1.PageControl1Change(Sender: TObject);
 begin
 
 end;
-
 procedure TForm1.ComboBankSelect(Sender: TObject);
 var
  bank: String;
@@ -1801,9 +1714,10 @@ begin
     WriteLn('f'+bank+'?');
     WriteLn('w'+bank+'?');
     WriteLn('B='+bank);
+    //RxData();
+
   end;
 end;
-
 procedure TForm1.btnSendBanksClick(Sender: TObject);
 var
    bank:String;
@@ -1812,21 +1726,24 @@ begin
   begin
     bank:=IntToStr(ComboBank.ItemIndex);
     WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+    getReply();
     WriteLn('f'+bank+'='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
+    getReply();
     WriteLn('w'+bank+'='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
+    getReply();
 
     //request values back to confirm
     WriteLn('c'+bank+'?');
     WriteLn('f'+bank+'?');
     WriteLn('w'+bank+'?');
+    //RxData();
+
   end;
 end;
-
 procedure TForm1.btnFirmwareClick(Sender: TObject);
 begin
  doFirmware(Sender);
 end;
-
 procedure TForm1.doFirmware(Sender: TObject);
 begin
   //https://anfive.gnah.it/scintilla/?mode=opencore
@@ -1851,13 +1768,13 @@ procedure TForm1.loadFirmware(Sender:Tobject; filename:String);
 var
   getlines : Integer;
   abort : Integer;
+  inp:String;
 begin
     //read all the settings to save back after the upgrade/downgrade
-
-    if Assigned(winSerial) and winSerial.Active and Not(self.validatedPort.IsEmpty) then
+    saveData.Clear;
+    TimerRx.Enabled:=False;
+    if Assigned(winSerial) then
     begin
-      saveMode:=true;
-      saveData.Clear;
       WriteLn('B?');
       WriteLn('W?');
       WriteLn('C?');
@@ -1867,15 +1784,16 @@ begin
          getlines:=25;
 
       abort:=0;
-      while (saveData.Count<getlines) and (abort<256) and (WinSerial.Active) do
+      while (saveData.Count<getlines) and (abort<4096) do
       begin
         Application.ProcessMessages;
-        Delay(10);
+        inp:=getReply();
+        if Not(inp.IsEmpty) then
+          saveData.Append(inp);
         abort:=abort+1;
         Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
       end;
-      saveMode:=false;
-      if (abort>=256) or Not(WinSerial.Active) then
+      if (abort>=4096) then
       begin
         saveData.Clear;
         Memo1.append('Saving data from saber timed out.');
@@ -1886,10 +1804,7 @@ begin
                    mtConfirmation, [mbOK],0);
         exit;
       end;
-
-    end;
-    if Assigned(winSerial) and winSerial.Active then
-    begin
+      TimerRx.Enabled:=False;
       CloseSerial();
 
       //wait to allow serial to disconnect properly
@@ -1899,7 +1814,6 @@ begin
       Delay(250);
       Application.ProcessMessages;
     end;
-
 
     ExecuteProcess( ExtractFilePath(Application.ExeName)+'firmware\upload.cmd',[filename],[]);
 
@@ -1915,16 +1829,17 @@ end;
 procedure TForm1.btnPreview1Click(Sender: TObject);
 begin
   WriteLn('P='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
+  getReply();
 end;
-
 procedure TForm1.btnPreview2Click(Sender: TObject);
 begin
   WriteLn('P='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
+  getReply();
 end;
-
 procedure TForm1.btnPreview3Click(Sender: TObject);
 begin
     WriteLn('P='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
+    getReply();
 end;
 
 procedure TForm1.btnDisconnectClick(Sender: TObject);
@@ -1937,18 +1852,9 @@ begin
    end
    else
    begin
-    {$IF defined(MSWindows)}
-    if winSerial.Active  then
-    begin
-      WriteLn('SAVE');
-      winSerial.Close();
-    end;
-    winSerial.Device:='';
-    {$elseif defined(DARWIN)}
-    // mac os code
-    {$ENDIF}
+     winSerial.CloseSocket;
 
-     validatedPort:='';
+     //validatedPort:='';
      labStatus.Caption:='Disconnected';
      GroupBanks.Enabled:=False;
      PageControl1.Enabled:=false;
@@ -1956,7 +1862,6 @@ begin
      btnDisconnect.Caption:='Connect';
    end;
 end;
-
 procedure TForm1.btnResetColoursClick(Sender: TObject);
 begin
   if (MessageDlg('Reset',
@@ -1969,7 +1874,6 @@ begin
     ComboBankSelect(Sender);
   end;
 end;
-
 procedure TForm1.btnSend1Click(Sender: TObject);
 var
    bank:String;
@@ -1981,9 +1885,10 @@ begin
 
     //request values back to confirm
     WriteLn('c'+bank+'?');
+    //RxData();
+
   end;
 end;
-
 procedure TForm1.btnSend2Click(Sender: TObject);
 var
    bank:String;
@@ -1995,9 +1900,10 @@ begin
 
     //request values back to confirm
     WriteLn('f'+bank+'?');
+    //RxData();
+
   end;
 end;
-
 procedure TForm1.btnSend3Click(Sender: TObject);
 var
    bank:String;
@@ -2009,27 +1915,20 @@ begin
 
     //request values back to confirm
     WriteLn('w'+bank+'?');
+    //RxData();
+
   end;
 end;
 
 procedure TForm1.WriteLn(msg:String);
 begin
   Memo1.Append('>> '+msg);
-  {$IF defined(MSWindows)}
-  if winSerial.Active then
+  if Assigned(winSerial) and winSerial.CanWrite(10) then
   begin
-    winSerial.WriteData(msg+CHR(10));
+    winSerial.SendString(msg+#10);
   end;
 
-  {$elseif defined(DARWIN)}
-  // mac os code
-  //DataPortSerial,
-
-  //DataPortSerial1.SerialClient.SendString(msg+char(13));
-  //DataPortSerial1.SerialClient.Serial.Flush;
-  {$ENDIF}
 end;
-
 
 //------------------------ crc
 function TForm1.sha256Encrypt(fileName: String): String;
@@ -2063,7 +1962,6 @@ begin
   end;
   sha256Encrypt:= s;
 end;
-
 function TForm1.sha1Encrypt(fileName: String): String;
 var
   Hash: TDCP_sha1;
@@ -2096,7 +1994,6 @@ begin
   end;
   sha1Encrypt:=s;
 end;
-
 function TForm1.md5Encrypt(fileName: String): String;
 var
   Hash: TDCP_md5;
@@ -2128,10 +2025,12 @@ begin
   end;
   md5Encrypt:=s;
 end;
+{$push}
+{$warn 6058 off}
 procedure TForm1.ZeroMemory(Destination: Pointer; Length: DWORD);
 begin
   FillChar(Destination^, Length, 0);
 end;
-
+{$pop}
 end.
 
