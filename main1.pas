@@ -555,6 +555,7 @@ var
  inp : String;
  k : Integer;
 begin
+ TimerRx.Enabled:=False;
  inp:=getReply();
 
  while Not(inp.IsEmpty) do
@@ -638,10 +639,12 @@ begin
          Application.ProcessMessages;
          getReply();
        end;
+
        saveData.Clear;
        WriteLn('SAVE');
        Application.ProcessMessages;
-       getReply();
+       while Not(getReply().IsEmpty) do
+         Application.ProcessMessages;
      end;
 
      WriteLn('S?');
@@ -692,6 +695,8 @@ begin
 
    inp:=getReply();
  end; //while
+
+ TimerRx.Enabled:=True;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -1150,7 +1155,7 @@ begin
  if str.IsEmpty then
    iniFromURL := nil
  else
-   iniFromURL := TIniFile.Create(TStringStream.Create(str), false);
+   iniFromURL := TIniFile.Create(TStringStream.Create(str), TEncoding.ANSI,[ifoEscapeLineFeeds]);
 
 end;
 
@@ -1296,9 +1301,9 @@ begin
     memo1.Visible:=True;
     writeLn(s);
 
-    s:=getReply();
-    while Not(s.IsEmpty) do
-      s:=getReply();
+    //s:=getReply();
+    //while Not(s.IsEmpty) do
+    //  s:=getReply();
 
   end;
 end;
@@ -1521,11 +1526,9 @@ begin
           WriteLn(saveData[k]);
 
         Application.ProcessMessages;
-        getReply();
       end;
       saveData.Clear;
       writeLn('B?');
-      //RxData();
     end;
 
   end;
@@ -1602,6 +1605,8 @@ begin
 
      if Not(fname.IsEmpty) then
      begin
+      TimerRx.Enabled:=False;
+
       //save current bank to saber
       btnSendBanksClick(Sender);
       //expecting 2 or 3 responses
@@ -1611,7 +1616,6 @@ begin
         getReply();
       end;
 
-      TimerRx.Enabled:=False;
       saveData.Clear;
       saveData.Add('#filetype=Giltoniel Saber Settings');
       WriteLn('B?');
@@ -1648,8 +1652,8 @@ begin
 
       saveData.SaveToFile(fname);
       saveData.Clear;
-      TimerRx.Enabled:=True;
 
+      TimerRx.Enabled:=True;
      end;
   end;
 end;
@@ -1726,17 +1730,13 @@ begin
   begin
     bank:=IntToStr(ComboBank.ItemIndex);
     WriteLn('c'+bank+'='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
-    getReply();
     WriteLn('f'+bank+'='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
-    getReply();
     WriteLn('w'+bank+'='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
-    getReply();
 
     //request values back to confirm
     WriteLn('c'+bank+'?');
     WriteLn('f'+bank+'?');
     WriteLn('w'+bank+'?');
-    //RxData();
 
   end;
 end;
@@ -1771,8 +1771,9 @@ var
   inp:String;
 begin
     //read all the settings to save back after the upgrade/downgrade
-    saveData.Clear;
     TimerRx.Enabled:=False;
+    saveData.Clear;
+
     if Assigned(winSerial) then
     begin
       WriteLn('B?');
@@ -1829,17 +1830,14 @@ end;
 procedure TForm1.btnPreview1Click(Sender: TObject);
 begin
   WriteLn('P='+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption);
-  getReply();
 end;
 procedure TForm1.btnPreview2Click(Sender: TObject);
 begin
   WriteLn('P='+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption);
-  getReply();
 end;
 procedure TForm1.btnPreview3Click(Sender: TObject);
 begin
     WriteLn('P='+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption);
-    getReply();
 end;
 
 procedure TForm1.btnDisconnectClick(Sender: TObject);

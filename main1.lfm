@@ -2941,18 +2941,18 @@ object Form1: TForm1
       end
       object TabSwing: TTabSheet
         Caption = 'Swing Colour'
-        ClientHeight = 190
-        ClientWidth = 470
+        ClientHeight = 292
+        ClientWidth = 706
         ParentFont = False
         TabVisible = False
         object ledSwRed: TLabeledEdit
           Left = 12
-          Height = 22
+          Height = 33
           Top = 24
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Swing Red'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2963,12 +2963,12 @@ object Form1: TForm1
         end
         object ledSwGreen: TLabeledEdit
           Left = 12
-          Height = 22
+          Height = 33
           Top = 84
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Swing Green'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2979,12 +2979,12 @@ object Form1: TForm1
         end
         object ledSwBlue: TLabeledEdit
           Left = 12
-          Height = 22
+          Height = 33
           Top = 144
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Swing Blue'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2995,12 +2995,12 @@ object Form1: TForm1
         end
         object ledSwWhite: TLabeledEdit
           Left = 12
-          Height = 22
+          Height = 33
           Top = 204
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Swing White'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3379,17 +3379,17 @@ object Form1: TForm1
       end
       object TabClash: TTabSheet
         Caption = 'Clash Colour'
-        ClientHeight = 382
-        ClientWidth = 936
+        ClientHeight = 292
+        ClientWidth = 706
         ParentFont = False
         object ledFRed: TLabeledEdit
           Left = 12
-          Height = 40
+          Height = 33
           Top = 24
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Clash Red'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3411,12 +3411,12 @@ object Form1: TForm1
         end
         object ledFGreen: TLabeledEdit
           Left = 12
-          Height = 40
+          Height = 33
           Top = 84
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Clash Green'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3438,12 +3438,12 @@ object Form1: TForm1
         end
         object ledFBlue: TLabeledEdit
           Left = 12
-          Height = 40
+          Height = 33
           Top = 144
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Clash Blue'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3465,12 +3465,12 @@ object Form1: TForm1
         end
         object ledFWhite: TLabeledEdit
           Left = 12
-          Height = 40
+          Height = 33
           Top = 204
           Width = 120
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 25
+          EditLabel.Width = 120
           EditLabel.Caption = 'Clash White'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -4033,8 +4033,8 @@ object Form1: TForm1
   object HTMLBrowserHelpViewer1: THTMLBrowserHelpViewer
     BrowserParams = '%s'
     AutoRegister = False
-    Left = 558
-    Top = 84
+    Left = 582
+    Top = 104
   end
   object SimpleIPCClient1: TSimpleIPCClient
     Active = False
@@ -4047,7 +4047,7 @@ object Form1: TForm1
     Top = 20
   end
   object TimerRX: TTimer
-    Interval = 100
+    Interval = 50
     OnTimer = TimerRXTimer
     Left = 696
     Top = 96
