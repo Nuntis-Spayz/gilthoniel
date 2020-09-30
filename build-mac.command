@@ -2,13 +2,13 @@
 cd -- "$(dirname "$0")"
 
 # Script Settings
-version=2.00.00.00
+version=1.00.00.01
 appname=Gilthoniel
-appfolder=gilthoniel-dmg/$appname.app
+dmgfolder=gilthoniel-dmg
+appfolder=$dmgfolder/$appname.app
 macosfolder=$appfolder/Contents/MacOS
 plistfile=$appfolder/Contents/Info.plist
 appfile=gilthoniel
-
 
 echo "========================================================"
 echo "    Bundle creation script"
@@ -52,7 +52,7 @@ then
   echo "$appfile does not exist"
 else
   echo "Creating $appfolder..."
-  mkdir $appfolder
+  mkdir -p $appfolder
   mkdir $appfolder/Contents
   mkdir $appfolder/Contents/MacOS
   mkdir $appfolder/Contents/Frameworks  # optional, for including libraries or frameworks
@@ -75,6 +75,10 @@ fi
   cp icon3.png $appfolder/Contents/Resources
   cp gilthoniel.icns $appfolder/Contents/Resources/
   cp docs/*.* $appfolder/Contents/Resources
+  chmod +x firmware/tycmd
+  cp firmware/tycmd $appfolder/Contents/Resources/
+  cp firmware/*.hex $appfolder/Contents/Resources/
+  ln -s /Applications $dmgfolder/
 #
 # Create PkgInfo file.
   echo $PkgInfoContents >$appfolder/Contents/PkgInfo
@@ -106,7 +110,8 @@ fi
   if [ $command = 3 ]; then
     rm -f *.dmg
     hdiutil create tmp.dmg -ov -volname "Gilthoniel_Install" -fs HFS+ -srcfolder "./gilthoniel-dmg/" 
-    hdiutil convert tmp.dmg -format UDZO -o Gilthoniel-MACOS-$version.dmg
+    hdiutil convert tmp.dmg -format UDZO -o gilthoniel-macos-$version.dmg
+    rm -f tmp.dmg
   fi  
 
 fi

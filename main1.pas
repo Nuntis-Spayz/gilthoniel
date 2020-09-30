@@ -56,32 +56,32 @@ type
     Memo1: TMemo;
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
-    MenuItem3: TMenuItem;
-    miExtraDebugInfo: TMenuItem;
-    menuItemLicence: TMenuItem;
-    N2: TMenuItem;
-    menuItemCheckOnConnect: TMenuItem;
-    menuItemCheckFirmwareNow: TMenuItem;
-    N1: TMenuItem;
-    menuItemClearLog: TMenuItem;
-    miSep10: TMenuItem;
     miHelp: TMenuItem;
+    miSendCommand: TMenuItem;
+    miExtraDebugInfo: TMenuItem;
+    miLicence: TMenuItem;
+    N2: TMenuItem;
+    miCheckOnConnect: TMenuItem;
+    miCheckFirmwareNow: TMenuItem;
+    N1: TMenuItem;
+    miClearLog: TMenuItem;
+    miSep10: TMenuItem;
+    menuHelp: TMenuItem;
     miOpenPort: TMenuItem;
     miSep13: TMenuItem;
-    menuAbout: TMenuItem;
-    menuCheckUpdate: TMenuItem;
+    miAbout: TMenuItem;
+    miCheckUpdate: TMenuItem;
     menuTools: TMenuItem;
     menuConnect: TMenuItem;
     miClosePort: TMenuItem;
-    menuItemRescan: TMenuItem;
-    menuItemDebug: TMenuItem;
-    menuItemFirmware: TMenuItem;
+    miRescan: TMenuItem;
+    miDebug: TMenuItem;
+    miLoadFirmware: TMenuItem;
     miSaveBank: TMenuItem;
     miSaveAll: TMenuItem;
     miLoadBank: TMenuItem;
     miLoadAll: TMenuItem;
-    menuItemExit: TMenuItem;
+    miExit: TMenuItem;
     OpenDialog1: TOpenDialog;
     PageControl1: TPageControl;
     SaveDialog1: TSaveDialog;
@@ -123,18 +123,18 @@ type
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure menuAboutClick(Sender: TObject);
-    procedure menuCheckUpdateClick(Sender: TObject);
-    procedure MenuItem2Click(Sender: TObject);
-    procedure MenuItem3Click(Sender: TObject);
-    procedure menuItemCheckFirmwareNowClick(Sender: TObject);
-    procedure menuItemCheckOnConnectClick(Sender: TObject);
-    procedure menuItemClearLogClick(Sender: TObject);
-    procedure menuItemFirmwareClick(Sender: TObject);
-    procedure menuItemExitClick(Sender: TObject);
-    procedure menuItemDebugClick(Sender: TObject);
-    procedure menuItemLicenceClick(Sender: TObject);
-    procedure menuItemRescanClick(Sender: TObject);
+    procedure miAboutClick(Sender: TObject);
+    procedure miCheckUpdateClick(Sender: TObject);
+    procedure miHelpClick(Sender: TObject);
+    procedure miSendCommandClick(Sender: TObject);
+    procedure miCheckFirmwareNowClick(Sender: TObject);
+    procedure miCheckOnConnectClick(Sender: TObject);
+    procedure miClearLogClick(Sender: TObject);
+    procedure miLoadFirmwareClick(Sender: TObject);
+    procedure miExitClick(Sender: TObject);
+    procedure miDebugClick(Sender: TObject);
+    procedure miLicenceClick(Sender: TObject);
+    procedure miRescanClick(Sender: TObject);
     procedure miExtraDebugInfoClick(Sender: TObject);
     procedure miLoadAllClick(Sender: TObject);
     procedure miLoadBankClick(Sender: TObject);
@@ -221,27 +221,48 @@ begin
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
   bInstalled:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
   //if the firmware directory files don't exist disable the firmware and update menu options
-  menuItemFirmware.Visible := bInstalled;
-  menuItemCheckFirmwareNow.Visible := bInstalled;
-  menuItemCheckOnConnect.Visible := bInstalled;
-  menuCheckUpdate.Visible  := bInstalled;
+  miLoadFirmware.Visible := bInstalled;
+  miCheckFirmwareNow.Visible := bInstalled;
+  miCheckOnConnect.Visible := bInstalled;
+  miCheckUpdate.Visible  := bInstalled;
 
   btnPreview1.Caption:='Preview'+#13+'On Saber';
-  //btnPreview1.Visible:=false;
-  //btnPreview2.Visible:=false;
-  //btnPreview3.Visible:=false;
-  {$IF  defined(DARWIN)}
+
+
+  {$IF defined(MSWindows)}
+  ColorButtonMain.Caption:='Pick Main'+#13+'Colour ';
+  ColorButtonClash.Caption:='Pick Clash'+#13+'Colour ';
+  ColorButtonSwing.Caption:='Pick Swing'+#13+'Colour ';
+
+  {$elseif defined(DARWIN)}
   // mac os code
-  btnPreview1.Glyph.SetSize(32,32);
+  btnPreview1.Glyph.Destroy;
   btnPreview2.Glyph.SetSize(32,32);
   btnPreview3.Glyph.SetSize(32,32);
+
+  //Change Menu Shortcuts from Ctrl- to Cmd-
+  miSaveBank.ShortCut:= KeyToShortCut(VK_V, [ssMeta]);
+  miLoadBank.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  miSaveAll.ShortCut:= KeyToShortCut(VK_S, [ssMeta]);
+  miLoadAll.ShortCut:= KeyToShortCut(VK_O, [ssMeta]);
+  miExit.Visible:=False;  //Quit on MacOS exists in the default menu
+  miRescan.ShortCut:= KeyToShortCut(VK_R, [ssMeta]);
+  //miOpenPort.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  //miClosePort.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  miDebug.ShortCut:= KeyToShortCut(VK_D, [ssMeta]);
+  //miExtraDebugInfo.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  miSendCommand.ShortCut:= KeyToShortCut(VK_N, [ssMeta]);
+  miClearLog.ShortCut:= KeyToShortCut(VK_C, [ssMeta]);
+  //miCheckOnConnect.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  miCheckFirmwareNow.ShortCut:= KeyToShortCut(VK_M, [ssMeta]);
+  miLoadFirmware.ShortCut:= KeyToShortCut(VK_F, [ssMeta]);
+  miCheckUpdate.ShortCut:= KeyToShortCut(VK_A, [ssMeta]);
+  miHelp.ShortCut:= KeyToShortCut(VK_F1, [ssMeta]);
+  miLicence.ShortCut:= KeyToShortCut(VK_I, [ssMeta]);
+  miAbout.ShortCut:= KeyToShortCut(VK_F1, [ssShift, ssMeta]);
   {$ENDIF}
 
-  ColorButtonMain.Caption:='Pick Main '+#13+'Colour ';
-  ColorButtonClash.Caption:='Pick Clash '+#13+'Colour ';
-  ColorButtonSwing.Caption:='Pick Swing '+#13+'Colour ';
-
-  Memo1.Visible:=menuItemDebug.Checked;
+  Memo1.Visible:=miDebug.Checked;
 
   ledCRed.Caption:='0';
   ledCGreen.Caption:='0';
@@ -382,15 +403,16 @@ end;
 
 procedure TForm1.OpenSerial(Sender: TObject);
 var
-  I:integer;
   {$IF defined(MSWindows)}
   Reg:TRegistry;
+  I:integer;
+  cs : String;
   {$elseif defined(DARWIN)}
   // mac os code to be done, fetch list of ports
   SearchResult  : TSearchRec;
   {$ENDIF}
   lastItem:String;
-  rs, cs:String;
+  rs:String;
 begin
  lastItem:='';
  ComboBox1.Items.Clear;
@@ -540,6 +562,7 @@ begin
   end;
 
 end;
+
 function TForm1.getReply():String;
 var
  inp : String;
@@ -659,7 +682,7 @@ begin
    else if inp.StartsWith('S=') then
    begin
       labSerial.Caption:=inp.Replace('S=','Serial No. ');
-      if menuItemCheckOnConnect.Visible and  menuItemCheckOnConnect.Checked then
+      if miCheckOnConnect.Visible and  miCheckOnConnect.Checked then
          checkFirmwareNow(nil, true);
    end
    else if( (inp.StartsWith('c')) and (inp.Chars[2]='=') ) then
@@ -1117,7 +1140,7 @@ begin
                                   trackSwWhite.Position);
 end;
 
-procedure TForm1.menuAboutClick(Sender: TObject);
+procedure TForm1.miAboutClick(Sender: TObject);
 begin
  showHtml('','help/about.html');
 end;
@@ -1159,7 +1182,7 @@ begin
 
 end;
 
-procedure TForm1.menuCheckUpdateClick(Sender: TObject);
+procedure TForm1.miCheckUpdateClick(Sender: TObject);
 var
  ini : TIniFile;
  changes, newv, url, OS, fExec : String;
@@ -1286,18 +1309,18 @@ begin
   end;
 
 end;
-procedure TForm1.MenuItem2Click(Sender: TObject);
+procedure TForm1.miHelpClick(Sender: TObject);
 begin
   showHtml('', 'help/index.html');
 end;
-procedure TForm1.MenuItem3Click(Sender: TObject);
+procedure TForm1.miSendCommandClick(Sender: TObject);
 var
  s:String;
 begin
   s:=InputBox('Send Manual Command...','Enter the command to be sent to the saber', '');
   if(Not(s.IsEmpty)) then
   begin
-    menuItemDebug.Checked:=True;
+    miDebug.Checked:=True;
     memo1.Visible:=True;
     writeLn(s);
 
@@ -1307,7 +1330,7 @@ begin
 
   end;
 end;
-procedure TForm1.menuItemCheckFirmwareNowClick(Sender: TObject);
+procedure TForm1.miCheckFirmwareNowClick(Sender: TObject);
 begin
   checkFirmwareNow(Sender, false);
 end;
@@ -1439,41 +1462,41 @@ begin
     end;
   end;
 end;
-procedure TForm1.menuItemCheckOnConnectClick(Sender: TObject);
+procedure TForm1.miCheckOnConnectClick(Sender: TObject);
 begin
-  menuItemCheckOnConnect.Checked:= Not(menuItemCheckOnConnect.Checked);
+  miCheckOnConnect.Checked:= Not(miCheckOnConnect.Checked);
 end;
-procedure TForm1.menuItemClearLogClick(Sender: TObject);
+procedure TForm1.miClearLogClick(Sender: TObject);
 begin
  if (MessageDlg('Debug Log',
                    'Do you wish to clear the debug log ?',
                    mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
      Memo1.Clear;
 end;
-procedure TForm1.menuItemFirmwareClick(Sender: TObject);
+procedure TForm1.miLoadFirmwareClick(Sender: TObject);
 begin
   doFirmware(Sender);
 end;
 
-procedure TForm1.menuItemExitClick(Sender: TObject);
+procedure TForm1.miExitClick(Sender: TObject);
 begin
   // Exit Quit
   Form1.Close;
 end;
-procedure TForm1.menuItemDebugClick(Sender: TObject);
+procedure TForm1.miDebugClick(Sender: TObject);
 begin
-  menuItemDebug.Checked:= Not(menuItemDebug.Checked);
+  miDebug.Checked:= Not(miDebug.Checked);
 
-  Memo1.Visible:=menuItemDebug.Checked;
-  MenuItem3.Visible:=menuItemDebug.Checked;
-  miExtraDebugInfo.Visible:=menuItemDebug.Checked;
-  menuItemClearLog.Visible:=menuItemDebug.Checked;
+  Memo1.Visible:=miDebug.Checked;
+  miSendCommand.Visible:=miDebug.Checked;
+  miExtraDebugInfo.Visible:=miDebug.Checked;
+  miClearLog.Visible:=miDebug.Checked;
 
   Memo1.SelStart := Length(Memo1.Lines.Text);
 
   FormResize(Sender);
 end;
-procedure TForm1.menuItemLicenceClick(Sender: TObject);
+procedure TForm1.miLicenceClick(Sender: TObject);
 begin
   showHtml('Gilthoniel Licence','help/licence.html');
 end;
@@ -1489,7 +1512,7 @@ begin
   fh.OpenShow(title, url);
 end;
 
-procedure TForm1.menuItemRescanClick(Sender: TObject);
+procedure TForm1.miRescanClick(Sender: TObject);
 begin
   OpenSerial(Sender);
 end;
