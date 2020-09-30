@@ -376,12 +376,12 @@ begin
   {$IF defined(MSWindows)}
     if defWidth=0 then
     begin
-      //self.width:=790;
+      self.width:=1500;
       defWidth:=self.Width;
     end;
     if defHeight=0 then
     begin
-      //self.Height:=430;
+      self.Height:=800;
       defHeight:=self.Height;
     end;
     ComboBox1.Width:=100;

@@ -4,14 +4,18 @@
 * Windows & MAC-OS
 * Save and load all saber settings to a file
 * Save and load settings for a single bank
-* Update Firmware (Win)
+* Update Firmware (Win only)
 * Manage Main, Swing and Clash colours for all eight banks
 * With GUI colour picker (RGB to RGBW color correction does not take 
   into account each LED colour have different brightnesses)
 * Preview each colour on saber
 * Selects saber COM port automatically
-* Application update over the Internet
+* Application update over the Internet (Win only)
 * Help files
+
+### v.1.00.00.02
+* WIN: Regression bad window sizing, fixed
+* Latest firmware bundled OpenCore.1.9.17_20200930.hex
 
 ### v.1.00.00.01
 * Now uses Synaser Library for serial comms (Win & Mac compatible)
