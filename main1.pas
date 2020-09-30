@@ -367,8 +367,8 @@ begin
  btnPreview3.Left := PageControl1.Width -16 - btnPreview3.Width;
 
  btnSend1.Left := TabMain.Width -16 - btnSend1.Width;
- btnSend2.Left := TabClash.Width -16 - btnSend2.Width;
- btnSend3.Left := TabSwing.Width -16 - btnSend3.Width;
+ btnSend2.Left := btnSend1.Left;
+ btnSend3.Left := btnSend1.Left;
 
 end;
 procedure TForm1.FormShow(Sender: TObject);
@@ -384,7 +384,7 @@ begin
       self.Height:=800;
       defHeight:=self.Height;
     end;
-    ComboBox1.Width:=100;
+    ComboBox1.Width:=200;
   {$elseif defined(DARWIN)}
     if defWidth=0 then
     begin
@@ -396,7 +396,7 @@ begin
       self.Height:=430;
       defHeight:=self.Height;
     end;
-    ComboBox1.Width:=220;
+    ComboBox1.Width:=260;
   {$ENDIF}
   LabStatus.Left:=ComboBox1.Left+ComboBox1.Width+10;
 end;
