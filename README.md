@@ -22,9 +22,12 @@ itself does if you want to downlod the 32-bit binary from here and save
 it to a folder manually.
 
 ### Mac OS
-The Mac-OS branch is developing a version of code (with conditional compilation)
-that will compile on both Windows and Mac-OS, an early beta now runs on MAC-OS
+Compiling for MAC OS now works with basic saber management features, update
+and firmware features are under development to bring the app level in features
+with the Windows version.
 
+Download the .dmg file, open it and copy the enclosed app to Applications as is
+normal on ant Apple Mac
 
 ## Development
 
@@ -42,19 +45,17 @@ that will compile on both Windows and Mac-OS, an early beta now runs on MAC-OS
      the 64 bit cross compiler, but you will have to adjust the compile 
      mode options in the project, so don't.
 
-For Mac-OS
--- Install Lazarus Pascal per instrcutions on Lazarus Website (it's a multi-stage process and you also need the Mac-OS Xcode developer tools)
+  For Mac-OS
+  -- Install Lazarus Pascal per instrcutions on Lazarus Website (it's a multi-stage process and you also need the Mac-OS Xcode developer tools)
 
 Once up and running, before you open the project you will have to use 
 the online pacakage manager, in the Lazarus IDE, to install the following packages
 
-* TLazSerial (version 0 windows only, current master branch).
-* Synaser (version 2+ currently mac branch for wWindows and MacOS)
-* DCPcrypt (used to verify the digital signatures of any downloads that
-  the program does).
+* Synapse 40.1 (cross-platform serial library in latest MAC/Windows version)
+* DCPcrypt (used to verify the digital signatures of any downloads from the internet)
 
-### InnoScript Studio QSP (Quick Setup Pack) [JR Software]
-  https://jrsoftware.org/isdl.php
+### InnoScript Studio QSP (Quick Setup Pack)
+  https://jrsoftware.org/isdl.php [JR Software]
   
   This program is used to package up a Windows installer with the 
   application and any ancillary files.
@@ -71,8 +72,7 @@ the online pacakage manager, in the Lazarus IDE, to install the following packag
   why the installer does not work on XP systems.
 
 ### Building the App bundle and DMG for Mac-OS
+  Edit the "build-macos.command" script to update the version number.
 
-Edit the "build-macos.command" script to update the version number.
-
-Running this command builds a MAC-OS application bundle and optionally creates 
-a redistributable DMG file.
+  Running this command builds a MAC-OS application bundle and optionally creates 
+  a redistributable DMG file.
