@@ -1,9 +1,10 @@
 # Version Tracking
 
 ## Application Features
+* Windows & MAC-OS
 * Save and load all saber settings to a file
 * Save and load settings for a single bank
-* Update Firmware
+* Update Firmware (Win)
 * Manage Main, Swing and Clash colours for all eight banks
 * With GUI colour picker (RGB to RGBW color correction does not take 
   into account each LED colour have different brightnesses)
@@ -11,6 +12,13 @@
 * Selects saber COM port automatically
 * Application update over the Internet
 * Help files
+
+### v.1.00.00.01
+* Now uses Synaser Library for serial comms (Win & Mac compatible)
+* MAC-OS: Early Beta, no firmware utilities (yet!)
+* MAC-OS: improved build-mac.command
+* MAC-OS: Shortcut keys on Mac altered to CMD-x (Win Ctrl-x)
+* MAC-OS: removed button images
 
 ### v.0.01.01.08
 * Copes better with early firmware, allowing upgrade from file
