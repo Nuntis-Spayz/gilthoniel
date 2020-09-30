@@ -41,6 +41,8 @@ devtools/macOS-64/
 
 # Application bundle for Mac OS
 XX*.app/
+Gilthoniel
+gilthoniel-dmg/
 .DS_Store
 
 #reinclude all files in tools

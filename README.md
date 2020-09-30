@@ -22,10 +22,9 @@ itself does if you want to downlod the 32-bit binary from here and save
 it to a folder manually.
 
 ### Mac OS
-Although some development work is happening with a Mac OS version of the 
-application progress getting the serial comms to work is on-going, 
-please be patient. (There is definitely a bit of hair tearing going on 
-in this department.)
+The Mac-OS branch is developing a version of code (with conditional compilation)
+that will compile on both Windows and Mac-OS, an early beta now runs on MAC-OS
+
 
 ## Development
 
@@ -43,10 +42,14 @@ in this department.)
      the 64 bit cross compiler, but you will have to adjust the compile 
      mode options in the project, so don't.
 
+For Mac-OS
+-- Install Lazarus Pascal per instrcutions on Lazarus Website (it's a multi-stage process and you also need the Mac-OS Xcode developer tools)
+
 Once up and running, before you open the project you will have to use 
 the online pacakage manager, in the Lazarus IDE, to install the following packages
 
-* TLazSerial (this package does not work in Mac OS and an alternative is being investigated).
+* TLazSerial (version 0 windows only, current master branch).
+* Synaser (version 2+ currently mac branch for wWindows and MacOS)
 * DCPcrypt (used to verify the digital signatures of any downloads that
   the program does).
 
@@ -66,3 +69,10 @@ the online pacakage manager, in the Lazarus IDE, to install the following packag
   
   Version 6 does not build installers that work on Windows XP, which is 
   why the installer does not work on XP systems.
+
+### Building the App bundle and DMG for Mac-OS
+
+Edit the "build-macos.command" script to update the version number.
+
+Running this command builds a MAC-OS application bundle and optionally creates 
+a redistributable DMG file.

@@ -20,9 +20,8 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <MinorVersionNr Value="1"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="8"/>
+      <MajorVersionNr Value="1"/>
+      <BuildNr Value="2"/>
       <Language Value="0809"/>
       <StringTable CompanyName="Sabers.Amazer.uk" InternalName="OpenCore Manager" LegalCopyright="(C)MMXX Sabers.Amazer.uk" ProductName="Gilthoniel"/>
     </VersionInfo>
@@ -90,19 +89,19 @@
     </RunParams>
     <RequiredPackages Count="6">
       <Item1>
-        <PackageName Value="TurboPowerIPro"/>
+        <PackageName Value="laz_synapse"/>
       </Item1>
       <Item2>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="TurboPowerIPro"/>
       </Item2>
       <Item3>
-        <PackageName Value="FCL"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item3>
       <Item4>
-        <PackageName Value="dcpcrypt"/>
+        <PackageName Value="FCL"/>
       </Item4>
       <Item5>
-        <PackageName Value="LazSerialPort"/>
+        <PackageName Value="dcpcrypt"/>
       </Item5>
       <Item6>
         <PackageName Value="LCL"/>

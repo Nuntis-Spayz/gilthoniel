@@ -47,7 +47,7 @@ begin
 
   tss := TStringStream.Create;
   tss.LoadFromStream(IpFileDP.GetHtmlStream(url, nil));
-  ds:=tss.UnicodeDataString;
+  ds:=tss.DataString; // was .UnicodeDataString
 
   if ds.Contains('{ver}') then
   begin
