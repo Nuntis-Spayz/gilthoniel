@@ -6,7 +6,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, LazHelpHTML, Math, StrUtils,
   LazFileUtils, RTTICtrls, FileInfo, crt, IniFiles, fphttpclient, Process,
-  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , frmHelp, synaser
+  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , frmHelp, synaser, Clipbrd
   {$IF defined(MSWindows)}
   , windirs
   {$elseif defined(DARWIN)}
@@ -56,6 +56,16 @@ type
     Memo1: TMemo;
     menuFile: TMenuItem;
     MenuItem1: TMenuItem;
+    CopyFirmware: TMenuItem;
+    CopySerial: TMenuItem;
+    Cancel: TMenuItem;
+    MenuItem2: TMenuItem;
+    miCopyColour: TMenuItem;
+    miPasteColour: TMenuItem;
+    MenuItem6: TMenuItem;
+    miCopyBuild: TMenuItem;
+    miCopySerial: TMenuItem;
+    miCopyDebug: TMenuItem;
     miHelp: TMenuItem;
     miSendCommand: TMenuItem;
     miExtraDebugInfo: TMenuItem;
@@ -84,6 +94,7 @@ type
     miExit: TMenuItem;
     OpenDialog1: TOpenDialog;
     PageControl1: TPageControl;
+    PopupMenu1: TPopupMenu;
     SaveDialog1: TSaveDialog;
     btnPreview1: TSpeedButton;
     SimpleIPCClient1: TSimpleIPCClient;
@@ -122,10 +133,17 @@ type
     procedure ColorButtonSwingColorChanged(Sender: TObject);
     procedure ComboBankSelect(Sender: TObject);
     procedure ComboBox1Select(Sender: TObject);
+    procedure CopySerialClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure CopyFirmwareClick(Sender: TObject);
+    procedure labBuildClick(Sender: TObject);
+    procedure labSerialClick(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
     procedure miCheckUpdateClick(Sender: TObject);
+    procedure miCopyColourClick(Sender: TObject);
+    procedure miCopyDebugClick(Sender: TObject);
     procedure miHelpClick(Sender: TObject);
+    procedure miPasteColourClick(Sender: TObject);
     procedure miSendCommandClick(Sender: TObject);
     procedure miCheckFirmwareNowClick(Sender: TObject);
     procedure miCheckOnConnectClick(Sender: TObject);
@@ -234,6 +252,7 @@ begin
   ColorButtonClash.Caption:='Pick Clash'+#13+'Colour ';
   ColorButtonSwing.Caption:='Pick Swing'+#13+'Colour ';
 
+  miClearLog.ShortCut:= KeyToShortCut(VK_C, [ssShift, ssCtrl]);
   {$elseif defined(DARWIN)}
   // mac os code
   btnPreview1.Glyph.Destroy;
@@ -241,18 +260,20 @@ begin
   btnPreview3.Glyph.SetSize(32,32);
 
   //Change Menu Shortcuts from Ctrl- to Cmd-
-  miSaveBank.ShortCut:= KeyToShortCut(VK_V, [ssMeta]);
-  miLoadBank.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
+  miSaveBank.ShortCut:= KeyToShortCut(VK_S, [ssShift, ssMeta]);
+  miLoadBank.ShortCut:= KeyToShortCut(VK_O, [ssShift, ssMeta]);
   miSaveAll.ShortCut:= KeyToShortCut(VK_S, [ssMeta]);
   miLoadAll.ShortCut:= KeyToShortCut(VK_O, [ssMeta]);
   miExit.Visible:=False;  //Quit on MacOS exists in the default menu
+  miCopyColour.Shortcut:=KeyToShortCut(VK_C, [ssMeta]);
+  miPasteColour.Shortcut:=KeyToShortCut(VK_V, [ssMeta]);
   miRescan.ShortCut:= KeyToShortCut(VK_R, [ssMeta]);
   //miOpenPort.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
   //miClosePort.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
   miDebug.ShortCut:= KeyToShortCut(VK_D, [ssMeta]);
   //miExtraDebugInfo.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
   miSendCommand.ShortCut:= KeyToShortCut(VK_N, [ssMeta]);
-  miClearLog.ShortCut:= KeyToShortCut(VK_C, [ssMeta]);
+  miClearLog.ShortCut:= KeyToShortCut(VK_C, [ssShift,ssMeta]);
   //miCheckOnConnect.ShortCut:= KeyToShortCut(VK_L, [ssMeta]);
   miCheckFirmwareNow.ShortCut:= KeyToShortCut(VK_M, [ssMeta]);
   miLoadFirmware.ShortCut:= KeyToShortCut(VK_F, [ssMeta]);
@@ -401,6 +422,21 @@ begin
   LabStatus.Left:=ComboBox1.Left+ComboBox1.Width+10;
 end;
 
+procedure TForm1.CopyFirmwareClick(Sender: TObject);
+begin
+  Clipboard.AsText := labBuild.Caption;
+end;
+
+procedure TForm1.labBuildClick(Sender: TObject);
+begin
+  PopupMenu1.PopUp;
+end;
+
+procedure TForm1.labSerialClick(Sender: TObject);
+begin
+  PopupMenu1.PopUp;
+end;
+
 procedure TForm1.OpenSerial(Sender: TObject);
 var
   {$IF defined(MSWindows)}
@@ -408,7 +444,7 @@ var
   I:integer;
   cs : String;
   {$elseif defined(DARWIN)}
-  // mac os code to be done, fetch list of ports
+  // mac os code
   SearchResult  : TSearchRec;
   {$ENDIF}
   lastItem:String;
@@ -561,6 +597,11 @@ begin
 
   end;
 
+end;
+
+procedure TForm1.CopySerialClick(Sender: TObject);
+begin
+  Clipboard.AsText := labSerial.Caption;
 end;
 
 function TForm1.getReply():String;
@@ -1309,10 +1350,57 @@ begin
   end;
 
 end;
+
+procedure TForm1.miCopyColourClick(Sender: TObject);
+begin
+  if PageControl1.ActivePage=TabMain then
+  begin
+    Clipboard.AsText:='colour:'+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption;
+  end
+  else if PageControl1.ActivePage=TabSwing then
+  begin
+    Clipboard.AsText:='colour:'+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption;
+  end
+  else if PageControl1.ActivePage=TabClash then
+  begin
+    Clipboard.AsText:='colour:'+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption;
+  end;
+  Memo1.Append('Colour Copied to Clipboard: '+Clipboard.AsText);
+end;
+
+procedure TForm1.miCopyDebugClick(Sender: TObject);
+begin
+  Clipboard.AsText:=Memo1.Text;
+end;
+
 procedure TForm1.miHelpClick(Sender: TObject);
 begin
   showHtml('', 'help/index.html');
 end;
+
+procedure TForm1.miPasteColourClick(Sender: TObject);
+var
+ s : String;
+begin
+ if Clipboard.AsText.StartsWith('colour:') then
+ begin
+   s:=MidStr(Clipboard.AsText,8,999);
+   if PageControl1.ActivePage=TabMain then
+   begin
+     DecColorStringtoBank(s);
+   end
+   else if PageControl1.ActivePage=TabSwing then
+   begin
+     DecSwingStringtoBank(s);
+   end
+   else if PageControl1.ActivePage=TabClash then
+   begin
+     DecClashStringtoBank(s);
+   end;
+   Memo1.Append('Paste Clipboard to Bank: '+s);
+ end;
+end;
+
 procedure TForm1.miSendCommandClick(Sender: TObject);
 var
  s:String;

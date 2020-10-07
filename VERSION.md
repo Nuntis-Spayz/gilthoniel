@@ -9,9 +9,16 @@
 * With GUI colour picker (RGB to RGBW color correction does not take 
   into account each LED colour have different brightnesses)
 * Preview each colour on saber
-* Selects saber COM port automatically
+* Copy Build Firmware and Saber Serial numbers to Clipboard
+* Copy and Paste current RGBW Colour
+* Selects saber serial port automatically
 * Application update over the Internet (Win only)
 * Help files
+
+### v.1.00.00.03
+* Click, or right-click Build or Serial No. to copy to clipboard
+* Edit menu, copy serial or firmware build numbers, also copy and 
+  paste current RGBW colour
 
 ### v.1.00.00.02
 * WIN: Regression bad window sizing, fixed

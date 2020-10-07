@@ -27,7 +27,7 @@ and firmware features are under development to bring the app level in features
 with the Windows version.
 
 Download the .dmg file, open it and copy the enclosed app to Applications as is
-normal on ant Apple Mac
+normal on any Apple Mac
 
 ## Development
 
