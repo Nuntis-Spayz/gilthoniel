@@ -252,12 +252,11 @@ begin
   ColorButtonClash.Caption:='Pick Clash'+#13+'Colour ';
   ColorButtonSwing.Caption:='Pick Swing'+#13+'Colour ';
 
-  miClearLog.ShortCut:= KeyToShortCut(VK_C, [ssShift, ssCtrl]);
   {$elseif defined(DARWIN)}
   // mac os code
   btnPreview1.Glyph.Destroy;
-  btnPreview2.Glyph.SetSize(32,32);
-  btnPreview3.Glyph.SetSize(32,32);
+  btnPreview2.Glyph.Destroy;
+  btnPreview3.Glyph.Destroy;
 
   //Change Menu Shortcuts from Ctrl- to Cmd-
   miSaveBank.ShortCut:= KeyToShortCut(VK_S, [ssShift, ssMeta]);
