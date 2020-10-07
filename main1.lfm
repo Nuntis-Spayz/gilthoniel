@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 394
-  Height = 840
-  Top = 112
-  Width = 1514
+  Left = 242
+  Height = 843
+  Top = 229
+  Width = 1482
   Caption = 'Gilthoniel'
-  ClientHeight = 801
-  ClientWidth = 1514
+  ClientHeight = 804
+  ClientWidth = 1482
   DesignTimePPI = 192
   Icon.Data = {
     992601000000010009002020000001001800A80C000096000000101000000100
@@ -2474,7 +2474,7 @@ object Form1: TForm1
       Left = 688
       Height = 70
       Top = 520
-      Width = 270
+      Width = 290
       HelpType = htKeyword
       HelpKeyword = 'html/licence.html'
       Caption = 'Write Bank to Saber'
@@ -2486,7 +2486,7 @@ object Form1: TForm1
       Left = 16
       Height = 70
       Top = 520
-      Width = 206
+      Width = 260
       Caption = 'Reset All Colours'
       OnClick = btnResetColoursClick
       ParentFont = False
@@ -2497,15 +2497,15 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabMain
+      ActivePage = TabClash
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
         Caption = 'Main Colour'
-        ClientHeight = 382
-        ClientWidth = 936
+        ClientHeight = 190
+        ClientWidth = 470
         ParentFont = False
         object trackCRed: TTrackBar
           Left = 184
@@ -2520,12 +2520,12 @@ object Form1: TForm1
         end
         object ledCRed: TLabeledEdit
           Left = 8
-          Height = 40
+          Height = 22
           Top = 32
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Colour Red'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2536,12 +2536,12 @@ object Form1: TForm1
         end
         object ledCGreen: TLabeledEdit
           Left = 8
-          Height = 40
+          Height = 22
           Top = 112
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Colour Green'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2563,12 +2563,12 @@ object Form1: TForm1
         end
         object ledCBlue: TLabeledEdit
           Left = 8
-          Height = 40
+          Height = 22
           Top = 192
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Colour Blue'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2590,12 +2590,12 @@ object Form1: TForm1
         end
         object ledCWhite: TLabeledEdit
           Left = 8
-          Height = 40
+          Height = 22
           Top = 272
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Colour White'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2929,10 +2929,10 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend1: TBitBtn
-          Left = 656
+          Left = 624
           Height = 70
-          Top = 242
-          Width = 270
+          Top = 240
+          Width = 310
           Caption = 'Write Main to Saber'
           OnClick = btnSend1Click
           ParentFont = False
@@ -2941,18 +2941,18 @@ object Form1: TForm1
       end
       object TabSwing: TTabSheet
         Caption = 'Swing Colour'
-        ClientHeight = 382
-        ClientWidth = 936
+        ClientHeight = 190
+        ClientWidth = 470
         ParentFont = False
         TabVisible = False
         object ledSwRed: TLabeledEdit
           Left = 16
-          Height = 40
+          Height = 22
           Top = 32
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Swing Red'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2963,12 +2963,12 @@ object Form1: TForm1
         end
         object ledSwGreen: TLabeledEdit
           Left = 16
-          Height = 40
+          Height = 22
           Top = 112
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Swing Green'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2979,12 +2979,12 @@ object Form1: TForm1
         end
         object ledSwBlue: TLabeledEdit
           Left = 16
-          Height = 40
+          Height = 22
           Top = 192
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Swing Blue'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -2995,12 +2995,12 @@ object Form1: TForm1
         end
         object ledSwWhite: TLabeledEdit
           Left = 16
-          Height = 40
+          Height = 22
           Top = 272
           Width = 160
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Swing White'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3022,10 +3022,10 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend3: TBitBtn
-          Left = 656
+          Left = 624
           Height = 70
-          Top = 242
-          Width = 270
+          Top = 240
+          Width = 310
           Caption = 'Write Swing to Saber'
           OnClick = btnSend3Click
           ParentFont = False
@@ -3503,10 +3503,10 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend2: TBitBtn
-          Left = 656
+          Left = 624
           Height = 70
-          Top = 242
-          Width = 270
+          Top = 240
+          Width = 310
           Caption = 'Write Clash to Saber'
           OnClick = btnSend2Click
           ParentFont = False
@@ -3834,6 +3834,8 @@ object Form1: TForm1
       Caption = 'Build: --'
       ParentColor = False
       ParentFont = False
+      PopupMenu = PopupMenu1
+      OnClick = labBuildClick
     end
     object labSerial: TLabel
       Left = 10
@@ -3843,11 +3845,13 @@ object Form1: TForm1
       Caption = 'Serial: --'
       ParentColor = False
       ParentFont = False
+      PopupMenu = PopupMenu1
+      OnClick = labSerialClick
     end
     object Memo1: TMemo
-      Left = 10
+      Left = 8
       Height = 392
-      Top = 112
+      Top = 104
       Width = 400
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlack
@@ -3900,12 +3904,12 @@ object Form1: TForm1
       Caption = '&File'
       object miSaveBank: TMenuItem
         Caption = 'Save Current Editor &Bank'
-        ShortCut = 16470
+        ShortCut = 24659
         OnClick = miSaveBankClick
       end
       object miLoadBank: TMenuItem
         Caption = '&Load Current Editor Bank'
-        ShortCut = 16460
+        ShortCut = 24655
         OnClick = miLoadBankClick
       end
       object MenuItem1: TMenuItem
@@ -3929,6 +3933,34 @@ object Form1: TForm1
         Caption = 'E&xit'
         ShortCut = 16465
         OnClick = miExitClick
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = '&Edit'
+      object miCopyBuild: TMenuItem
+        Caption = 'Copy &Firmware Build No.'
+        OnClick = CopyFirmwareClick
+      end
+      object miCopySerial: TMenuItem
+        Caption = 'Copy Saber &Serial No.'
+        OnClick = CopySerialClick
+      end
+      object miCopyDebug: TMenuItem
+        Caption = 'Copy &Debug Log'
+        OnClick = miCopyDebugClick
+      end
+      object MenuItem6: TMenuItem
+        Caption = '-'
+      end
+      object miCopyColour: TMenuItem
+        Caption = '&Copy Colour'
+        ShortCut = 16451
+        OnClick = miCopyColourClick
+      end
+      object miPasteColour: TMenuItem
+        Caption = '&Paste Colour'
+        ShortCut = 16470
+        OnClick = miPasteColourClick
       end
     end
     object menuConnect: TMenuItem
@@ -3974,7 +4006,7 @@ object Form1: TForm1
       end
       object miClearLog: TMenuItem
         Caption = '&Clear Debug Log'
-        ShortCut = 16451
+        ShortCut = 24643
         Visible = False
         OnClick = miClearLogClick
       end
@@ -4052,5 +4084,20 @@ object Form1: TForm1
     OnTimer = TimerRXTimer
     Left = 928
     Top = 128
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 1392
+    Top = 168
+    object CopyFirmware: TMenuItem
+      Caption = 'Copy Firmware Build No.'
+      OnClick = CopyFirmwareClick
+    end
+    object CopySerial: TMenuItem
+      Caption = 'Copy Serial No.'
+      OnClick = CopySerialClick
+    end
+    object Cancel: TMenuItem
+      Caption = 'Cancel'
+    end
   end
 end

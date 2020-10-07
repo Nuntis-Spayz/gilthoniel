@@ -2,7 +2,7 @@
 cd -- "$(dirname "$0")"
 
 # Script Settings
-version=1.00.00.02
+version=1.00.00.03
 appname=Gilthoniel
 dmgfolder=gilthoniel-dmg
 appfolder=$dmgfolder/$appname.app
