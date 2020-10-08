@@ -1,5 +1,8 @@
 unit main1;
 {$mode objfpc}{$H+}
+{$if defined(DARWIN)}
+  {$modeswitch objectivec1}
+{$endif}
 interface
 
 uses
@@ -11,7 +14,7 @@ uses
   , windirs
   {$elseif defined(DARWIN)}
   // mac os code
-  //BaseUnix --not used?
+  , CocoaAll, lclintf
   {$ENDIF}
   ;
 type
@@ -208,7 +211,10 @@ type
     function stringFromURL(url: String) : String;
     function iniFromURL(url: String) : TIniFile;
     procedure showHtml(title, url:String);
-
+    {$if defined(DARWIN)}
+    // mac os code
+    function GetSignificantDir(DirLocation: qword; DomainMask: qword; count: byte): string;
+    {$endif}
   public
 
   end;
@@ -236,15 +242,17 @@ begin
 
   PageControl1.TabIndex:=0;
 
+  {$IF defined(MSWindows)}
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
   bInstalled:= FileExists(fpath+'upload.cmd') and FileExists(fpath+'tycmd.exe');
+  {$elseif defined(DARWIN)}
+  fpath:=ExtractFilePath(Application.ExeName)+'/../Resources/';
+  bInstalled:= false; // Not yet implemented -- FileExists(fpath+'tycmd');
+  {$endif}
   //if the firmware directory files don't exist disable the firmware and update menu options
   miLoadFirmware.Visible := bInstalled;
   miCheckFirmwareNow.Visible := bInstalled;
   miCheckOnConnect.Visible := bInstalled;
-  miCheckUpdate.Visible  := bInstalled;
-
-  btnPreview1.Caption:='Preview'+#13+'On Saber';
 
 
   {$IF defined(MSWindows)}
@@ -252,11 +260,15 @@ begin
   ColorButtonClash.Caption:='Pick Clash'+#13+'Colour ';
   ColorButtonSwing.Caption:='Pick Swing'+#13+'Colour ';
 
+  btnPreview1.Caption:='Preview'+#13+'On Saber';
+  btnPreview2.Caption:='Preview'+#13+'On Saber';
+  btnPreview3.Caption:='Preview'+#13+'On Saber';
+
   {$elseif defined(DARWIN)}
   // mac os code
-  btnPreview1.Glyph.Destroy;
-  btnPreview2.Glyph.Destroy;
-  btnPreview3.Glyph.Destroy;
+  btnPreview1.Glyph:=nil;
+  btnPreview2.Glyph:=nil;
+  btnPreview3.Glyph:=nil;
 
   //Change Menu Shortcuts from Ctrl- to Cmd-
   miSaveBank.ShortCut:= KeyToShortCut(VK_S, [ssShift, ssMeta]);
@@ -339,7 +351,7 @@ begin
  GroupBanks.Top:=GroupPort.height+16;
 
  GroupBanks.Left:=5;
- GroupBanks.Width:=(self.Width * 68 div 100)-10;
+ GroupBanks.Width:=(self.Width * 64 div 100)-10;
  GroupBanks.Height:=self.Height-GroupBanks.Top-10;
 
  btnDisconnect.left:= GroupPort.width-btnDisconnect.width-16;
@@ -349,7 +361,7 @@ begin
  InfoBank.width:=self.Width-GroupBanks.Width-20;
  InfoBank.height:=self.Height-InfoBank.Top-10;
 
- Memo1.width:= InfoBank.width-20;
+ Memo1.width:= InfoBank.width-10;
  Memo1.height:= InfoBank.height -Memo1.top -50 - appMainMenu.Height  ;
  labSerial.left:=Memo1.left;
  labBuild.left:=Memo1.left;
@@ -1227,15 +1239,20 @@ var
  ini : TIniFile;
  changes, newv, url, OS, fExec : String;
  bvis : Boolean;
+ {$IF defined(MSWindows)}
  aProcess : TProcess;
+ {$EndIf}
  fSize, dSize : Int64;
  Info : TSearchRec;
  cli : TFPHTTPClient;
 begin
+  {$IF defined(MSWindows)}
   OS:='windows';
+  {$elseif defined(DARWIN)}
+  OS:='macos';
+  {$ENDIF}
 
   ini:=iniFromURL('http://sabers.amazer.uk/files/gilthoniel/release.php');
-
   if Not(Assigned(ini)) then
   begin
     MessageDlg('Update Check',
@@ -1262,14 +1279,20 @@ begin
         url:=ini.ReadString(OS,'url','');
         Memo1.Append('fetching url: '+url);
         fSize:= ini.ReadInt64(OS,'size',0);
+        Application.ProcessMessages;
 
         cli := TFPHTTPClient.Create(nil);
         cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
         try
           try
             begin
+              {$IF defined(MSWindows)}
               fExec:=GetTempDir(true)+'\install_gilthoniel_'+newv+'.exe';
+              {$elseif defined(DARWIN)}
+              fExec:=GetSignificantDir(NSDownloadsDirectory,NSUserDomainMask,0)+'/gilthoniel-macos-1.00.00.02'+newv+'.dmg';
+              {$ENDIF}
               DeleteFile(fExec);
+              Application.ProcessMessages;
 
               cli.Get(url,fExec);
               Memo1.Append(fExec);
@@ -1296,14 +1319,19 @@ begin
 
               if(dSize=fSize) then
               begin
-                Memo1.Append('Running Updater');
+                Memo1.Append('Starting Updater');
 
+                {$IF defined(MSWindows)}
                 aProcess := TProcess.Create(nil);
                 aProcess.Executable:= fExec;
                 //aProcess.Parameters.Add('-silent');
                 //aProcess.Options := aProcess.Options + [poWaitOnExit];
                 aProcess.Options := aProcess.Options - [poWaitOnExit];
                 aProcess.Execute;
+                {$elseif defined(DARWIN)}
+                OpenDocument(fExec);
+                {$ENDIF}
+
                 Memo1.Append('Updater is Running');
                 Application.ProcessMessages;
                 //aProcess.Free; //doing this will wait for the process which we do not want
@@ -1596,7 +1624,11 @@ begin
   fh.Width:= self.Width * 9 div 10;
   fh.Height:= self.Height * 8 div 10;
 
+  {$IF defined(MSWindows)}
   fh.OpenShow(title, url);
+  {$elseif defined(DARWIN)}
+  fh.OpenShow(title, ExtractFilePath(Application.ExeName)+'/../Resources/'+url);
+  {$ENDIF}
 end;
 
 procedure TForm1.miRescanClick(Sender: TObject);
@@ -2133,6 +2165,21 @@ begin
   end;
   md5Encrypt:=s;
 end;
+
+{$if defined(DARWIN)}
+// mac os code
+function TForm1.GetSignificantDir(DirLocation: qword; DomainMask: qword; count: byte): string;
+var
+  paths : NSArray;
+begin
+  paths := NSSearchPathForDirectoriesInDomains(DirLocation, DomainMask, True);
+  if(count < paths.count) then
+    Result := NSString(paths.objectAtIndex(0)).UTF8String
+  else
+    Result := '';
+end;
+{$ENDIF}
+
 {$push}
 {$warn 6058 off}
 procedure TForm1.ZeroMemory(Destination: Pointer; Length: DWORD);

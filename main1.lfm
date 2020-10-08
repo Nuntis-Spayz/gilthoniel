@@ -1,12 +1,11 @@
 object Form1: TForm1
-  Left = 242
-  Height = 843
-  Top = 229
-  Width = 1482
+  Left = 109
+  Height = 362
+  Top = 104
+  Width = 660
   Caption = 'Gilthoniel'
-  ClientHeight = 804
-  ClientWidth = 1482
-  DesignTimePPI = 192
+  ClientHeight = 362
+  ClientWidth = 660
   Icon.Data = {
     992601000000010009002020000001001800A80C000096000000101000000100
     1800680300003E0D00003030000001001800A81C0000A6100000202000000100
@@ -2374,21 +2373,21 @@ object Form1: TForm1
   Position = poDesktopCenter
   LCLVersion = '2.0.10.0'
   object GroupPort: TGroupBox
-    Left = 16
-    Height = 110
-    Top = 8
-    Width = 1450
+    Left = 8
+    Height = 55
+    Top = 4
+    Width = 725
     Caption = 'Port'
-    ClientHeight = 73
-    ClientWidth = 1446
+    ClientHeight = 36
+    ClientWidth = 715
     ParentFont = False
     TabOrder = 0
     object ComboBox1: TComboBox
-      Left = 168
-      Height = 40
-      Top = 8
-      Width = 200
-      ItemHeight = 32
+      Left = 84
+      Height = 20
+      Top = 4
+      Width = 100
+      ItemHeight = 19
       ItemIndex = 0
       Items.Strings = (
         '--'
@@ -2399,28 +2398,28 @@ object Form1: TForm1
       Text = '--'
     end
     object Label1: TLabel
-      Left = 16
-      Height = 32
-      Top = 8
-      Width = 107
+      Left = 8
+      Height = 16
+      Top = 4
+      Width = 63
       Caption = 'Serial Port'
       ParentColor = False
       ParentFont = False
     end
     object labStatus: TLabel
-      Left = 392
-      Height = 32
-      Top = 8
-      Width = 179
+      Left = 196
+      Height = 16
+      Top = 4
+      Width = 101
       Caption = 'No Saber Found.'
       ParentColor = False
       ParentFont = False
     end
     object btnDisconnect: TBitBtn
-      Left = 1160
-      Height = 60
+      Left = 580
+      Height = 30
       Top = 0
-      Width = 216
+      Width = 120
       Caption = 'Connect'
       OnClick = btnDisconnectClick
       ParentFont = False
@@ -2428,31 +2427,31 @@ object Form1: TForm1
     end
   end
   object GroupBanks: TGroupBox
-    Left = 24
-    Height = 648
-    Top = 120
-    Width = 984
+    Left = 12
+    Height = 324
+    Top = 60
+    Width = 492
     Caption = 'Colour Banks'
-    ClientHeight = 611
-    ClientWidth = 980
+    ClientHeight = 305
+    ClientWidth = 482
     ParentFont = False
     TabOrder = 1
     object Label3: TLabel
-      Left = 16
-      Height = 32
-      Top = 8
-      Width = 202
+      Left = 8
+      Height = 16
+      Top = 4
+      Width = 115
       Caption = 'Active Colour Bank'
       ParentColor = False
       ParentFont = False
     end
     object ComboBank: TComboBox
-      Left = 240
-      Height = 40
-      Top = 8
-      Width = 222
+      Left = 120
+      Height = 20
+      Top = 4
+      Width = 111
       AutoSelect = False
-      ItemHeight = 32
+      ItemHeight = 26
       ItemIndex = 0
       Items.Strings = (
         '0 [Red]'
@@ -2471,10 +2470,10 @@ object Form1: TForm1
       Text = '0 [Red]'
     end
     object btnSendBanks: TBitBtn
-      Left = 688
-      Height = 70
-      Top = 520
-      Width = 290
+      Left = 344
+      Height = 35
+      Top = 260
+      Width = 145
       HelpType = htKeyword
       HelpKeyword = 'html/licence.html'
       Caption = 'Write Bank to Saber'
@@ -2483,20 +2482,20 @@ object Form1: TForm1
       TabOrder = 1
     end
     object btnResetColours: TBitBtn
-      Left = 16
-      Height = 70
-      Top = 520
-      Width = 260
+      Left = 8
+      Height = 35
+      Top = 260
+      Width = 130
       Caption = 'Reset All Colours'
       OnClick = btnResetColoursClick
       ParentFont = False
       TabOrder = 2
     end
     object PageControl1: TPageControl
-      Left = 16
-      Height = 440
-      Top = 64
-      Width = 952
+      Left = 8
+      Height = 220
+      Top = 32
+      Width = 476
       ActivePage = TabClash
       ParentFont = False
       TabIndex = 2
@@ -2508,10 +2507,10 @@ object Form1: TForm1
         ClientWidth = 470
         ParentFont = False
         object trackCRed: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 32
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 16
+          Width = 132
           Max = 255
           OnChange = trackCRedChange
           Position = 0
@@ -2519,10 +2518,10 @@ object Form1: TForm1
           TabOrder = 0
         end
         object ledCRed: TLabeledEdit
-          Left = 8
+          Left = 4
           Height = 22
-          Top = 32
-          Width = 160
+          Top = 16
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2535,10 +2534,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object ledCGreen: TLabeledEdit
-          Left = 8
+          Left = 4
           Height = 22
-          Top = 112
-          Width = 160
+          Top = 56
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2551,10 +2550,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackCGreen: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 104
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 52
+          Width = 132
           Max = 255
           OnChange = TrackCGreenChange
           Position = 0
@@ -2562,10 +2561,10 @@ object Form1: TForm1
           TabOrder = 3
         end
         object ledCBlue: TLabeledEdit
-          Left = 8
+          Left = 4
           Height = 22
-          Top = 192
-          Width = 160
+          Top = 96
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2578,10 +2577,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackCBlue: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 184
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 92
+          Width = 132
           Max = 255
           OnChange = TrackCBlueChange
           Position = 0
@@ -2589,10 +2588,10 @@ object Form1: TForm1
           TabOrder = 5
         end
         object ledCWhite: TLabeledEdit
-          Left = 8
+          Left = 4
           Height = 22
-          Top = 272
-          Width = 160
+          Top = 136
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2605,10 +2604,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackCWhite: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 264
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 132
+          Width = 132
           Max = 255
           OnChange = TrackCWhiteChange
           Position = 0
@@ -2616,10 +2615,10 @@ object Form1: TForm1
           TabOrder = 7
         end
         object ColorButtonMain: TColorButton
-          Left = 504
-          Height = 80
-          Top = 24
-          Width = 190
+          Left = 252
+          Height = 40
+          Top = 12
+          Width = 95
           BorderWidth = 2
           ButtonColorSize = 16
           ButtonColor = clBlack
@@ -2628,10 +2627,10 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnPreview1: TSpeedButton
-          Left = 744
-          Height = 80
-          Top = 24
-          Width = 180
+          Left = 372
+          Height = 40
+          Top = 12
+          Width = 90
           Caption = 'Preview'
           Glyph.Data = {
             36240000424D3624000000000000360000002800000030000000300000000100
@@ -2929,10 +2928,10 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend1: TBitBtn
-          Left = 624
-          Height = 70
-          Top = 240
-          Width = 310
+          Left = 312
+          Height = 35
+          Top = 120
+          Width = 155
           Caption = 'Write Main to Saber'
           OnClick = btnSend1Click
           ParentFont = False
@@ -2946,10 +2945,10 @@ object Form1: TForm1
         ParentFont = False
         TabVisible = False
         object ledSwRed: TLabeledEdit
-          Left = 16
+          Left = 8
           Height = 22
-          Top = 32
-          Width = 160
+          Top = 16
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2962,10 +2961,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object ledSwGreen: TLabeledEdit
-          Left = 16
+          Left = 8
           Height = 22
-          Top = 112
-          Width = 160
+          Top = 56
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2978,10 +2977,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object ledSwBlue: TLabeledEdit
-          Left = 16
+          Left = 8
           Height = 22
-          Top = 192
-          Width = 160
+          Top = 96
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -2994,10 +2993,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object ledSwWhite: TLabeledEdit
-          Left = 16
+          Left = 8
           Height = 22
-          Top = 272
-          Width = 160
+          Top = 136
+          Width = 80
           Alignment = taRightJustify
           EditLabel.Height = 16
           EditLabel.Width = 80
@@ -3010,10 +3009,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object ColorButtonSwing: TColorButton
-          Left = 504
-          Height = 80
-          Top = 24
-          Width = 190
+          Left = 252
+          Height = 40
+          Top = 12
+          Width = 95
           BorderWidth = 2
           ButtonColorSize = 16
           ButtonColor = clBlack
@@ -3022,20 +3021,20 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend3: TBitBtn
-          Left = 624
-          Height = 70
-          Top = 240
-          Width = 310
+          Left = 312
+          Height = 35
+          Top = 120
+          Width = 155
           Caption = 'Write Swing to Saber'
           OnClick = btnSend3Click
           ParentFont = False
           TabOrder = 4
         end
         object trackSwRed: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 32
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 16
+          Width = 132
           Max = 255
           OnChange = trackSwRedChange
           Position = 0
@@ -3043,10 +3042,10 @@ object Form1: TForm1
           TabOrder = 5
         end
         object TrackSwGreen: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 104
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 52
+          Width = 132
           Max = 255
           OnChange = TrackSwGreenChange
           Position = 0
@@ -3054,10 +3053,10 @@ object Form1: TForm1
           TabOrder = 6
         end
         object TrackSwBlue: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 184
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 92
+          Width = 132
           Max = 255
           OnChange = TrackSwBlueChange
           Position = 0
@@ -3065,10 +3064,10 @@ object Form1: TForm1
           TabOrder = 7
         end
         object TrackSwWhite: TTrackBar
-          Left = 184
-          Height = 50
-          Top = 264
-          Width = 264
+          Left = 92
+          Height = 25
+          Top = 132
+          Width = 132
           Max = 255
           OnChange = TrackSwWhiteChange
           Position = 0
@@ -3076,10 +3075,10 @@ object Form1: TForm1
           TabOrder = 8
         end
         object btnPreview3: TSpeedButton
-          Left = 746
-          Height = 80
-          Top = 24
-          Width = 180
+          Left = 373
+          Height = 40
+          Top = 12
+          Width = 90
           Caption = 'Preview'
           Glyph.Data = {
             36240000424D3624000000000000360000002800000030000000300000000100
@@ -3379,17 +3378,17 @@ object Form1: TForm1
       end
       object TabClash: TTabSheet
         Caption = 'Clash Colour'
-        ClientHeight = 382
-        ClientWidth = 936
+        ClientHeight = 190
+        ClientWidth = 470
         ParentFont = False
         object ledFRed: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 32
-          Width = 160
+          Left = 8
+          Height = 22
+          Top = 16
+          Width = 80
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Clash Red'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3399,10 +3398,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object trackFRed: TTrackBar
-          Left = 192
-          Height = 50
-          Top = 32
-          Width = 264
+          Left = 96
+          Height = 25
+          Top = 16
+          Width = 132
           Max = 255
           OnChange = trackFRedChange
           Position = 0
@@ -3410,13 +3409,13 @@ object Form1: TForm1
           TabOrder = 1
         end
         object ledFGreen: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 112
-          Width = 160
+          Left = 8
+          Height = 22
+          Top = 56
+          Width = 80
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Clash Green'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3426,10 +3425,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackFGreen: TTrackBar
-          Left = 192
-          Height = 50
-          Top = 104
-          Width = 264
+          Left = 96
+          Height = 25
+          Top = 52
+          Width = 132
           Max = 255
           OnChange = TrackFGreenChange
           Position = 0
@@ -3437,13 +3436,13 @@ object Form1: TForm1
           TabOrder = 3
         end
         object ledFBlue: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 192
-          Width = 160
+          Left = 8
+          Height = 22
+          Top = 96
+          Width = 80
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Clash Blue'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3453,10 +3452,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackFBlue: TTrackBar
-          Left = 192
-          Height = 50
-          Top = 184
-          Width = 264
+          Left = 96
+          Height = 25
+          Top = 92
+          Width = 132
           Max = 255
           OnChange = TrackFBlueChange
           Position = 0
@@ -3464,13 +3463,13 @@ object Form1: TForm1
           TabOrder = 5
         end
         object ledFWhite: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 272
-          Width = 160
+          Left = 8
+          Height = 22
+          Top = 136
+          Width = 80
           Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
+          EditLabel.Height = 16
+          EditLabel.Width = 80
           EditLabel.Caption = 'Clash White'
           EditLabel.ParentColor = False
           EditLabel.ParentFont = False
@@ -3480,10 +3479,10 @@ object Form1: TForm1
           OnChange = ledCRedChange
         end
         object TrackFWhite: TTrackBar
-          Left = 192
-          Height = 50
-          Top = 260
-          Width = 264
+          Left = 96
+          Height = 25
+          Top = 130
+          Width = 132
           Max = 255
           OnChange = TrackFWhiteChange
           Position = 0
@@ -3491,10 +3490,10 @@ object Form1: TForm1
           TabOrder = 7
         end
         object ColorButtonClash: TColorButton
-          Left = 504
-          Height = 80
-          Top = 24
-          Width = 190
+          Left = 252
+          Height = 40
+          Top = 12
+          Width = 95
           BorderWidth = 2
           ButtonColorSize = 16
           ButtonColor = clBlack
@@ -3503,20 +3502,20 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend2: TBitBtn
-          Left = 624
-          Height = 70
-          Top = 240
-          Width = 310
+          Left = 312
+          Height = 35
+          Top = 120
+          Width = 155
           Caption = 'Write Clash to Saber'
           OnClick = btnSend2Click
           ParentFont = False
           TabOrder = 8
         end
         object btnPreview2: TSpeedButton
-          Left = 744
-          Height = 80
-          Top = 24
-          Width = 180
+          Left = 372
+          Height = 40
+          Top = 12
+          Width = 90
           Caption = 'Preview'
           Glyph.Data = {
             36240000424D3624000000000000360000002800000030000000300000000100
@@ -3817,20 +3816,20 @@ object Form1: TForm1
     end
   end
   object InfoBank: TGroupBox
-    Left = 1048
-    Height = 640
-    Top = 128
-    Width = 440
+    Left = 524
+    Height = 320
+    Top = 64
+    Width = 220
     Caption = 'Info'
-    ClientHeight = 603
-    ClientWidth = 436
+    ClientHeight = 301
+    ClientWidth = 210
     ParentFont = False
     TabOrder = 2
     object labBuild: TLabel
-      Left = 10
-      Height = 32
-      Top = 8
-      Width = 86
+      Left = 5
+      Height = 16
+      Top = 4
+      Width = 50
       Caption = 'Build: --'
       ParentColor = False
       ParentFont = False
@@ -3838,10 +3837,10 @@ object Form1: TForm1
       OnClick = labBuildClick
     end
     object labSerial: TLabel
-      Left = 10
-      Height = 32
-      Top = 56
-      Width = 90
+      Left = 5
+      Height = 16
+      Top = 28
+      Width = 53
       Caption = 'Serial: --'
       ParentColor = False
       ParentFont = False
@@ -3849,16 +3848,17 @@ object Form1: TForm1
       OnClick = labSerialClick
     end
     object Memo1: TMemo
-      Left = 8
-      Height = 392
-      Top = 104
-      Width = 400
+      Left = 3
+      Height = 196
+      Top = 52
+      Width = 200
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlack
-      Font.Height = -22
+      Font.Height = -11
       Font.Name = 'Courier New'
       Font.Pitch = fpFixed
       Font.Quality = fqCleartypeNatural
+      Lines.Strings = (      )
       ParentFont = False
       ReadOnly = True
       ScrollBars = ssAutoVertical
@@ -3867,8 +3867,8 @@ object Form1: TForm1
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Binary HEX Files|*.hex|All Files|*.*'
-    Left = 776
-    Top = 16
+    Left = 388
+    Top = 8
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -3894,12 +3894,12 @@ object Form1: TForm1
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 544
-    Top = 680
+    Left = 272
+    Top = 340
   end
   object appMainMenu: TMainMenu
-    Left = 616
-    Top = 16
+    Left = 308
+    Top = 8
     object menuFile: TMenuItem
       Caption = '&File'
       object miSaveBank: TMenuItem
@@ -4060,34 +4060,34 @@ object Form1: TForm1
   end
   object SaveDialog1: TSaveDialog
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    Left = 936
-    Top = 16
+    Left = 468
+    Top = 8
   end
   object HTMLBrowserHelpViewer1: THTMLBrowserHelpViewer
     BrowserParams = '%s'
     AutoRegister = False
-    Left = 776
-    Top = 138
+    Left = 388
+    Top = 69
   end
   object SimpleIPCClient1: TSimpleIPCClient
     Active = False
-    Left = 630
-    Top = 118
+    Left = 315
+    Top = 59
   end
   object Timer1: TTimer
     Interval = 2000
-    Left = 1070
-    Top = 26
+    Left = 535
+    Top = 13
   end
   object TimerRX: TTimer
     Interval = 50
     OnTimer = TimerRXTimer
-    Left = 928
-    Top = 128
+    Left = 464
+    Top = 64
   end
   object PopupMenu1: TPopupMenu
-    Left = 1392
-    Top = 168
+    Left = 696
+    Top = 84
     object CopyFirmware: TMenuItem
       Caption = 'Copy Firmware Build No.'
       OnClick = CopyFirmwareClick
