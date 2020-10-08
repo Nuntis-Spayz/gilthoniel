@@ -15,7 +15,9 @@ type
   TFormHelp = class(TForm)
     IpFileDP: TIpFileDataProvider;
     IpHtmlPanel1: TIpHtmlPanel;
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure FormHide(Sender: TObject);
     procedure IpHtmlPanel1HotClick(Sender: TObject);
   private
 
@@ -76,6 +78,16 @@ begin
   //-- --
 end;
 
+procedure TFormHelp.FormHide(Sender: TObject);
+begin
+  self.Close;
+end;
+
+procedure TFormHelp.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  CloseAction:= caFree;
+end;
+
 procedure TFormHelp.IpHtmlPanel1HotClick(Sender: TObject);
 var
  s : String;
@@ -85,10 +97,20 @@ begin
     OpenURL(s)
   else
   begin
-    if Not s.StartsWith('help/') then
-       s := 'help/'+s;
-
-    OpenShow('', s);
+    if FileExists(s) then
+       OpenShow('', s)
+    else
+    begin
+      if Not s.StartsWith('help/') then
+        s := 'help/'+s;
+      {$if defined(DARWIN)}
+      s:= ExtractFilePath(Application.ExeName)+'/../Resources/'+s;
+      {$ENDIF}
+      if FileExists(s) then
+        OpenShow('', s)
+      else
+        Close;
+    end;
   end;
 
 end;

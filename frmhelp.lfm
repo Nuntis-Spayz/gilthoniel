@@ -1,8 +1,8 @@
 object FormHelp: TFormHelp
-  Left = 1506
-  Height = 480
-  Top = 311
-  Width = 640
+  Left = 726
+  Height = 240
+  Top = 266
+  Width = 320
   ActiveControl = IpHtmlPanel1
   BorderStyle = bsDialog
   Caption = 'Githioniel Help'
@@ -10,9 +10,8 @@ object FormHelp: TFormHelp
   ChildSizing.EnlargeVertical = crsScaleChilds
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 480
-  ClientWidth = 640
-  DesignTimePPI = 192
+  ClientHeight = 240
+  ClientWidth = 320
   FormStyle = fsStayOnTop
   Icon.Data = {
     992601000000010009002020000001001800A80C000096000000101000000100
@@ -2373,15 +2372,17 @@ object FormHelp: TFormHelp
     00C003E75A000377DE800347EA00032DF6800300FFC00300FFC00300FFC00308
     FFC00197FFC001FFFFC001FFE3C000CE4EC00181C6C00141FFC003FDFF
   }
+  OnClose = FormClose
   OnCreate = FormCreate
+  OnHide = FormHide
   Position = poOwnerFormCenter
   ShowInTaskBar = stNever
   LCLVersion = '2.0.10.0'
   object IpHtmlPanel1: TIpHtmlPanel
     Left = 0
-    Height = 480
+    Height = 240
     Top = 0
-    Width = 640
+    Width = 320
     Align = alClient
     DataProvider = IpFileDP
     FixedTypeface = 'Courier New'
@@ -2400,7 +2401,7 @@ object FormHelp: TFormHelp
     OnHotClick = IpHtmlPanel1HotClick
   end
   object IpFileDP: TIpFileDataProvider
-    Left = 120
-    Top = 104
+    Left = 60
+    Top = 52
   end
 end

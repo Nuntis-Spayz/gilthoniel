@@ -12,8 +12,13 @@
 * Copy Build Firmware and Saber Serial numbers to Clipboard
 * Copy and Paste current RGBW Colour
 * Selects saber serial port automatically
-* Application update over the Internet (Win only)
+* Application update over the Internet
 * Help files
+
+### v.1.00.00.04
+* Mac-OS Check for App Updates & Download
+* Mac-OS Various sizing fixes
+* Mac-OS Help/About pop-up fixes
 
 ### v.1.00.00.03
 * Click, or right-click Build or Serial No. to copy to clipboard

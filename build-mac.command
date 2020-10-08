@@ -2,10 +2,10 @@
 cd -- "$(dirname "$0")"
 
 # Script Settings
-version=1.00.00.03
+version=1.00.00.04
 appname=Gilthoniel
 dmgfolder=gilthoniel-dmg
-appfolder=$dmgfolder/$appname.app
+appfolder=$appname.app
 macosfolder=$appfolder/Contents/MacOS
 plistfile=$appfolder/Contents/Info.plist
 appfile=gilthoniel
@@ -40,7 +40,7 @@ case $command in
      echo ""
      exit 0;;
 
-  *) echo "Invalid command"
+  *) echo "Invalid Menu Option"
      echo ""
      echo "-------------------------------"
      echo "Press  cmd-W  to close Terminal"
@@ -48,7 +48,7 @@ case $command in
      echo ""
      exit 0;;
 
-esac
+esac  
 
 # ------------------
 # Creates the bundle
@@ -62,35 +62,40 @@ rm -dfr $appfolder
 if ! [ -e $appfile ]
 then
   echo "$appfile does not exist"
+  echo ""
+  echo "-------------------------------"
+  echo "Press  cmd-W  to close Terminal"
+  echo "-------------------------------"
+  echo ""
 else
   echo "Creating $appfolder..."
-  mkdir -p $appfolder
-  mkdir $appfolder/Contents
-  mkdir $appfolder/Contents/MacOS
+  mkdir -p $appfolder/Contents/MacOS
   mkdir $appfolder/Contents/Frameworks  # optional, for including libraries or frameworks
-  mkdir $appfolder/Contents/Resources
+  mkdir -p $appfolder/Contents/Resources/help/img
 
 #
 # For a debug bundle,
 # Instead of copying executable into .app folder after each compile,
 # simply create a symbolic link to executable.
 #
-if [ $command = 1 ]; then
-  ln -s ../../../$appname $macosfolder/$appname
-else
-  cp $appname $macosfolder/$appname
-fi  
+  if [ $command = 1 ]; then
+    ln -s ../../../$appname $macosfolder/$appname
+  else
+    cp $appname $macosfolder/$appname
+  fi  
 
 # Copy the resource files to the correct place
-  cp *.bmp $appfolder/Contents/Resources
-  cp icon3.ico $appfolder/Contents/Resources
-  cp icon3.png $appfolder/Contents/Resources
+  cp *.bmp $appfolder/Contents/Resources/
+  cp icon3.ico $appfolder/Contents/Resources/
+  cp icon3.png $appfolder/Contents/Resources/
   cp gilthoniel.icns $appfolder/Contents/Resources/
-  cp docs/*.* $appfolder/Contents/Resources
+  cp ./docs/*.* $appfolder/Contents/Resources/
+  cp ./help/*.* $appfolder/Contents/Resources/help/
+  cp ./help/img/*.* $appfolder/Contents/Resources/help/img/
+
   chmod +x firmware/tycmd
-  cp firmware/tycmd $appfolder/Contents/Resources/
-  cp firmware/*.hex $appfolder/Contents/Resources/
-  ln -s /Applications $dmgfolder/
+  cp ./firmware/tycmd $appfolder/Contents/Resources/
+  cp ./firmware/*.hex $appfolder/Contents/Resources/
 #
 # Create PkgInfo file.
   echo $PkgInfoContents >$appfolder/Contents/PkgInfo
@@ -121,8 +126,12 @@ fi
 
 # Put it all into a DMG for re-distribution
   if [ $command = 3 ]; then
+    rm -dfr $dmgfolder
     rm -f *.dmg
-    hdiutil create tmp.dmg -ov -volname "Gilthoniel_Install" -fs HFS+ -srcfolder "./gilthoniel-dmg/" 
+    mkdir -p $dmgfolder
+    ln -s /Applications $dmgfolder/  
+    cp -R $appfolder $dmgfolder
+    hdiutil create tmp.dmg -ov -volname "Gilthoniel_Install" -fs HFS+ -srcfolder "./$dmgfolder/" 
     hdiutil convert tmp.dmg -format UDZO -o gilthoniel-macos-$version.dmg
     rm -f tmp.dmg
   fi  
