@@ -10,16 +10,18 @@ macosfolder=$appfolder/Contents/MacOS
 plistfile=$appfolder/Contents/Info.plist
 appfile=gilthoniel
 
-echo "========================================================"
-echo "    Bundle creation script"
-echo "========================================================"
+clear
+echo "================================================================"
+echo "  App Bundle/DMG Creation script - to build version $version"
+echo "================================================================"
+echo "v.$version"
 echo ""
 echo " Please select which kind of bundle you would like to build:"
 echo ""
 echo " 1 > Debug App Bundle Only"
 echo " 2 > Release App Bundle Only"
-echo " 3 > App & DMG Redistributable"
-echo " 0 > Exit"
+echo " 3 > Release App & DMG Redistributable"
+echo " 0 > Exit / Cancel Builder"
 
 read command
 
@@ -31,16 +33,26 @@ case $command in
   
   3) ;;
   
-  0) exit 0;;
+  0) echo ""
+     echo "-------------------------------"
+     echo "Press  cmd-W  to close Terminal"
+     echo "-------------------------------"
+     echo ""
+     exit 0;;
 
   *) echo "Invalid command"
+     echo ""
+     echo "-------------------------------"
+     echo "Press  cmd-W  to close Terminal"
+     echo "-------------------------------"
+     echo ""
      exit 0;;
 
 esac
 
-#
+# ------------------
 # Creates the bundle
-#
+# ------------------
 
 PkgInfoContents="Gilthoniel#"
 
@@ -107,6 +119,7 @@ fi
   echo '</dict>' >>$plistfile
   echo '</plist>' >>$plistfile
 
+# Put it all into a DMG for re-distribution
   if [ $command = 3 ]; then
     rm -f *.dmg
     hdiutil create tmp.dmg -ov -volname "Gilthoniel_Install" -fs HFS+ -srcfolder "./gilthoniel-dmg/" 
@@ -115,3 +128,10 @@ fi
   fi  
 
 fi
+
+echo ""
+echo "-------------------------------"
+echo "Press  cmd-W  to close Terminal"
+echo "-------------------------------"
+echo ""    
+exit 0
