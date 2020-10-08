@@ -1,6 +1,7 @@
 # ---> Lazarus
 # Lazarus compiler-generated binaries (safe to delete)
-XX*.exe
+xxGilthoniel*.exe
+xxGilthoniel
 *.dll
 *.so
 *.dylib
@@ -38,10 +39,8 @@ devtools/macOS-64/
 *.lnk
 *.url
 
-
 # Application bundle for Mac OS
-XX*.app/
-Gilthoniel
+xx*.app/
 gilthoniel-dmg/
 .DS_Store
 
