@@ -875,26 +875,29 @@ end;
 function TForm1.getBank(activePg: TTabSheet):TRGBWColour;
 begin
   getBank:=TRGBWColour.Create;
+  //if(miExtraDebugInfo.Checked) then
+  //  getBank.setMemo(Memo1);
+
   if activePg=TabMain then
    begin
      getBank.setRedValue(trackCRed.Position, Not miRGBW255.Checked);
      getBank.setGreenValue(trackCGreen.Position, Not miRGBW255.Checked);
      getBank.setBlueValue(trackCBlue.Position, Not miRGBW255.Checked);
-     getBank.setGreenValue(trackCWhite.Position, Not miRGBW255.Checked);
+     getBank.setWhiteValue(trackCWhite.Position, Not miRGBW255.Checked);
    end
    else if activePg=TabSwing then
    begin
      getBank.setRedValue(trackSwRed.Position, Not miRGBW255.Checked);
      getBank.setGreenValue(trackSwGreen.Position, Not miRGBW255.Checked);
      getBank.setBlueValue(trackSwBlue.Position, Not miRGBW255.Checked);
-     getBank.setGreenValue(trackSwWhite.Position, Not miRGBW255.Checked);
+     getBank.setWhiteValue(trackSwWhite.Position, Not miRGBW255.Checked);
    end
    else if activePg=TabClash then
    begin
      getBank.setRedValue(trackFRed.Position, Not miRGBW255.Checked);
      getBank.setGreenValue(trackFGreen.Position, Not miRGBW255.Checked);
      getBank.setBlueValue(trackFBlue.Position, Not miRGBW255.Checked);
-     getBank.setGreenValue(trackFWhite.Position, Not miRGBW255.Checked);
+     getBank.setWhiteValue(trackFWhite.Position, Not miRGBW255.Checked);
    end;
 end;
 procedure TForm1.SetActiveBank(s:String);
@@ -911,24 +914,39 @@ begin
   if activePg=TabMain then
   begin
     trackCRed.Position:=col.getRedValue(Not miRGBW255.Checked);
+    ledCRed.Caption:=IntToStr(trackCRed.Position);
     trackCGreen.Position:=col.getGreenValue(Not miRGBW255.Checked);
+    ledCGreen.Caption:=IntToStr(trackCGreen.Position);
     trackCBlue.Position:=col.getBlueValue(Not miRGBW255.Checked);
+    ledCBlue.Caption:=IntToStr(trackCBlue.Position);
     trackCWhite.Position:=col.getWhiteValue(Not miRGBW255.Checked);
+    ledCWhite.Caption:=IntToStr(trackCWhite.Position);
   end
   else if activePg=TabSwing then
   begin
     trackSwRed.Position:=col.getRedValue(Not miRGBW255.Checked);
+    ledSwRed.Caption:=IntToStr(trackSwRed.Position);
     trackSwGreen.Position:=col.getGreenValue(Not miRGBW255.Checked);
+    ledSwGreen.Caption:=IntToStr(trackSwGreen.Position);
     trackSwBlue.Position:=col.getBlueValue(Not miRGBW255.Checked);
+    ledSwBlue.Caption:=IntToStr(trackSwBlue.Position);
     trackSwWhite.Position:=col.getWhiteValue(Not miRGBW255.Checked);
+    ledSwWhite.Caption:=IntToStr(trackSwWhite.Position);
   end
   else if activePg=TabClash then
   begin
     trackFRed.Position:=col.getRedValue(Not miRGBW255.Checked);
+    ledFRed.Caption:=IntToStr(trackFRed.Position);
     trackFGreen.Position:=col.getGreenValue(Not miRGBW255.Checked);
+    ledFGreen.Caption:=IntToStr(trackFGreen.Position);
     trackFBlue.Position:=col.getBlueValue(Not miRGBW255.Checked);
+    ledFBlue.Caption:=IntToStr(trackFBlue.Position);
     trackFWhite.Position:=col.getWhiteValue(Not miRGBW255.Checked);
+    ledFWhite.Caption:=IntToStr(trackFWhite.Position);
   end;
+
+  if(PageControl1.ActivePage=activePg) then
+     AutoPreview();
 end;
 
 procedure TForm1.ledCRedChange(Sender: TObject);
@@ -1004,7 +1022,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackCGreenChange(Sender: TObject);
@@ -1025,7 +1043,7 @@ begin
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
 
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.trackCRedChange(Sender: TObject);
@@ -1047,7 +1065,7 @@ begin
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
 
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackCWhiteChange(Sender: TObject);
@@ -1068,7 +1086,7 @@ begin
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
 
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackFBlueChange(Sender: TObject);
@@ -1088,7 +1106,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackFGreenChange(Sender: TObject);
@@ -1108,16 +1126,16 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.trackFRedChange(Sender: TObject);
 var
- s : String;
- c : TRGBWColour;
+  s: String;
+  c : TRGBWColour;
 begin
  s:=IntToStr(trackFRed.Position);
- if(ledFRed.Caption<>s) then
+ if(s<>ledFRed.Caption) then
  begin
    ledFRed.Caption:=s;
 
@@ -1128,7 +1146,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackFWhiteChange(Sender: TObject);
@@ -1148,7 +1166,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
   end;
 end;
 procedure TForm1.TrackSwBlueChange(Sender: TObject);
@@ -1168,7 +1186,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackSwGreenChange(Sender: TObject);
@@ -1188,7 +1206,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 
@@ -1209,7 +1227,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 procedure TForm1.TrackSwWhiteChange(Sender: TObject);
@@ -1229,7 +1247,7 @@ begin
 
    Application.ProcessMessages;
    ColorButtonMain.ButtonColor:=c.getRGB();
-   AutoPreview(c);
+   //AutoPreview(c);
  end;
 end;
 
@@ -1965,10 +1983,10 @@ begin
   begin
     bank:=IntToStr(ComboBank.ItemIndex);
 
+    WriteLn('c'+bank+'?');
     WriteLn('f'+bank+'?');
     WriteLn('w'+bank+'?');
     WriteLn('B='+bank);
-    WriteLn('c'+bank+'?'); //get colours last so tab is activated
     //RxData();
     PageControl1.ActivePage:=TabMain;
     AutoPreview();
@@ -2097,17 +2115,18 @@ end;
 procedure TForm1.AutoPreview(c: TRGBWColour);
 begin
   if miAutoPreview.Checked then
-    Preview(c, true)
+    Preview(c, miExtraDebugInfo.Checked)
 end;
 
 procedure TForm1.Preview(c: TRGBWColour);
 begin
-  Preview(c, true);
+  Preview(c, miExtraDebugInfo.Checked);
 end;
 
 procedure TForm1.Preview(c: TRGBWColour; log: Boolean);
 begin
- if self.miRGBW255.Checked then
+ Memo1.append('preview '+IntToStr(c.red)+','+IntToStr(c.green)+','+IntToStr(c.blue)+','+IntToStr(c.white));
+ if miRGBW255.Checked then
     WriteLn('P='+c.toCSV(), log)
  else
    WriteLn('P='+c.correctToSaber().toCSV(), log);
@@ -2115,15 +2134,15 @@ end;
 
 procedure TForm1.btnPreview1Click(Sender: TObject);
 begin
-  Preview(getBank(TabMain));
+  Preview(getBank(TabMain), true);
 end;
 procedure TForm1.btnPreview2Click(Sender: TObject);
 begin
-  Preview(getBank(TabClash));
+  Preview(getBank(TabClash), true);
 end;
 procedure TForm1.btnPreview3Click(Sender: TObject);
 begin
-  Preview(getBank(TabSwing));
+  Preview(getBank(TabSwing), true);
 end;
 
 procedure TForm1.btnDisconnectClick(Sender: TObject);

@@ -2497,9 +2497,9 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabMain
+      ActivePage = TabClash
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
@@ -2900,6 +2900,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 6
           Text = 'ledCGreen'
         end
@@ -2918,6 +2919,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 7
           Text = 'ledCBlue'
         end
@@ -2928,6 +2930,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 8
           Text = 'ledCWhite'
         end
@@ -3358,6 +3361,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 7
           Text = 'ledSwBlue'
         end
@@ -3795,6 +3799,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 6
           Text = 'ledFGreen'
         end
@@ -3805,6 +3810,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 7
           Text = 'ledFBlue'
         end
@@ -3815,6 +3821,7 @@ object Form1: TForm1
           Width = 160
           Alignment = taRightJustify
           NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 8
           Text = 'ledFWhite'
         end
