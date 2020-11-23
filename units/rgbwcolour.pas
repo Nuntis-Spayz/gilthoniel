@@ -24,6 +24,7 @@ type
 
     procedure setColour(r,g,b,w : Integer);
     procedure setColour(c : String);
+    Class Function getColour(c : String):TRGBWColour; static;
     procedure setPercentage(r,g,b,w : Integer);
     procedure setColourValues(r,g,b,w : Integer; asPercentage : Boolean);
 
@@ -34,6 +35,7 @@ type
     procedure setGreenValue(g : Integer; asPercentage : Boolean);
     procedure setBlueValue(b : Integer; asPercentage : Boolean);
     procedure setWhiteValue(w : Integer; asPercentage : Boolean);
+    function CorrectFromSaber():TRGBWColour;
 
     function getRed():Integer;
     function getGreen():Integer;
@@ -108,35 +110,43 @@ end;
 
 procedure TRGBWColour.setRedValue(r : Integer; asPercentage : Boolean);
 begin
+  wrMemo('setRed 1,'+IntToStr(r));
   if asPercentage then
-    cRed:=r * 255 div 100
+    cRed:=Round(r * 255 / 100)
   else
     cRed:=r;
+  wrMemo('setRed 2,'+IntToStr(cRed));
 end;
 procedure TRGBWColour.setGreenValue(g : Integer; asPercentage : Boolean);
 begin
-  //wrMemo('setGreen 1,'+IntToStr(g));
+  wrMemo('setGreen 1,'+IntToStr(g));
 
   if asPercentage then
-    cGreen:=g * 255 div 100
+    cGreen:=Round(g * 255 / 100)
   else
     cGreen:=g;
 
-  //wrMemo('setGreen 2,'+IntToStr(cGreen));
+  wrMemo('setGreen 2,'+IntToStr(cGreen));
 end;
 procedure TRGBWColour.setBlueValue(b : Integer; asPercentage : Boolean);
 begin
   if asPercentage then
-    cBlue:=b * 255 div 100
+    cBlue:=Round(b * 255 / 100)
   else
     cBlue:=b;
 end;
 procedure TRGBWColour.setWhitevalue(w : Integer; asPercentage : Boolean);
 begin
   if asPercentage then
-    cWhite:=w * 255 div 100
+    cWhite:=Round(w * 255 / 100)
   else
     cWhite:=w;
+end;
+
+Class function TRGBWColour.getColour(c : String):TRGBWColour;
+begin
+  getColour:=TRGBWColour.Create;
+  getColour.setColour(c);
 end;
 
 procedure TRGBWColour.setColourValues(r,g,b,w : Integer; asPercentage : Boolean);
@@ -176,12 +186,26 @@ begin
   end;
 end;
 
+function TRGBWColour.CorrectFromSaber():TRGBWColour;
+begin
+  CorrectFromSaber:=TRGBWColour.Create;
+  CorrectFromSaber.red:=self.red;
+  CorrectFromSaber.green:=self.green;
+  CorrectFromSaber.blue:=self.blue;
+  CorrectFromSaber.white:=self.white;
+
+  if (cGreen<>0) or (cBlue<>0) or (cWhite<>0) then
+      CorrectFromSaber.red := Round(cRed * 255 / 170)
+  else if (cRed=0) and ((cGreen<>0) or (cBlue<>0)) then
+      CorrectFromSaber.white:= Round(cWhite * 255 / 200);
+end;
+
 procedure TRGBWColour.setPercentage(r,g,b,w : Integer);
 begin
-  cRed:=r * 255 div 100;
-  cGreen:=g * 255 div 100;
-  cBlue:=b * 255 div 100;
-  cWhite:=w * 255 div 100;
+  cRed:=Round(r * 255 / 100);
+  cGreen:=Round(g * 255 / 100);
+  cBlue:=Round(b * 255 / 100);
+  cWhite:=Round(w * 255 / 100);
 end;
 
 procedure TRGBWColour.setRGB(r,g,b : Integer);
@@ -193,7 +217,7 @@ begin
  cBlue:=b-cWhite;
 
  //REVERSE NORMALISE THE RED
- cRed:=cRed * 170 div 255;
+ cRed:=Round(cRed * 170 / 255);
 end;
 
 procedure TRGBWColour.setRGB(c : TColor);
@@ -203,32 +227,32 @@ end;
 
 function TRGBWColour.getRedValue(asPercentage : Boolean):Integer;
 begin
+  wrMemo('getRedV 1,'+IntToStr(cRed));
+  getRedValue:=cRed;
   if asPercentage then
-    getRedValue:= cRed * 100 div 255
-  else
-    getRedValue:=cRed;
+  begin
+    getRedValue:=Round(getRedValue * 100 / 255)
+  end;
+
+  wrMemo('getRedV 2,'+IntToStr(getRedValue));
 end;
 function TRGBWColour.getGreenValue(asPercentage : Boolean):Integer;
 begin
+  getGreenValue:=cGreen;
   if asPercentage then
-    getGreenValue:= cGreen * 100 div 255
-  else
-    getGreenValue:=cGreen;
+    getGreenValue:= Round(cGreen * 100 / 255);
 end;
 function TRGBWColour.getBlueValue(asPercentage : Boolean):Integer;
 begin
+  getBlueValue:= cBlue;
   if asPercentage then
-    getBlueValue:= cBlue * 100 div 255
-  else
-    getBlueValue:= cBlue;
+    getBlueValue:= Round(cBlue * 100 / 255);
 end;
 function TRGBWColour.getWhiteValue(asPercentage : Boolean):Integer;begin
+  getWhiteValue:= cWhite;
   if asPercentage then
-    getWhiteValue:= cWhite * 100 div 255
-  else
-    getWhiteValue:= cWhite;
+    getWhiteValue:= Round(cWhite * 100 / 255);
 end;
-
 function TRGBWColour.correctToSaber():TRGBWColour;
 begin
   correctToSaber:=TRGBWColour.Create;
@@ -239,11 +263,11 @@ begin
 
   if (cGreen<>0) or (cBlue<>0) or (cWhite<>0) then
   begin
-    correctToSaber.red := cRed * 170 div 255
+    correctToSaber.red := Round(cRed * 170 / 255)
   end
   else  if (cRed=0) and ((cGreen<>0) or (cBlue<>0)) then
   begin
-    correctToSaber.white:= cWhite * 200 div 255
+    correctToSaber.white:= Round(cWhite * 200 / 255)
   end;
 end;
 
@@ -260,7 +284,7 @@ begin
  w:=cWhite;
 
   //Normalize RED
- r:=256 * r div 110;
+ r:=Round(256 * r / 170);
  mx := Max(Max(r,g),b);
  if(mx>255) then
  begin

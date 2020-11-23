@@ -220,8 +220,7 @@ type
     procedure WriteLn(msg: String; log: Boolean); overload;
     function getReply(): String;
 
-    procedure SetActiveBank(s:String);
-    procedure SetBank(activePg: TTabSheet; s:String);
+    procedure SetBank(activePg:TTabSheet; col:TRGBWColour);
     function getActiveBank():TRGBWColour;
     function getBank(activePg: TTabSheet):TRGBWColour;
     procedure AutoPreview();
@@ -775,19 +774,28 @@ begin
              and (inp.Chars[2]='=') ) then
    begin
      TabMain.TabVisible:=true;
-     SetBank(TabMain, inp.Substring(3))
+     if(miRGBW255.Checked) then
+       SetBank(TabMain, TRGBWColour.getColour(inp.Substring(3)))
+     else
+       SetBank(TabMain, TRGBWColour.getColour(inp.Substring(3)).CorrectFromSaber());
    end
    else if( (inp.StartsWith('f') or inp.StartsWith('F'))
              and (inp.Chars[2]='=') ) then
    begin
      TabClash.TabVisible:=True;
-     SetBank(TabClash, inp.Substring(3))
+     if(miRGBW255.Checked) then
+       SetBank(TabClash, TRGBWColour.getColour(inp.Substring(3)))
+     else
+       SetBank(TabClash, TRGBWColour.getColour(inp.Substring(3)).CorrectFromSaber());
    end
    else if( (inp.StartsWith('w') or inp.StartsWith('W'))
              and (inp.Chars[2]='=') ) then
    begin
      TabSwing.TabVisible:=true;
-     SetBank(TabSwing, inp.Substring(3));
+     if(miRGBW255.Checked) then
+       SetBank(TabSwing, TRGBWColour.getColour(inp.Substring(3)))
+     else
+       SetBank(TabSwing, TRGBWColour.getColour(inp.Substring(3)).CorrectFromSaber());
    end;
 
    inp:=getReply();
@@ -875,8 +883,8 @@ end;
 function TForm1.getBank(activePg: TTabSheet):TRGBWColour;
 begin
   getBank:=TRGBWColour.Create;
-  //if(miExtraDebugInfo.Checked) then
-  //  getBank.setMemo(Memo1);
+  if(miExtraDebugInfo.Checked) then
+    getBank.setMemo(Memo1);
 
   if activePg=TabMain then
    begin
@@ -900,17 +908,9 @@ begin
      getBank.setWhiteValue(trackFWhite.Position, Not miRGBW255.Checked);
    end;
 end;
-procedure TForm1.SetActiveBank(s:String);
-begin
- setBank(PageControl1.ActivePage, s);
-end;
 
-procedure TForm1.SetBank(activePg:TTabSheet; s:String);
-var
-  col : TRGBWColour;
+procedure TForm1.SetBank(activePg:TTabSheet; col:TRGBWColour);
 begin
-  col:=TRGBWColour.Create;
-  col.setColour(s);
   if activePg=TabMain then
   begin
     trackCRed.Position:=col.getRedValue(Not miRGBW255.Checked);
@@ -1556,7 +1556,7 @@ begin
  if Clipboard.AsText.StartsWith('colour:') then
  begin
    s:=MidStr(Clipboard.AsText,8,999);
-   setActiveBank(s);
+   setBank(PageControl1.ActivePage, TRGBWColour.getColour(s));
    Memo1.Append('Paste Clipboard to Bank: '+s);
  end;
 end;
@@ -1835,11 +1835,11 @@ begin
       for k:=0 to (saveData.Count-1) do
       begin
         if saveData[k].StartsWith('c=') or saveData[k].StartsWith('C=')then
-          setBank(TabMain, saveData[k].Substring(2))
+          setBank(TabMain, TRGBWColour.getColour(saveData[k].Substring(2)))
         else if saveData[k].StartsWith('f=') or saveData[k].StartsWith('F=')then
-          setBank(TabClash, saveData[k].Substring(2))
+          setBank(TabClash, TRGBWColour.getColour(saveData[k].Substring(2)))
         else if saveData[k].StartsWith('w=') or saveData[k].StartsWith('W=') then
-          setBank(TabSwing, saveData[k].Substring(2));
+          setBank(TabSwing, TRGBWColour.getColour(saveData[k].Substring(2)));
 
         Application.ProcessMessages;
       end;
