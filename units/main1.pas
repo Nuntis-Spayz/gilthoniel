@@ -1305,8 +1305,12 @@ begin
  else
  begin
    mx:=100;
-   range:=' %age 0-100';
+   range:=' %age 0-100'
  end;
+
+ ColorButtonMain.Visible:=miRGBW255.Checked;
+ ColorButtonSwing.Visible:=miRGBW255.Checked;
+ ColorButtonClash.Visible:=miRGBW255.Checked;
 
  labColourRed.Caption:='Color Red ' + range;
  ledCGreen.Caption:='Color Green ' + range;
