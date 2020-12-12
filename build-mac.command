@@ -2,13 +2,13 @@
 cd -- "$(dirname "$0")"
 
 # Script Settings
-version=1.00.00.04
+version=1.02.00.01
 appname=Gilthoniel
 dmgfolder=gilthoniel-dmg
 appfolder=$appname.app
 macosfolder=$appfolder/Contents/MacOS
 plistfile=$appfolder/Contents/Info.plist
-appfile=gilthoniel
+appfile=Gilthoniel
 
 clear
 echo "================================================================"
