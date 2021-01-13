@@ -1,6 +1,7 @@
 # ---> Lazarus
 # Lazarus compiler-generated binaries (safe to delete)
 Gilthoniel*.exe
+install*.exe
 Gilthoniel
 *.dll
 *.so
@@ -42,6 +43,7 @@ devtools/macOS-64/
 # Application bundle for Mac OS
 *.app/
 gilthoniel-dmg/
+*.dmg
 .DS_Store
 
 #reinclude all files in tools
