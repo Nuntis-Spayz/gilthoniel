@@ -2,6 +2,9 @@
 
 ## Manager/Settings Software for OpenCore Light Saber Electronics
 
+See https://github.com/LamaDiLuce/polaris-opencore for the firmware
+with which this software is designed to communicate/control.
+
 ### Windows 7,8,X -- 64-bit/32-bit
 The x64 an x32 executables will run standalone on windows, but do 
 require the firmware subfolder to do firmware upgrades, just copying the 
