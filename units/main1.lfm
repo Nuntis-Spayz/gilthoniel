@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 109
+  Left = 760
   Height = 724
-  Top = 104
+  Top = 277
   Width = 1320
   Caption = 'Gilthoniel'
   ClientHeight = 685
@@ -2497,20 +2497,20 @@ object Form1: TForm1
       Height = 440
       Top = 64
       Width = 952
-      ActivePage = TabClash
+      ActivePage = TabMain
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 0
       TabOrder = 3
       OnChange = PageControl1Change
       object TabMain: TTabSheet
         Caption = 'Main Colour'
-        ClientHeight = 190
-        ClientWidth = 470
+        ClientHeight = 382
+        ClientWidth = 936
         ParentFont = False
         object trackCRed: TTrackBar
           Left = 184
           Height = 50
-          Top = 32
+          Top = 30
           Width = 264
           Max = 255
           OnChange = trackCRedChange
@@ -2518,102 +2518,38 @@ object Form1: TForm1
           ParentFont = False
           TabOrder = 0
         end
-        object ledCRed: TLabeledEdit
-          Left = 8
-          Height = 22
-          Top = 32
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Colour Red'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 1
-          Text = 'ledCRed'
-          OnChange = ledCRedChange
-        end
-        object ledCGreen: TLabeledEdit
-          Left = 8
-          Height = 22
-          Top = 112
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Colour Green'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 2
-          Text = 'ledCGreen'
-          OnChange = ledCRedChange
-        end
         object TrackCGreen: TTrackBar
           Left = 184
           Height = 50
-          Top = 104
+          Top = 110
           Width = 264
           Max = 255
           OnChange = TrackCGreenChange
           Position = 0
           ParentFont = False
-          TabOrder = 3
-        end
-        object ledCBlue: TLabeledEdit
-          Left = 8
-          Height = 22
-          Top = 192
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Colour Blue'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 4
-          Text = 'ledCBlue'
-          OnChange = ledCRedChange
+          TabOrder = 1
         end
         object TrackCBlue: TTrackBar
           Left = 184
           Height = 50
-          Top = 184
+          Top = 190
           Width = 264
           Max = 255
           OnChange = TrackCBlueChange
           Position = 0
           ParentFont = False
-          TabOrder = 5
-        end
-        object ledCWhite: TLabeledEdit
-          Left = 8
-          Height = 22
-          Top = 272
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Colour White'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 6
-          Text = 'ledCWhite'
-          OnChange = ledCRedChange
+          TabOrder = 2
         end
         object TrackCWhite: TTrackBar
           Left = 184
           Height = 50
-          Top = 264
+          Top = 270
           Width = 264
           Max = 255
           OnChange = TrackCWhiteChange
           Position = 0
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 3
         end
         object ColorButtonMain: TColorButton
           Left = 504
@@ -2936,79 +2872,91 @@ object Form1: TForm1
           Caption = 'Write Main to Saber'
           OnClick = btnSend1Click
           ParentFont = False
+          TabOrder = 4
+        end
+        object ledCRed: TEdit
+          Left = 8
+          Height = 40
+          Top = 32
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 5
+          Text = 'ledCRed'
+        end
+        object labColourRed: TLabel
+          Left = 8
+          Height = 32
+          Top = 0
+          Width = 143
+          Caption = 'labColourRed'
+          ParentColor = False
+        end
+        object ledCGreen: TEdit
+          Left = 8
+          Height = 40
+          Top = 112
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 6
+          Text = 'ledCGreen'
+        end
+        object labColourGreen: TLabel
+          Left = 8
+          Height = 32
+          Top = 80
+          Width = 167
+          Caption = 'labColourGreen'
+          ParentColor = False
+        end
+        object ledCBlue: TEdit
+          Left = 8
+          Height = 40
+          Top = 192
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 7
+          Text = 'ledCBlue'
+        end
+        object ledCWhite: TEdit
+          Left = 8
+          Height = 40
+          Top = 272
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
           TabOrder = 8
+          Text = 'ledCWhite'
+        end
+        object labColourBlue: TLabel
+          Left = 8
+          Height = 32
+          Top = 160
+          Width = 150
+          Caption = 'labColourBlue'
+          ParentColor = False
+        end
+        object labColourWhite: TLabel
+          Left = 8
+          Height = 32
+          Top = 240
+          Width = 166
+          Caption = 'labColourWhite'
+          ParentColor = False
         end
       end
       object TabSwing: TTabSheet
         Caption = 'Swing Colour'
-        ClientHeight = 190
-        ClientWidth = 470
+        ClientHeight = 382
+        ClientWidth = 936
         ParentFont = False
         TabVisible = False
-        object ledSwRed: TLabeledEdit
-          Left = 16
-          Height = 22
-          Top = 32
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Swing Red'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 0
-          Text = 'ledSwRed'
-          OnChange = ledCRedChange
-        end
-        object ledSwGreen: TLabeledEdit
-          Left = 16
-          Height = 22
-          Top = 112
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Swing Green'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 1
-          Text = 'ledSwGreen'
-          OnChange = ledCRedChange
-        end
-        object ledSwBlue: TLabeledEdit
-          Left = 16
-          Height = 22
-          Top = 192
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Swing Blue'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 2
-          Text = 'ledSwBlue'
-          OnChange = ledCRedChange
-        end
-        object ledSwWhite: TLabeledEdit
-          Left = 16
-          Height = 22
-          Top = 272
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 16
-          EditLabel.Width = 80
-          EditLabel.Caption = 'Swing White'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 3
-          Text = 'ledSwWhite'
-          OnChange = ledCRedChange
-        end
         object ColorButtonSwing: TColorButton
           Left = 504
           Height = 80
@@ -3029,51 +2977,51 @@ object Form1: TForm1
           Caption = 'Write Swing to Saber'
           OnClick = btnSend3Click
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 0
         end
         object trackSwRed: TTrackBar
           Left = 184
           Height = 50
-          Top = 32
+          Top = 30
           Width = 264
           Max = 255
           OnChange = trackSwRedChange
           Position = 0
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 1
         end
         object TrackSwGreen: TTrackBar
           Left = 184
           Height = 50
-          Top = 104
+          Top = 110
           Width = 264
           Max = 255
           OnChange = TrackSwGreenChange
           Position = 0
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 2
         end
         object TrackSwBlue: TTrackBar
           Left = 184
           Height = 50
-          Top = 184
+          Top = 190
           Width = 264
           Max = 255
           OnChange = TrackSwBlueChange
           Position = 0
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 3
         end
         object TrackSwWhite: TTrackBar
           Left = 184
           Height = 50
-          Top = 264
+          Top = 270
           Width = 264
           Max = 255
           OnChange = TrackSwWhiteChange
           Position = 0
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 4
         end
         object btnPreview3: TSpeedButton
           Left = 746
@@ -3376,119 +3324,131 @@ object Form1: TForm1
           OnClick = btnPreview3Click
           ParentFont = False
         end
+        object ledSwRed: TEdit
+          Left = 16
+          Height = 40
+          Top = 32
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 5
+          Text = 'ledSwRed'
+        end
+        object labSwingRed: TLabel
+          Left = 16
+          Height = 32
+          Top = 0
+          Width = 136
+          Caption = 'labSwingRed'
+          ParentColor = False
+        end
+        object ledSwGreen: TEdit
+          Left = 16
+          Height = 40
+          Top = 112
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 6
+          Text = 'ledSwGreen'
+        end
+        object ledSwBlue: TEdit
+          Left = 16
+          Height = 40
+          Top = 192
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 7
+          Text = 'ledSwBlue'
+        end
+        object ledSwWhite: TEdit
+          Left = 16
+          Height = 40
+          Top = 272
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 8
+          Text = 'ledSwWhite'
+        end
+        object labSwingGreen: TLabel
+          Left = 16
+          Height = 32
+          Top = 80
+          Width = 160
+          Caption = 'labSwingGreen'
+          ParentColor = False
+        end
+        object labSwingBlue: TLabel
+          Left = 16
+          Height = 32
+          Top = 160
+          Width = 143
+          Caption = 'labSwingBlue'
+          ParentColor = False
+        end
+        object labSwingWhite: TLabel
+          Left = 16
+          Height = 32
+          Top = 240
+          Width = 159
+          Caption = 'labSwingWhite'
+          ParentColor = False
+        end
       end
       object TabClash: TTabSheet
         Caption = 'Clash Colour'
         ClientHeight = 382
         ClientWidth = 936
         ParentFont = False
-        object ledFRed: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 32
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
-          EditLabel.Caption = 'Clash Red'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 0
-          Text = 'ledFRed'
-          OnChange = ledCRedChange
-        end
         object trackFRed: TTrackBar
           Left = 192
           Height = 50
-          Top = 32
+          Top = 30
           Width = 264
           Max = 255
           OnChange = trackFRedChange
           Position = 0
           ParentFont = False
-          TabOrder = 1
-        end
-        object ledFGreen: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 112
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
-          EditLabel.Caption = 'Clash Green'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 2
-          Text = 'ledFGreen'
-          OnChange = ledCRedChange
+          TabOrder = 0
         end
         object TrackFGreen: TTrackBar
           Left = 192
           Height = 50
-          Top = 104
+          Top = 110
           Width = 264
           Max = 255
           OnChange = TrackFGreenChange
           Position = 0
           ParentFont = False
-          TabOrder = 3
-        end
-        object ledFBlue: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 192
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
-          EditLabel.Caption = 'Clash Blue'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 4
-          Text = 'ledFBlue'
-          OnChange = ledCRedChange
+          TabOrder = 1
         end
         object TrackFBlue: TTrackBar
           Left = 192
           Height = 50
-          Top = 184
+          Top = 190
           Width = 264
           Max = 255
           OnChange = TrackFBlueChange
           Position = 0
           ParentFont = False
-          TabOrder = 5
-        end
-        object ledFWhite: TLabeledEdit
-          Left = 16
-          Height = 40
-          Top = 272
-          Width = 160
-          Alignment = taRightJustify
-          EditLabel.Height = 32
-          EditLabel.Width = 160
-          EditLabel.Caption = 'Clash White'
-          EditLabel.ParentColor = False
-          EditLabel.ParentFont = False
-          ParentFont = False
-          TabOrder = 6
-          Text = 'ledFWhite'
-          OnChange = ledCRedChange
+          TabOrder = 2
         end
         object TrackFWhite: TTrackBar
           Left = 192
           Height = 50
-          Top = 260
+          Top = 270
           Width = 264
           Max = 255
           OnChange = TrackFWhiteChange
           Position = 0
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 3
         end
         object ColorButtonClash: TColorButton
           Left = 504
@@ -3510,7 +3470,7 @@ object Form1: TForm1
           Caption = 'Write Clash to Saber'
           OnClick = btnSend2Click
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 4
         end
         object btnPreview2: TSpeedButton
           Left = 744
@@ -3813,6 +3773,82 @@ object Form1: TForm1
           OnClick = btnPreview2Click
           ParentFont = False
         end
+        object ledFRed: TEdit
+          Left = 16
+          Height = 40
+          Top = 32
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 5
+          Text = 'ledFRed'
+        end
+        object labClashRed: TLabel
+          Left = 16
+          Height = 32
+          Top = 0
+          Width = 129
+          Caption = 'labClashRed'
+          ParentColor = False
+        end
+        object ledFGreen: TEdit
+          Left = 16
+          Height = 40
+          Top = 112
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 6
+          Text = 'ledFGreen'
+        end
+        object ledFBlue: TEdit
+          Left = 16
+          Height = 40
+          Top = 192
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 7
+          Text = 'ledFBlue'
+        end
+        object ledFWhite: TEdit
+          Left = 16
+          Height = 40
+          Top = 272
+          Width = 160
+          Alignment = taRightJustify
+          NumbersOnly = True
+          OnChange = ledCRedChange
+          TabOrder = 8
+          Text = 'ledFWhite'
+        end
+        object labClashGreen: TLabel
+          Left = 16
+          Height = 32
+          Top = 80
+          Width = 153
+          Caption = 'labClashGreen'
+          ParentColor = False
+        end
+        object labClashBlue: TLabel
+          Left = 16
+          Height = 32
+          Top = 160
+          Width = 136
+          Caption = 'labClashBlue'
+          ParentColor = False
+        end
+        object labClashWhite: TLabel
+          Left = 16
+          Height = 32
+          Top = 240
+          Width = 152
+          Caption = 'labClashWhite'
+          ParentColor = False
+        end
       end
     end
   end
@@ -3998,17 +4034,35 @@ object Form1: TForm1
         Visible = False
         OnClick = miExtraDebugInfoClick
       end
+      object miClearLog: TMenuItem
+        Caption = '&Clear Debug Log'
+        ShortCut = 24643
+        Visible = False
+        OnClick = miClearLogClick
+      end
+      object MenuItem3: TMenuItem
+        Caption = '-'
+      end
+      object miAutoPreview: TMenuItem
+        Caption = 'Auto &Preview'
+        OnClick = miAutoPreviewClick
+      end
+      object miAdvancedOptions: TMenuItem
+        Caption = 'Show &Advanced Options'
+        ShowAlwaysCheckable = True
+        OnClick = miAdvancedOptionsClick
+      end
       object miSendCommand: TMenuItem
         Caption = 'Send &Manual Command to Saber'
         ShortCut = 16462
         Visible = False
         OnClick = miSendCommandClick
       end
-      object miClearLog: TMenuItem
-        Caption = '&Clear Debug Log'
-        ShortCut = 24643
+      object miRGBW255: TMenuItem
+        Caption = 'Show Values as 0-255 (off=as %age)'
+        ShowAlwaysCheckable = True
         Visible = False
-        OnClick = miClearLogClick
+        OnClick = miRGBW255Click
       end
       object N1: TMenuItem
         Caption = '-'
