@@ -1,9 +1,11 @@
 @pushd %~dp0
 @cd %~dp0
+set FNAME=OpenCore.2.0.2_20210512.hex
+
 @echo.
 @echo --------------------------------------
 @echo OpenCore Saber Updater
-@echo --------------------------------------
+@echo ---------- %FNAME%
 @echo.
 
 @tycmd list
@@ -35,10 +37,10 @@ pause
 exit
 
 :default
-@echo Uploading OpenCore.1.9.17_20200930.hex
+@echo Uploading %FNAME%
 @echo --------------------------------------
 @echo.
-tycmd upload OpenCore.1.9.17_20200930.hex
+tycmd upload %FNAME%
 
 :no
 pause
