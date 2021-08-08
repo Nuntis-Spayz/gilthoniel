@@ -21,7 +21,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="2"/>
+      <MinorVersionNr Value="3"/>
       <BuildNr Value="1"/>
       <Language Value="0809"/>
       <StringTable CompanyName="Sabers.Amazer.uk" InternalName="OpenCore Manager" LegalCopyright="(C)MMXX Sabers.Amazer.uk" ProductName="Gilthoniel"/>
@@ -69,6 +69,7 @@
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
+            <TargetCPU Value="x86_64"/>
             <TargetOS Value="win64"/>
           </CodeGeneration>
           <Linking>

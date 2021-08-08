@@ -1,11 +1,11 @@
 object Form1: TForm1
   Left = 760
-  Height = 724
+  Height = 934
   Top = 277
-  Width = 1320
+  Width = 1418
   Caption = 'Gilthoniel'
-  ClientHeight = 685
-  ClientWidth = 1320
+  ClientHeight = 895
+  ClientWidth = 1418
   DesignTimePPI = 192
   Icon.Data = {
     992601000000010009002020000001001800A80C000096000000101000000100
@@ -2372,7 +2372,7 @@ object Form1: TForm1
   OnResize = FormResize
   OnShow = FormShow
   Position = poDesktopCenter
-  LCLVersion = '2.0.10.0'
+  LCLVersion = '2.0.12.0'
   object GroupPort: TGroupBox
     Left = 16
     Height = 110
@@ -2429,11 +2429,11 @@ object Form1: TForm1
   end
   object GroupBanks: TGroupBox
     Left = 24
-    Height = 648
+    Height = 744
     Top = 120
     Width = 984
     Caption = 'Colour Banks'
-    ClientHeight = 611
+    ClientHeight = 707
     ClientWidth = 980
     ParentFont = False
     TabOrder = 1
@@ -2471,9 +2471,9 @@ object Form1: TForm1
       Text = '0 [Red]'
     end
     object btnSendBanks: TBitBtn
-      Left = 688
+      Left = 680
       Height = 70
-      Top = 520
+      Top = 616
       Width = 290
       HelpType = htKeyword
       HelpKeyword = 'html/licence.html'
@@ -2485,23 +2485,23 @@ object Form1: TForm1
     object btnResetColours: TBitBtn
       Left = 16
       Height = 70
-      Top = 520
+      Top = 616
       Width = 260
       Caption = 'Reset All Colours'
       OnClick = btnResetColoursClick
       ParentFont = False
       TabOrder = 2
     end
-    object PageControl1: TPageControl
+    object pageControl: TPageControl
       Left = 16
-      Height = 440
+      Height = 544
       Top = 64
       Width = 952
-      ActivePage = TabMain
+      ActivePage = TabSounds
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 3
       TabOrder = 3
-      OnChange = PageControl1Change
+      OnChange = pageControlChange
       object TabMain: TTabSheet
         Caption = 'Main Colour'
         ClientHeight = 382
@@ -3463,7 +3463,7 @@ object Form1: TForm1
           ParentFont = False
         end
         object btnSend2: TBitBtn
-          Left = 624
+          Left = 600
           Height = 70
           Top = 240
           Width = 310
@@ -3850,15 +3850,167 @@ object Form1: TForm1
           ParentColor = False
         end
       end
+      object TabSounds: TTabSheet
+        Caption = 'Sounds'
+        ClientHeight = 486
+        ClientWidth = 936
+        object chOn: TCheckListBox
+          Left = 16
+          Height = 104
+          Top = 64
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chOnClickCheck
+          TabOrder = 0
+        end
+        object labOn: TLabel
+          Left = 16
+          Height = 32
+          Top = 16
+          Width = 118
+          Caption = 'On Sounds'
+          ParentColor = False
+        end
+        object labOff: TLabel
+          Left = 24
+          Height = 32
+          Top = 184
+          Width = 120
+          Caption = 'Off Sounds'
+          ParentColor = False
+        end
+        object chOff: TCheckListBox
+          Left = 24
+          Height = 104
+          Top = 232
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chOffClickCheck
+          TabOrder = 1
+        end
+        object labHum: TLabel
+          Left = 248
+          Height = 32
+          Top = 16
+          Width = 138
+          Caption = 'Hum Sounds'
+          ParentColor = False
+        end
+        object chHum: TCheckListBox
+          Left = 248
+          Height = 104
+          Top = 64
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chHumClickCheck
+          TabOrder = 2
+        end
+        object labSwing: TLabel
+          Left = 248
+          Height = 32
+          Top = 184
+          Width = 150
+          Caption = 'Swing Sounds'
+          ParentColor = False
+        end
+        object chSwing: TCheckListBox
+          Left = 248
+          Height = 104
+          Top = 232
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chSwingClickCheck
+          TabOrder = 3
+        end
+        object labSmoothA: TLabel
+          Left = 488
+          Height = 32
+          Top = 16
+          Width = 177
+          Caption = 'Smooth Swing A'
+          ParentColor = False
+        end
+        object chSmoothA: TCheckListBox
+          Left = 488
+          Height = 104
+          Top = 64
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chSmoothAClickCheck
+          TabOrder = 4
+        end
+        object labSmoothB: TLabel
+          Left = 496
+          Height = 32
+          Top = 192
+          Width = 176
+          Caption = 'Smooth Swing B'
+          ParentColor = False
+        end
+        object chSmoothB: TCheckListBox
+          Left = 496
+          Height = 104
+          Top = 240
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chSmoothBClickCheck
+          TabOrder = 5
+        end
+        object labClash: TLabel
+          Left = 720
+          Height = 32
+          Top = 16
+          Width = 143
+          Caption = 'Clash Sounds'
+          ParentColor = False
+        end
+        object chClash: TCheckListBox
+          Left = 712
+          Height = 104
+          Top = 66
+          Width = 200
+          ItemHeight = 0
+          OnClickCheck = chClashClickCheck
+          TabOrder = 6
+        end
+        object btnRefreshLists: TSpeedButton
+          Left = 732
+          Height = 80
+          Top = 296
+          Width = 180
+          Caption = 'Refresh Lists'
+          OnClick = btnRefreshListsClick
+          ParentFont = False
+        end
+        object btnUpload: TSpeedButton
+          Left = 732
+          Height = 80
+          Top = 392
+          Width = 180
+          Caption = 'Upload Files'
+          Enabled = False
+          OnClick = btnUploadClick
+          ParentFont = False
+        end
+        object btnDeleteFiles: TSpeedButton
+          Left = 728
+          Height = 80
+          Top = 200
+          Width = 180
+          Caption = 'Delete Files'
+          OnClick = btnDeleteFilesClick
+          ParentFont = False
+        end
+      end
     end
   end
   object InfoBank: TGroupBox
     Left = 1048
-    Height = 640
+    Height = 752
     Top = 128
     Width = 440
     Caption = 'Info'
-    ClientHeight = 603
+    ClientHeight = 715
     ClientWidth = 436
     ParentFont = False
     TabOrder = 2
@@ -3930,8 +4082,8 @@ object Form1: TForm1
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 544
-    Top = 680
+    Left = 1088
+    Top = 768
   end
   object appMainMenu: TMainMenu
     Left = 616
@@ -4134,7 +4286,7 @@ object Form1: TForm1
     Top = 26
   end
   object TimerRX: TTimer
-    Interval = 50
+    Interval = 150
     OnTimer = TimerRXTimer
     Left = 928
     Top = 128

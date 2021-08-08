@@ -9,8 +9,8 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls,
   Buttons, ComCtrls, ActnList, ExtCtrls, LCLType, LazHelpHTML, Math, StrUtils,
   LazFileUtils, RTTICtrls, FileInfo, crt, IniFiles, fphttpclient, Process,
-  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry , reg, frmHelp, synaser, Clipbrd,
-  RGBWColour
+  simpleipc, DCPsha256, DCPmd5, DCPsha1, registry, reg, frmHelp, synaser,
+  Clipbrd, CheckLst, RGBWColour, DateUtils
   {$IF defined(MSWindows)}
   , windirs
   {$elseif defined(DARWIN)}
@@ -24,11 +24,21 @@ type
     btnDisconnect: TBitBtn;
     btnPreview2: TSpeedButton;
     btnPreview3: TSpeedButton;
+    btnRefreshLists: TSpeedButton;
+    btnDeleteFiles: TSpeedButton;
+    btnUpload: TSpeedButton;
     btnResetColours: TBitBtn;
     btnSendBanks: TBitBtn;
     btnSend1: TBitBtn;
     btnSend2: TBitBtn;
     btnSend3: TBitBtn;
+    chOn: TCheckListBox;
+    chOff: TCheckListBox;
+    chHum: TCheckListBox;
+    chSwing: TCheckListBox;
+    chSmoothA: TCheckListBox;
+    chSmoothB: TCheckListBox;
+    chClash: TCheckListBox;
     ColorButtonClash: TColorButton;
     ColorButtonSwing: TColorButton;
     ColorButtonMain: TColorButton;
@@ -38,6 +48,13 @@ type
     labClashGreen: TLabel;
     labClashBlue: TLabel;
     labClashWhite: TLabel;
+    labClash: TLabel;
+    labOn: TLabel;
+    labOff: TLabel;
+    labHum: TLabel;
+    labSwing: TLabel;
+    labSmoothA: TLabel;
+    labSmoothB: TLabel;
     ledFWhite: TEdit;
     ledFBlue: TEdit;
     ledFGreen: TEdit;
@@ -113,13 +130,14 @@ type
     miLoadAll: TMenuItem;
     miExit: TMenuItem;
     OpenDialog1: TOpenDialog;
-    PageControl1: TPageControl;
+    pageControl: TPageControl;
     PopupMenu1: TPopupMenu;
     SaveDialog1: TSaveDialog;
     btnPreview1: TSpeedButton;
     SimpleIPCClient1: TSimpleIPCClient;
     TabMain: TTabSheet;
     TabClash: TTabSheet;
+    TabSounds: TTabSheet;
     TabSwing: TTabSheet;
     Timer1: TTimer;
     TimerRX: TTimer;
@@ -135,16 +153,26 @@ type
     TrackCBlue: TTrackBar;
     TrackCWhite: TTrackBar;
     trackFRed: TTrackBar;
+    procedure btnDeleteFilesClick(Sender: TObject);
     procedure btnDisconnectClick(Sender: TObject);
     procedure btnFirmwareClick(Sender: TObject);
     procedure btnPreview1Click(Sender: TObject);
     procedure btnPreview2Click(Sender: TObject);
     procedure btnPreview3Click(Sender: TObject);
+    procedure btnRefreshListsClick(Sender: TObject);
     procedure btnResetColoursClick(Sender: TObject);
     procedure btnSend1Click(Sender: TObject);
     procedure btnSend2Click(Sender: TObject);
     procedure btnSend3Click(Sender: TObject);
     procedure btnSendBanksClick(Sender: TObject);
+    procedure btnUploadClick(Sender: TObject);
+    procedure chClashClickCheck(Sender: TObject);
+    procedure chHumClickCheck(Sender: TObject);
+    procedure chOffClickCheck(Sender: TObject);
+    procedure chOnClickCheck(Sender: TObject);
+    procedure chSmoothAClickCheck(Sender: TObject);
+    procedure chSmoothBClickCheck(Sender: TObject);
+    procedure chSwingClickCheck(Sender: TObject);
     procedure ColorButtonClashClick(Sender: TObject);
     procedure ColorButtonClashColorChanged(Sender: TObject);
     procedure ColorButtonMainClick(Sender: TObject);
@@ -158,7 +186,6 @@ type
     procedure CopyFirmwareClick(Sender: TObject);
     procedure labBuildClick(Sender: TObject);
     procedure labSerialClick(Sender: TObject);
-    procedure ledSwRedChange(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
     procedure miAdvancedOptionsClick(Sender: TObject);
     procedure miAutoPreviewClick(Sender: TObject);
@@ -182,7 +209,7 @@ type
     procedure miLoadBankClick(Sender: TObject);
     procedure miSaveAllClick(Sender: TObject);
     procedure miSaveBankClick(Sender: TObject);
-    procedure PageControl1Change(Sender: TObject);
+    procedure pageControlChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -207,8 +234,12 @@ type
     serialInput:String;
     saveMode: Boolean;
     saveData: TStringList;
+    lastUploadPath:String;
     defWidth, defHeight : Integer;
     winSerial: TBlockSerial;
+    serialOutQueue: TStringList;
+    previewLive: Boolean;
+    inList:Boolean;
     procedure setRange();
     procedure RxData();
     procedure OpenSerial(Sender: TObject);
@@ -218,6 +249,7 @@ type
     procedure checkFirmwareNow(Sender: TObject; silent:boolean);
     procedure WriteLn(msg: String);
     procedure WriteLn(msg: String; log: Boolean); overload;
+    procedure PushLn(msg: String);
     function getReply(): String;
 
     procedure SetBank(activePg:TTabSheet; col:TRGBWColour);
@@ -227,6 +259,10 @@ type
     procedure AutoPreview(c: TRGBWColour); overload;
     procedure Preview(c: TRGBWColour);
     procedure Preview(c: TRGBWColour; log: Boolean); overload;
+    procedure ApplySoundCSV(ch: TCheckListBox; csv:String);
+    procedure sendSoundCSV(prefix:String; ch: TCheckListBox);
+    procedure clearSoundLists();
+    procedure sendFile(fname : String);
 
     function md5Encrypt(fileName: String): String;
     function sha1Encrypt(fileName: String): String;
@@ -265,7 +301,13 @@ begin
   self.Width:=1500;
   self.Height:=800;
 
-  PageControl1.TabIndex:=0;
+  pageControl.TabIndex:=0;
+  serialOutQueue := TStringList.Create();
+  serialOutQueue.Sorted:=False;
+  serialOutQueue.Duplicates:= dupAccept;
+  serialOutQueue.CaseSensitive:=True;
+  serialOutQueue.OwnsObjects:=True;
+  previewLive:=False;
 
   {$IF defined(MSWindows)}
   fpath:=ExtractFilePath(Application.ExeName)+'firmware\';
@@ -274,6 +316,7 @@ begin
   fpath:=ExtractFilePath(Application.ExeName)+'/../Resources/';
   bInstalled:= false; // Not yet implemented -- FileExists(fpath+'tycmd');
   {$endif}
+  lastUploadPath:='';
   //if the firmware directory files don't exist disable the firmware and update menu options
   miLoadFirmware.Visible := bInstalled;
   miCheckFirmwareNow.Visible := bInstalled;
@@ -372,13 +415,74 @@ begin
     self.Height:=defHeight;
 
  GroupPort.Left:=5;
- GroupPort.Width:=self.Width-10;
+ GroupPort.Width:=self.ClientWidth-10;
 
  GroupBanks.Top:=GroupPort.height+16;
 
  GroupBanks.Left:=5;
- GroupBanks.Width:=(self.Width * 64 div 100)-10;
- GroupBanks.Height:=self.Height-GroupBanks.Top-10;
+ GroupBanks.Width:=(self.ClientWidth * 64 div 100)-10;
+ GroupBanks.Height:=self.ClientHeight-GroupBanks.Top-10;
+
+ pageControl.Width:=GroupBanks.Width-2*pageControl.Left;
+ pageControl.Height:= GroupBanks.height - btnSendBanks.height- appMainMenu.Height
+                       - 140;
+
+ labOn.left := 16;
+ labOff.left := labOn.Left;
+ chOn.left := labOn.Left;
+ chOff.left := labOn.Left;
+ chOn.Width:= pageControl.ClientWidth div 4 -32;
+ chOff.Width:= chOn.Width;
+
+ labHum.left := 16+ ( 1 * pageControl.ClientWidth div 4);
+ labSwing.left := labHum.left;
+ chHum.left := labHum.left;
+ chSwing.left := labHum.left;
+ chHum.Width := chOn.Width;
+ chSwing.Width := chOn.Width;
+
+ labSmoothA.left := 16+ ( 2 * pageControl.ClientWidth div 4);
+ labSmoothB.left := labSmoothA.left;
+ chSmoothA.left := labSmoothA.left;
+ chSmoothB.left := labSmoothA.left;
+ chSmoothA.Width := chOn.Width;
+ chSmoothB.Width := chOn.Width;
+
+ labClash.left := 16+ ( 3 * pageControl.ClientWidth div 4);
+ chClash.left := labClash.left;
+ chClash.Width := chOn.Width;
+
+ labOff.top := (pageControl.ClientHeight - (2 * labOn.top)) div 2;
+ chOff.top := labOff.top + (chOn.top - labOn.top);
+ chOff.height := pageControl.ClientHeight - chOff.top - 16 - labOn.top - labOn.height;
+ chOn.height := chOff.height;
+ chHum.height := chOff.height;
+ chSwing.height := chOff.height;
+ chSmoothA.height := chOff.height;
+ chSmoothB.height := chOff.height;
+ chClash.height := chOff.height;
+
+ labHum.top := labOn.top;
+ labSmoothA.top := labOn.top;
+ labClash.top := labOn.top;
+
+ chHum.top := chOn.top;
+ chSmoothA.top := chOn.top;
+ chClash.top := chOn.top;
+
+ labSwing.top := labOff.top;
+ labSmoothB.top := labOff.top;
+ chSwing.top := chOff.top;
+ chSmoothB.top := chOff.top;
+
+ btnUpload.left:= pageControl.ClientWidth - btnUpload.width - 16;
+ btnUpload.top := pageControl.ClientHeight - btnUpload.height - 16;
+
+ btnRefreshLists.Left:=pageControl.ClientWidth - btnRefreshLists.width - 16;
+ btnRefreshLists.top := btnUpload.top - btnRefreshLists.height - 16;
+
+ btnDeleteFiles.left := pageControl.ClientWidth - btnDeleteFiles.width - 16;
+ btnDeleteFiles.top := btnRefreshLists.top - btnDeleteFiles.height - 16;
 
  btnDisconnect.left:= GroupPort.width-btnDisconnect.width-16;
 
@@ -392,12 +496,11 @@ begin
  labSerial.left:=Memo1.left;
  labBuild.left:=Memo1.left;
 
- PageControl1.Width:=GroupBanks.Width-2*PageControl1.Left;
 
  x:=GroupBanks.width -20;
  btnSendBanks.left:= x - btnSendBanks.width;
- //btnSendBanks.top:= GroupBanks.height - btnSendBanks.height-40 - appMainMenu.Height ;
- //btnResetColours.Top:=btnSendBanks.top;
+ btnSendBanks.top:= GroupBanks.height - btnSendBanks.height-40 - appMainMenu.Height ;
+ btnResetColours.Top:=btnSendBanks.top;
 
  c2:=(x div 2)+16; // <<-- ((x-32)/2)+16 -- div is integer division
 
@@ -420,11 +523,11 @@ begin
  ColorButtonClash.Left := trackFRed.Left + trackFRed.width + 16;
  ColorButtonSwing.Left := trackSwRed.Left + trackSwRed.width + 16;
 
- btnPreview1.Left := PageControl1.Width -16 - btnPreview1.Width;
- btnPreview2.Left := PageControl1.Width -16 - btnPreview2.Width;
- btnPreview3.Left := PageControl1.Width -16 - btnPreview3.Width;
+ btnPreview1.Left := pageControl.Width -16 - btnPreview1.Width;
+ btnPreview2.Left := pageControl.Width -16 - btnPreview2.Width;
+ btnPreview3.Left := pageControl.Width -16 - btnPreview3.Width;
 
- btnSend1.Left := TabMain.Width -16 - btnSend1.Width;
+ btnSend1.Left := pageControl.Width -16 - btnSend1.Width;
  btnSend2.Left := btnSend1.Left;
  btnSend3.Left := btnSend1.Left;
 
@@ -473,13 +576,6 @@ procedure TForm1.labSerialClick(Sender: TObject);
 begin
   PopupMenu1.PopUp;
 end;
-
-procedure TForm1.ledSwRedChange(Sender: TObject);
-begin
-
-end;
-
-
 
 procedure TForm1.OpenSerial(Sender: TObject);
 var
@@ -581,7 +677,7 @@ begin
   end;
 
   GroupBanks.Enabled:=False;
-  PageControl1.Enabled:=False;
+  pageControl.Enabled:=False;
 
   labStatus.Caption:='Disconnected';
   btnDisconnect.Caption:='Connect';
@@ -605,8 +701,8 @@ begin
   btnSendBanks.Enabled:=False;
   GroupBanks.Enabled:=False;
 
-  PageControl1.Enabled:=false;
-  PageControl1.TabIndex:=0;
+  pageControl.Enabled:=false;
+  pageControl.TabIndex:=0;
   TabMain.TabVisible:=false;
   TabSwing.TabVisible:=false;
   TabClash.TabVisible:=false;
@@ -636,9 +732,9 @@ begin
       Memo1.Append('Port Open');
     finally
     end;
+    inList:=False;
 
     WriteLn('V?');
-
   end;
 
 end;
@@ -657,6 +753,61 @@ begin
    Memo1.Append(inp);
 
  getReply:=inp;
+end;
+
+procedure TForm1.ApplySoundCSV(ch: TCheckListBox; csv:String);
+var
+ sounds : Array of String;
+ k,i : Integer;
+begin
+     ch.CheckAll(TCheckBoxState.cbUnchecked);
+     sounds := csv.Split(',');
+     if length(sounds)>0 then
+     begin
+       for k:=Low(sounds) to High(sounds) do
+       begin
+         if Not(sounds[k].IsEmpty) then
+         begin
+           i:= ch.Items.IndexOf(sounds[k]);
+           //Memo1.Append('>> '+IntToStr(i)+' '+sounds[k]);
+           if (i>=0) and Not(ch.Checked[i]) then
+             ch.Checked[i]:=True
+           else
+           begin
+             if i>=0 then
+             begin
+               //item is already checked so we have it twice in the list, add it again
+               ch.AddItem(sounds[k],nil);
+               i:=ch.Items.IndexOf(sounds[k]);
+               if i>=0 then
+                 ch.Checked[i]:=True;
+             end
+             else
+             begin
+               // that file does not exists, so add it but disabled flagged
+               ch.AddItem(sounds[k]+' **',nil);
+               i:=ch.Items.IndexOf(sounds[k]);
+               if i>=0 then
+               begin
+                 ch.Checked[i]:=True;
+               end;
+
+             end;
+           end;
+         end;
+       end;
+     end;
+end;
+
+procedure TForm1.clearSoundLists();
+begin
+ chOn.Clear;
+ chOff.Clear;
+ chHum.Clear;
+ chSwing.Clear;
+ chClash.Clear;
+ chSmoothA.Clear;
+ chSmoothB.Clear;
 end;
 procedure TForm1.RxData();
 var
@@ -692,13 +843,13 @@ begin
      end
      else
      begin
-         writeLn('V?');
+         WriteLn('V?');
      end;
    end
    else if validatedPort.IsEmpty and inp.StartsWith('Serial: ') then
    begin
      labSerial.Caption:=inp;
-     writeLn('V?');
+     WriteLn('V?');
    end
    else if inp.StartsWith('V=') then
    begin
@@ -734,7 +885,7 @@ begin
      ComboBank.Enabled:=True;
      btnSendBanks.Enabled:=True;
      GroupBanks.Enabled:=True;
-     PageControl1.Enabled:=True;
+     pageControl.Enabled:=True;
 
      labBuild.Caption:='Build: '+inp;
 
@@ -755,8 +906,67 @@ begin
          Application.ProcessMessages;
      end;
 
-     WriteLn('S?');
-     WriteLn('B?');
+     PushLn('S?');
+     PushLn('B?');
+     PushLn('LIST?');
+
+   end
+   else if inp.Contains('Files on memory:') then
+   begin
+     inList:=True;
+     clearSoundLists();
+   end
+   else if inList and (inp.StartsWith('Serial Flash Chip') or inp.StartsWith('JEDEC ID:')
+           or inp.StartsWith('Memory Size:') or inp.StartsWith('Memory Free:')
+           or inp.StartsWith('Memory Used:') or inp.StartsWith('Block Size:')) then
+   begin
+     inList:=False;
+     PushLn('sON?');
+     PushLn('sOFF?');
+     PushLn('sHUM?');
+     PushLn('sSW?');
+     PushLn('sCL?');
+     PushLn('sSMA?');
+     PushLn('sSMB?');
+   end
+   else if inList and not(inp.StartsWith('config.ini')) then
+   begin
+     inp:=inp.Substring(0,inp.LastIndexOf(' ')).Trim();
+     chOn.AddItem(inp,nil);
+     chOff.AddItem(inp,nil);
+     chHum.AddItem(inp,nil);
+     chSwing.AddItem(inp,nil);
+     chClash.AddItem(inp,nil);
+     chSmoothA.AddItem(inp,nil);
+     chSmoothB.AddItem(inp,nil);
+   end
+   else if (inp.StartsWith('sON=')) then
+   begin
+     ApplySoundCSV(chOn, inp.Substring(4).Trim());
+   end
+   else if (inp.StartsWith('sOFF=')) then
+   begin
+     ApplySoundCSV(chOff, inp.Substring(5).Trim());
+   end
+   else if (inp.StartsWith('sHUM=')) then
+   begin
+     ApplySoundCSV(chHum, inp.Substring(5).Trim());
+   end
+   else if (inp.StartsWith('sSW=')) then
+   begin
+     ApplySoundCSV(chSwing, inp.Substring(4).Trim());
+   end
+   else if (inp.StartsWith('sCL=')) then
+   begin
+     ApplySoundCSV(chClash, inp.Substring(4).Trim());
+   end
+   else if (inp.StartsWith('sSMA=')) then
+   begin
+     ApplySoundCSV(chSmoothA, inp.Substring(5).Trim());
+   end
+   else if (inp.StartsWith('sSMB=')) then
+   begin
+     ApplySoundCSV(chSmoothB, inp.Substring(5).Trim());
    end
    else if (inp.StartsWith('B=')) then
    begin
@@ -816,9 +1026,25 @@ begin
 
 end;
 procedure TForm1.TimerRXTimer(Sender: TObject);
+var
+ s : String;
 begin
-  if  Assigned(WinSerial) and WinSerial.CanReadEx(1) then
-    RxData();
+  if  Assigned(WinSerial) then
+  begin
+    if WinSerial.CanReadEx(1) then
+    begin
+       TimerRx.Enabled:=False;
+       RxData();
+       TimerRx.Enabled:=True;
+     end;
+
+     if serialOutQueue.Count>0 then
+     begin
+      s:=serialOutQueue.Strings[0];
+      serialOutQueue.Delete(0);
+      writeLn(s);
+    end;
+  end;
 end;
 
 procedure TForm1.ColorButtonMainClick(Sender: TObject);
@@ -877,7 +1103,7 @@ begin
 end;
 function TForm1.getActiveBank():TRGBWColour;
 begin
- getActiveBank:=getBank(PageControl1.ActivePage);
+ getActiveBank:=getBank(pageControl.ActivePage);
 end;
 
 function TForm1.getBank(activePg: TTabSheet):TRGBWColour;
@@ -886,14 +1112,7 @@ begin
   if(miExtraDebugInfo.Checked) then
     getBank.setMemo(Memo1);
 
-  if activePg=TabMain then
-   begin
-     getBank.setRedValue(trackCRed.Position, Not miRGBW255.Checked);
-     getBank.setGreenValue(trackCGreen.Position, Not miRGBW255.Checked);
-     getBank.setBlueValue(trackCBlue.Position, Not miRGBW255.Checked);
-     getBank.setWhiteValue(trackCWhite.Position, Not miRGBW255.Checked);
-   end
-   else if activePg=TabSwing then
+  if activePg=TabSwing then
    begin
      getBank.setRedValue(trackSwRed.Position, Not miRGBW255.Checked);
      getBank.setGreenValue(trackSwGreen.Position, Not miRGBW255.Checked);
@@ -906,6 +1125,13 @@ begin
      getBank.setGreenValue(trackFGreen.Position, Not miRGBW255.Checked);
      getBank.setBlueValue(trackFBlue.Position, Not miRGBW255.Checked);
      getBank.setWhiteValue(trackFWhite.Position, Not miRGBW255.Checked);
+   end
+   else //if activePg=TabMain then
+   begin
+     getBank.setRedValue(trackCRed.Position, Not miRGBW255.Checked);
+     getBank.setGreenValue(trackCGreen.Position, Not miRGBW255.Checked);
+     getBank.setBlueValue(trackCBlue.Position, Not miRGBW255.Checked);
+     getBank.setWhiteValue(trackCWhite.Position, Not miRGBW255.Checked);
    end;
 end;
 
@@ -945,7 +1171,7 @@ begin
     ledFWhite.Caption:=IntToStr(trackFWhite.Position);
   end;
 
-  if(PageControl1.ActivePage=activePg) then
+  if(pageControl.ActivePage=activePg) then
      AutoPreview();
 end;
 
@@ -1528,15 +1754,15 @@ end;
 
 procedure TForm1.miCopyColourClick(Sender: TObject);
 begin
-  if PageControl1.ActivePage=TabMain then
+  if pageControl.ActivePage=TabMain then
   begin
     Clipboard.AsText:='colour:'+ledCRed.Caption+','+ledCGreen.Caption+','+ledCBlue.Caption+','+ledCWhite.Caption;
   end
-  else if PageControl1.ActivePage=TabSwing then
+  else if pageControl.ActivePage=TabSwing then
   begin
     Clipboard.AsText:='colour:'+ledSwRed.Caption+','+ledSwGreen.Caption+','+ledSwBlue.Caption+','+ledSwWhite.Caption;
   end
-  else if PageControl1.ActivePage=TabClash then
+  else if pageControl.ActivePage=TabClash then
   begin
     Clipboard.AsText:='colour:'+ledFRed.Caption+','+ledFGreen.Caption+','+ledFBlue.Caption+','+ledFWhite.Caption;
   end;
@@ -1560,7 +1786,7 @@ begin
  if Clipboard.AsText.StartsWith('colour:') then
  begin
    s:=MidStr(Clipboard.AsText,8,999);
-   setBank(PageControl1.ActivePage, TRGBWColour.getColour(s));
+   setBank(pageControl.ActivePage, TRGBWColour.getColour(s));
    Memo1.Append('Paste Clipboard to Bank: '+s);
  end;
 end;
@@ -1781,7 +2007,7 @@ var
  k: Integer;
 begin
   OpenDialog1.Filter:='OpenCore Settings|*.openCoreSettings';
-  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent] - [ ofAllowMultiSelect ];
 
   {$IF defined(MSWindows)}
   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
@@ -1807,7 +2033,7 @@ begin
         Application.ProcessMessages;
       end;
       saveData.Clear;
-      writeLn('B?');
+      PushLn('B?');
     end;
 
   end;
@@ -1817,7 +2043,7 @@ var
  k : Integer;
 begin
   OpenDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent]  - [ ofAllowMultiSelect ];
   //ofOldStyleDialog
 
   OpenDialog1.Title:='Select an OpenCoreBank File';
@@ -1892,9 +2118,9 @@ begin
       saveData.Clear;
       saveData.Add('#filetype=Giltoniel Saber Settings');
       WriteLn('B?');
-      WriteLn('w?');
-      WriteLn('c?');
-      WriteLn('f?');
+      PushLn('w?');
+      PushLn('c?');
+      PushLn('f?');
       //expecting 18 or 26 responses
       getlines:=18;
       if tabSwing.TabVisible then
@@ -1910,6 +2136,13 @@ begin
 
         abort:=abort+1;
         Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
+
+        if serialOutQueue.Count>0 then
+        begin
+          inp:=serialOutQueue.Strings[0];
+          serialOutQueue.Delete(0);
+          writeLn(inp);
+        end;
       end;
       if (abort>=4096) then
       begin
@@ -1935,13 +2168,13 @@ var
  fname:String;
 begin
    SaveDialog1.Filter:='OpenCore Bank|*.openCoreBank';
-   SaveDialog1.Options:=SaveDialog1.Options + [ofEnableSizing, ofDontAddToRecent];
+   SaveDialog1.Options:=SaveDialog1.Options + [ofEnableSizing, ofDontAddToRecent] ;
    SaveDialog1.Title:='Select an OpenCoreBank File';
    {$IF defined(MSWindows)}
    //Memo1.Append(GetWindowsSpecialDir(CSIDL_PERSONAL));
-   OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL); //CSIDL_COMMON_DOCUMENTS);
+   SaveDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL); //CSIDL_COMMON_DOCUMENTS);
    {$elseif defined(DARWIN)}
-   OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+   SaveDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
    {$ENDIF}
    SaveDialog1.FileName:='unnamed.openCoreBank';
 
@@ -1966,9 +2199,9 @@ begin
 
    end;
 end;
-procedure TForm1.PageControl1Change(Sender: TObject);
+procedure TForm1.pageControlChange(Sender: TObject);
 begin
-  AutoPreview();//getBank(PageControl1.ActivePage));
+  AutoPreview();//getBank(pageControl.ActivePage));
 end;
 procedure TForm1.ComboBankSelect(Sender: TObject);
 var
@@ -1987,12 +2220,13 @@ begin
   begin
     bank:=IntToStr(ComboBank.ItemIndex);
 
-    WriteLn('c'+bank+'?');
-    WriteLn('f'+bank+'?');
-    WriteLn('w'+bank+'?');
-    WriteLn('B='+bank);
-    //RxData();
-    PageControl1.ActivePage:=TabMain;
+    PushLn('c'+bank+'?');
+    PushLn('f'+bank+'?');
+    PushLn('w'+bank+'?');
+    PushLn('B='+bank);
+
+    pageControl.ActivePage:=TabMain;
+    previewLive:=True;
     AutoPreview();
   end;
 end;
@@ -2018,12 +2252,262 @@ begin
     end;
 
     //request values back to confirm
-    WriteLn('c'+bank+'?');
-    WriteLn('f'+bank+'?');
-    WriteLn('w'+bank+'?');
+    PushLn('c'+bank+'?');
+    PushLn('f'+bank+'?');
+    PushLn('w'+bank+'?');
 
   end;
 end;
+
+procedure TForm1.sendFile(fname : String);
+var
+  fullname, inp : String;
+  datFile : File of Byte;
+  rByte : Byte;
+  freespace, fsize, ctr,lastctr, diff : LongInt;
+  tStart : TDateTime;
+  sTime, ss : String;
+  rx : boolean;
+  Buf : Array[1..2048] of byte;
+  NumRead,NumWritten : Word;
+begin
+  Memo1.append('');
+  fullname:='';
+  if FileExists(fname) then
+  begin
+    fullname:=fname
+  end;
+
+  if fullname.IsEmpty then
+  begin
+    Memo1.append('File '+fname+' not found.');
+    exit;
+  end;
+
+  rx:=TimerRX.Enabled;
+  TimerRX.Enabled:=False;
+
+  serialOutQueue.Clear;
+  WriteLn('WR?');
+  inp:=  winSerial.RecvTerminated(500,#10);
+  if (inp='OK, Write Ready') then
+  begin
+      Memo1.append(inp);
+      Memo1.append('Saber Ready to Write to Serial Flash');
+      Memo1.append('');
+
+      AssignFile(datFile, fullname);
+      Reset(datFile);
+      freespace:=-1;
+      fsize:=FileSize(datFile);
+      NumRead:=0;
+
+      WriteLn('FREE?');
+      inp:= winSerial.RecvTerminated(500,#10);
+      if inp.StartsWith('FREE=') then
+      begin
+        freespace:=StrToInt(inp.Substring(5));
+
+        if freespace<fsize then
+        begin
+          Memo1.append('Space on Saber: '+IntToStr(freespace));
+          Memo1.append('Filesize: '+IntToStr(fsize));
+          Memo1.append('');
+          Memo1.append('ERROR.');
+          Memo1.append('Insufficient Space on saber, ERASE-ALL and re-upload all files.');
+          Memo1.append('');
+
+          TimerRX.Enabled:=rx;
+          exit;
+        end;
+
+      end;
+
+      Memo1.append('Sending: '+fullname+' to saber');
+      Memo1.append('as Serial Flash Name: '+ExtractFileName(fullname));
+      if freespace>0 then
+         Memo1.append('Space on Saber: '+IntToStr(freespace));
+      Memo1.append('Filesize: '+IntToStr(fsize));
+
+      tStart := Time;
+      ctr:=fsize;
+      lastctr:=ctr;
+      WriteLn('WR='+ExtractFileName(fullname)+','+IntToStr(FileSize(datFile))+#10);
+      inp:= winSerial.RecvTerminated(2500,#10);
+      writeLn(inp);
+      if inp.StartsWith('OK, Write ') then
+      begin
+        While not eof(datfile) do
+        begin
+            read(datFile, rByte);
+            winSerial.SendByte(rByte);
+            dec(ctr);
+          {
+            //@TODO: read buffers worth at a time
+            //read(datFile, rByte);
+            BlockRead (datFile,buf,Sizeof(buf),NumRead);
+            //BlockWrite (Fout,Buf,NumRead,NumWritten);
+            winSerial.SendBuffer(@Buf,NumRead);
+            dec(ctr,NumRead);
+          }
+          // we update the count and est time only every few hundred bytes
+          if (lastctr - ctr)>4096 then
+          begin
+           ss:='Remaining, Bytes: '+IntToStr(ctr)+', ';
+
+           diff:=DateUtils.MilliSecondsBetween(Time, tStart);
+           diff:= (ctr * diff) div (1000 * (fsize-ctr));
+           sTime:=IntToStr(diff div 360)+':';
+           diff:= diff - 360 * (diff div 360);
+           if diff<600 then
+             sTime:=sTime+'0';
+           sTime:=sTime+IntToStr(diff div 60)+':';
+           diff:= diff - 60 * (diff div 60);
+           if diff<10 then
+             sTime:=sTime+'0';
+           sTime:=sTime+IntToStr(diff);
+
+           ss:=ss+'Time '+sTime+'  ';
+           Memo1.Lines.Strings[Memo1.Lines.Count-1]:=ss;
+
+           lastctr:=ctr;
+          end;
+
+        end;
+      end;
+
+    end
+  else
+  begin
+    Memo1.append('Saber Not Ready to Write File, aborting.');
+  end;
+
+  //restore comms interrupt
+  TimerRX.Enabled:=rx;
+end;
+
+
+
+procedure TForm1.btnUploadClick(Sender: TObject);
+var
+ i: Integer;
+begin
+  //Get a list of files
+  OpenDialog1.FileName:='';
+
+  OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware';
+  OpenDialog1.Title:='Select one or more RAW sound files';
+  OpenDialog1.Filter:='Any file|*.*';
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent, ofAllowMultiSelect ];
+  if lastUploadPath.IsEmpty then
+  begin
+
+    {$IF defined(MSWindows)}
+    OpenDialog1.InitialDir:=GetWindowsSpecialDir(CSIDL_PERSONAL);
+    {$elseif defined(DARWIN)}
+    OpenDialog1.InitialDir:=AppendPathDelim(GetUserDir + 'Documents');
+    {$ENDIF}
+  end
+  else
+   OpenDialog1.InitialDir:=lastUploadPath;
+
+  OpenDialog1.FileName:='';
+
+  // then - one at a time upload them
+  if not OpenDialog1.Execute then
+    ShowMessage('File upload cancelled')
+  else
+  begin
+   // force the debug windows on
+    if Not(miDebug.Checked) then
+    begin
+      miDebug.Checked:= True;
+
+      Memo1.Visible:=miDebug.Checked;
+      miSendCommand.Visible:=miDebug.Checked;
+      miExtraDebugInfo.Visible:=miDebug.Checked;
+      miClearLog.Visible:=miDebug.Checked;
+
+      Memo1.SelStart := Length(Memo1.Lines.Text);
+    end;
+
+    serialOutQueue.Clear;
+    TimerRX.Enabled:=False;
+
+    // Display the selected file names
+    for i := 0 to OpenDialog1.Files.Count-1 do
+    begin
+      if i>0 then
+        delay(1500);
+      sendFile(OpenDialog1.Files[i]);
+    end;
+
+
+    lastUploadPath:=OpenDialog1.GetNamePath();
+    TimerRX.Enabled:=True;
+    PushLn('LIST?');
+  end;
+end;
+
+procedure TForm1.chClashClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sCL', chClash);
+end;
+
+procedure TForm1.chHumClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sHUM', chHum);
+end;
+
+procedure TForm1.chOffClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sOFF', chOff);
+end;
+
+procedure TForm1.sendSoundCSV(prefix:String; ch: TCheckListBox);
+var
+ csv : String;
+ i : Integer;
+begin
+   csv:='';
+   for i := 0 to ch.Count -1 do
+   begin
+     if ch.Items[i].EndsWith(' **') then
+       ch.Checked[i]:=False
+     else
+      if ch.Checked[i] then
+      begin
+        if Not(csv.IsEmpty) then
+          csv:=csv+',';
+
+        csv:=csv+ch.Items[i];
+      end;
+   end;
+
+   WriteLn(prefix+'='+csv);
+   PushLn(prefix+'?');
+end;
+
+procedure TForm1.chOnClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sON', chOn);
+end;
+
+procedure TForm1.chSmoothAClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sSMA', chSmoothA);
+end;
+
+procedure TForm1.chSmoothBClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sSMB', chSmoothB);
+end;
+
+procedure TForm1.chSwingClickCheck(Sender: TObject);
+begin
+  sendSoundCSV('sSW', chSwing);
+end;
+
 procedure TForm1.btnFirmwareClick(Sender: TObject);
 begin
  doFirmware(Sender);
@@ -2035,10 +2519,11 @@ begin
 
  Memo1.Append(ExtractFilePath(Application.ExeName)+'firmware');
   OpenDialog1.FileName:='';
+
   OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName)+'firmware';
   OpenDialog1.Title:='Select an OpenCore Firmware HEX File';
   OpenDialog1.Filter:='Firmware HEX File|*.hex';
-  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent];
+  OpenDialog1.Options:=OpenDialog1.Options + [ofFileMustExist, ofEnableSizing, ofDontAddToRecent]  - [ ofAllowMultiSelect ];
 
   if OpenDialog1.Execute then
     if (MessageDlg('Update',
@@ -2061,9 +2546,9 @@ begin
     if Assigned(winSerial) then
     begin
       WriteLn('B?');
-      WriteLn('W?');
-      WriteLn('C?');
-      WriteLn('F?');
+      PushLn('W?');
+      PushLn('C?');
+      PushLn('F?');
       getlines:=17;
       if tabSwing.TabVisible then
          getlines:=25;
@@ -2077,6 +2562,13 @@ begin
           saveData.Append(inp);
         abort:=abort+1;
         Memo1.Append('#'+IntToStr(saveData.Count)+'/'+IntToStr(getlines)+' : '+IntToStr(abort));
+
+        if serialOutQueue.Count>0 then
+        begin
+          inp:=serialOutQueue.Strings[0];
+          serialOutQueue.Delete(0);
+          writeLn(inp);
+        end;
       end;
       if (abort>=4096) then
       begin
@@ -2129,11 +2621,14 @@ end;
 
 procedure TForm1.Preview(c: TRGBWColour; log: Boolean);
 begin
- Memo1.append('preview '+IntToStr(c.red)+','+IntToStr(c.green)+','+IntToStr(c.blue)+','+IntToStr(c.white));
- if miRGBW255.Checked then
-    WriteLn('P='+c.toCSV(), log)
- else
-   WriteLn('P='+c.correctToSaber().toCSV(), log);
+ if (serialOutQueue.Count=0) and previewLive then
+ begin
+   Memo1.append('preview '+IntToStr(c.red)+','+IntToStr(c.green)+','+IntToStr(c.blue)+','+IntToStr(c.white));
+   if miRGBW255.Checked then
+     WriteLn('P='+c.toCSV(), log)
+   else
+     WriteLn('P='+c.correctToSaber().toCSV(), log);
+ end;
 end;
 
 procedure TForm1.btnPreview1Click(Sender: TObject);
@@ -2149,6 +2644,10 @@ begin
   Preview(getBank(TabSwing), true);
 end;
 
+procedure TForm1.btnRefreshListsClick(Sender: TObject);
+begin
+  PushLn('LIST?');
+end;
 procedure TForm1.btnDisconnectClick(Sender: TObject);
 begin
    if (btnDisconnect.Caption='Connect') then
@@ -2164,11 +2663,52 @@ begin
      //validatedPort:='';
      labStatus.Caption:='Disconnected';
      GroupBanks.Enabled:=False;
-     PageControl1.Enabled:=false;
+     pageControl.Enabled:=false;
 
      btnDisconnect.Caption:='Connect';
    end;
 end;
+
+procedure TForm1.btnDeleteFilesClick(Sender: TObject);
+begin
+
+  if (MessageDlg('DELETE',
+                 'Do you wish to Delete ALL the files on the saber?'+#010+#010
+                 +'This will take a few minutes and cannot be undone.',
+                 mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+  begin
+    // force the debug windows on
+    if Not(miDebug.Checked) then
+    begin
+      miDebug.Checked:= True;
+
+      Memo1.Visible:=miDebug.Checked;
+      miSendCommand.Visible:=miDebug.Checked;
+      miExtraDebugInfo.Visible:=miDebug.Checked;
+      miClearLog.Visible:=miDebug.Checked;
+
+      Memo1.SelStart := Length(Memo1.Lines.Text);
+    end;
+
+    clearSoundLists();
+
+    FormResize(Sender);
+
+    if (MessageDlg('SERIOUSLY',
+                 'This will Delete ALL the files on the saber?'+#010+#010
+                 +'You will have to re-upload every Sound File.'+#010+#010
+                 +'Delete them all?',
+                 mtConfirmation, [mbYes, mbNo],0) = mrYes ) then
+    begin
+      WriteLn('ERASE=ALL')
+    end
+    else
+    begin
+      PushLn('LIST?');
+    end;
+  end;
+end;
+
 procedure TForm1.btnResetColoursClick(Sender: TObject);
 begin
   if (MessageDlg('Reset',
@@ -2194,8 +2734,7 @@ begin
       WriteLn('c'+bank+'='+getBank(TabMain).correctToSaber().toCSV());
 
     //request values back to confirm
-    WriteLn('c'+bank+'?');
-    //RxData();
+    PushLn('c'+bank+'?');
 
   end;
 end;
@@ -2211,8 +2750,7 @@ begin
     else
       WriteLn('f'+bank+'='+getBank(TabClash).correctToSaber().toCSV());
     //request values back to confirm
-    WriteLn('f'+bank+'?');
-    //RxData();
+    PushLn('f'+bank+'?');
 
   end;
 end;
@@ -2229,8 +2767,7 @@ begin
       WriteLn('w'+bank+'='+getBank(TabSwing).correctToSaber().toCSV());
 
     //request values back to confirm
-    WriteLn('w'+bank+'?');
-    //RxData();
+    PushLn('w'+bank+'?');
 
   end;
 end;
@@ -2247,6 +2784,15 @@ begin
   if Assigned(winSerial) and winSerial.CanWrite(10) then
   begin
     winSerial.SendString(msg+#10);
+  end;
+end;
+
+procedure TForm1.PushLn(msg: String);
+begin
+  if Assigned(winSerial) then
+  begin
+    serialOutQueue.Add(msg);
+    TimerRX.Enabled:=True;
   end;
 end;
 
