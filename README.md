@@ -14,8 +14,7 @@ enabled/visible.
 Use the Windows installer which will install the correct 64/32 bit 
 application on your system, along with the firmware folder and tools.
 
-* Binary files available at http://sabers.amazer.uk (see right hand 
-  download panel) -- Not available until after OpenCore has been released
+* Binary files available at http://sabers.amazer.uk and on releases
 
 The installer (and application) has been tested on Windows 10 (32 and 
 64-bit) and Windows 7 (32 and 64-bit).
@@ -25,7 +24,7 @@ itself does if you want to downlod the 32-bit binary from here and save
 it to a folder manually.
 
 ### Mac OS
-Compiling for MAC OS now works with basic saber management features, update
+Compiling for MAC OS now works with saber management features, update
 and firmware features are under development to bring the app level in features
 with the Windows version.
 
