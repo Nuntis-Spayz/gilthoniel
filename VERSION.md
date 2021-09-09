@@ -4,8 +4,10 @@
 * Windows & MAC-OS
 * Save and load all saber settings to a file
 * Save and load settings for a single bank
+* Sound List Management
 * Update Firmware (Win only)
 * Manage Main, Swing and Clash colours for all eight banks
+* Colour settings 0-100%, or 0-255
 * With GUI colour picker (RGB to RGBW color correction does not take 
   into account each LED colour have different brightnesses)
 * Preview each colour on saber
@@ -14,6 +16,12 @@
 * Selects saber serial port automatically
 * Application update over the Internet
 * Help files
+
+### v.1.03.00.01
+* Sound List Management (firmware v2.0.2+)
+* Colour values 0-100% with colour correction for hardware resistor values
+* Advanced modes to change back to 0-255 settings without colour correction
+* Preview any Colour mix on Saber. (Win/MAC OS)
 
 ### v.1.00.00.04
 * Mac-OS Check for App Updates & Download
